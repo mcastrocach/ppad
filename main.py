@@ -3,6 +3,10 @@ from datetime import datetime
 import pandas as pd
 import mplfinance as fplt
 import matplotlib.pyplot as plt
+import streamlit as st
+
+st.title('Kraken API')
+st.write('Test plot')
 
 # Inicializa el cliente de Kraken
 k = krakenex.API()
@@ -47,13 +51,14 @@ if not response['error']:
 
     # stochastic = fplt.make_addplot(ohlc_df[["Smooothed"]])
     stochastic = fplt.make_addplot(ohlc_df[["Stochastic"]])
-    fplt.plot(
+    fig, ax = fplt.plot(
             ohlc_df,
             type='candle',
             addplot = stochastic,
             title='Title',
             ylabel='Price ($)'
         )        
+    st.pyplot(fig)
 
     """
     Las variables son: 
