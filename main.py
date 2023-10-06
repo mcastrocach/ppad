@@ -58,7 +58,7 @@ c1 = st.selectbox(
 
 #button to generate graph
 if st.button('Plot it!'):
-    fig = generate_graph()
+    fig = generate_graph(plot= c1)
     st.pyplot(fig)
 
 
