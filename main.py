@@ -1,7 +1,8 @@
 import krakenex
 from datetime import datetime
-import streamlit as st
+import numpy as np
 import pandas as pd
+import streamlit as st
 st.title('Kraken API')
 st.write('This is a simple example of using the Kraken API with streamlit')
 # Initialize the Kraken API client
