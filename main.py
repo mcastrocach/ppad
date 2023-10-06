@@ -56,7 +56,7 @@ if not response['error']:
             type='candle',
             addplot = stochastic,
             title='Title',
-            ylabel='Price ($)'
+            ylabel='Price ($)',
             returnfig=True
         )
     st.pyplot(fig)
