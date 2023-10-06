@@ -6,7 +6,28 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 st.title('Kraken API')
-st.write('Test plot')
+st.write('Please select a currency pair')
+
+#dropdown to select currency pair
+c1 = st.selectbox(
+   "Please select currency one",
+   ("BTC", "USD", "EUR"),
+   index=None,
+   placeholder="Select currency 1...",
+)
+c2 = st.selectbox(
+   "Please select currency one",
+   ("BTC", "USD", "EUR"),
+   index=None,
+   placeholder="Select currency 1...",
+)
+#check if they are the same
+if c1 == c2:
+    st.write('Please select different currencies')
+#button that prints the currency pair
+else:
+    if st.button('Submit'):
+        st.write('You selected:', c1, c2)
 
 # Inicializa el cliente de Kraken
 k = krakenex.API()
@@ -76,7 +97,4 @@ if not response['error']:
 
 else:
     print(response['error'])
-
-
-
 # Fórmula del oscilador estocástico, %K = (U - Mi) / (Max - Mi) x 100  (U - cierre, Mi - mínimo, Max - máximo)
