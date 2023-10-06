@@ -12,7 +12,7 @@ st.write('Test plot')
 k = krakenex.API()
 
 # Obtiene los datos OHLC
-response = k.query_public('OHLC', {'pair': 'XETHZUSD', 'interval': 1440})  
+response = k.query_public('OHLC', {'pair': 'XETHZUSD', 'interval': 1440})
 #weekly = k.query_public('OHLC', {'pair': 'XETHZUSD', 'interval': 20160})  
 # print(weekly['result'])
 
@@ -22,7 +22,7 @@ if not response['error']:
     ohlc_df["timestamp"] = list(map(datetime.utcfromtimestamp, ohlc_df["timestamp"]))
     ohlc_df = ohlc_df.drop('NaN',axis=1)
     ohlc_df = ohlc_df.drop('MaM',axis=1)
-    
+
     ohlc_df.index = pd.DatetimeIndex(ohlc_df["timestamp"])
     ohlc_df["Open"] = ohlc_df["Open"].astype(float)
     ohlc_df["High"] = ohlc_df["High"].astype(float)
@@ -37,7 +37,7 @@ if not response['error']:
     # weekly_df["timestamp"] = list(map(datetime.utcfromtimestamp, weekly_df["timestamp"]))
     # weekly_df = weekly_df.drop('NaN',axis=1)
     # weekly_df = weekly_df.drop('MaM',axis=1)
-    
+
     # weekly_df.index = pd.DatetimeIndex(weekly_df["timestamp"])
     # weekly_df["Open"] = weekly_df["Open"].astype(float)
     # weekly_df["High"] = weekly_df["High"].astype(float)
@@ -57,13 +57,14 @@ if not response['error']:
             addplot = stochastic,
             title='Title',
             ylabel='Price ($)'
-        )        
+            returnfig=True
+        )
     st.pyplot(fig)
 
     """
-    Las variables son: 
-        timestamp = data[0]      
-        date_time = datetime.utcfromtimestamp(timestamp)           
+    Las variables son:
+        timestamp = data[0]
+        date_time = datetime.utcfromtimestamp(timestamp)
         date = date_time.strftime('%Y-%m-%d')
         time = date_time.strftime('%H:%M:%S')
         open_price = data[1]
