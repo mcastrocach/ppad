@@ -1,40 +1,76 @@
 import krakenex
 from datetime import datetime
-import numpy as np
 import pandas as pd
-import streamlit as st
-st.title('Kraken API')
-st.write('This is a simple example of using the Kraken API with streamlit')
-age = st.slider('How old are you?', 0, 130, 25)
-if(age < 18):
-    st.write('You are too young to use this app')
+import mplfinance as fplt
+import matplotlib.pyplot as plt
 
-# Initialize the Kraken API client
-kraken = krakenex.API()
+# Inicializa el cliente de Kraken
+k = krakenex.API()
 
-# Fetch ticker information for ETH/USD
-response_ticker = kraken.query_public('Ticker', {'pair': 'XETHZUSD'})
+# Obtiene los datos OHLC
+response = k.query_public('OHLC', {'pair': 'XETHZUSD', 'interval': 1440})  
+#weekly = k.query_public('OHLC', {'pair': 'XETHZUSD', 'interval': 20160})  
+# print(weekly['result'])
 
-# Check for errors in the ticker response
-if response_ticker['error']:
-    print("Error:", response_ticker['error'])
+if not response['error']:
+    ohlc_data = response['result']['XETHZUSD']
+    ohlc_df = pd.DataFrame(ohlc_data,columns=["timestamp","Open","High","Low","Close","NaN","Volume","MaM"])
+    ohlc_df["timestamp"] = list(map(datetime.utcfromtimestamp, ohlc_df["timestamp"]))
+    ohlc_df = ohlc_df.drop('NaN',axis=1)
+    ohlc_df = ohlc_df.drop('MaM',axis=1)
+    
+    ohlc_df.index = pd.DatetimeIndex(ohlc_df["timestamp"])
+    ohlc_df["Open"] = ohlc_df["Open"].astype(float)
+    ohlc_df["High"] = ohlc_df["High"].astype(float)
+    ohlc_df["Low"] = ohlc_df["Low"].astype(float)
+    ohlc_df["Close"] = ohlc_df["Close"].astype(float)
+    ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
+
+    ohlc_df = ohlc_df[-60:]
+
+    # weekly_data = weekly['result']['XETHZUSD']
+    # weekly_df = pd.DataFrame(weekly_data,columns=["timestamp","Open","High","Low","Close","NaN","Volume","MaM"])
+    # weekly_df["timestamp"] = list(map(datetime.utcfromtimestamp, weekly_df["timestamp"]))
+    # weekly_df = weekly_df.drop('NaN',axis=1)
+    # weekly_df = weekly_df.drop('MaM',axis=1)
+    
+    # weekly_df.index = pd.DatetimeIndex(weekly_df["timestamp"])
+    # weekly_df["Open"] = weekly_df["Open"].astype(float)
+    # weekly_df["High"] = weekly_df["High"].astype(float)
+    # weekly_df["Low"] = weekly_df["Low"].astype(float)
+    # weekly_df["Close"] = weekly_df["Close"].astype(float)
+    # weekly_df["Volume"] = weekly_df["Volume"].astype(float)
+
+    ohlc_df["Stochastic"] = (ohlc_df["Close"]-ohlc_df["Low"])/(ohlc_df["High"]-ohlc_df["Low"])*100
+    #ohlc_df["Smoothed"] = ohlc_df["Stochastic"].rolling(window=3, center=True).mean()
+    #ohlc_df["Smooothed"] = ohlc_df["Stochastic"].rolling(window=3, center=True).mean()
+
+    # stochastic = fplt.make_addplot(ohlc_df[["Smooothed"]])
+    stochastic = fplt.make_addplot(ohlc_df[["Stochastic"]])
+    fplt.plot(
+            ohlc_df,
+            type='candle',
+            addplot = stochastic,
+            title='Title',
+            ylabel='Price ($)'
+        )        
+
+    """
+    Las variables son: 
+        timestamp = data[0]      
+        date_time = datetime.utcfromtimestamp(timestamp)           
+        date = date_time.strftime('%Y-%m-%d')
+        time = date_time.strftime('%H:%M:%S')
+        open_price = data[1]
+        high = data[2]
+        low = data[3]
+        close = data[4]
+        volume = data[6]
+    """
+
 else:
-    eth_usd_data = response_ticker['result']['XETHZUSD']
-    last_trade_price = eth_usd_data['c'][0]
-    print(f"Last Trade Price for ETH/USD: ${last_trade_price}")
+    print(response['error'])
 
-# Fetch the last 100 trades for ETH/USD
-response_trades = kraken.query_public('Trades', {'pair': 'XETHZUSD'})
 
-# Check for errors in the trades response
-if response_trades['error']:
-    print("Error:", response_trades['error'])
-else:
-    trades_data = response_trades['result']['XETHZUSD'][:1000]  # Get the last 100 trades
-    for trade in trades_data:
-        price, volume, time, buy_sell, market_limit, empty, misc = trade
-        trade_time = datetime.utcfromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"Price: ${price}, Volume: {volume}, Time: {trade_time},  Type: {'Buy' if buy_sell == 'b' else 'Sell'}, Market Limit: {market_limit}, Misc: {misc}")
 
-def candlestick_diagram(interval, volumes, times, buy_sells, market_limits, miscs):
-    pass       
+# Fórmula del oscilador estocástico, %K = (U - Mi) / (Max - Mi) x 100  (U - cierre, Mi - mínimo, Max - máximo)
