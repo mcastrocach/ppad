@@ -5,6 +5,10 @@ import pandas as pd
 import streamlit as st
 st.title('Kraken API')
 st.write('This is a simple example of using the Kraken API with streamlit')
+age = st.slider('How old are you?', 0, 130, 25)
+if(age < 18):
+    st.write('You are too young to use this app')
+
 # Initialize the Kraken API client
 kraken = krakenex.API()
 
