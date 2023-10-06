@@ -16,10 +16,10 @@ c1 = st.selectbox(
    placeholder="Select currency 1...",
 )
 c2 = st.selectbox(
-   "Please select currency one",
+   "Please select currency two",
    ("BTC", "USD", "EUR"),
    index=None,
-   placeholder="Select currency 1...",
+   placeholder="Select currency 2...",
 )
 #check if they are the same
 if c1 == c2:
