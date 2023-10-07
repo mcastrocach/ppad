@@ -5,7 +5,7 @@ import mplfinance as fplt
 import matplotlib.pyplot as plt
 import streamlit as st
 
-from graphs import Stochastic
+from Stochastic import generate_graph
 
 st.title('Kraken API')
 st.write('Please select a currency pair')
