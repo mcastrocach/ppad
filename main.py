@@ -3,11 +3,6 @@ from datetime import datetime
 import pandas as pd
 import streamlit as st
 
-import streamlit.components.v1 as components
-import mpld3
-import mplfinance as fplt
-import matplotlib.pyplot as plt
-
 import plotly.figure_factory as ff
 
 from graphs.Stochastic import generate_graph
