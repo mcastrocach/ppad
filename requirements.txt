@@ -1,5 +1,4 @@
 pandas
 numpy
 krakenex
-matplotlib
-mplfinance
+plotly

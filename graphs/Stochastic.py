@@ -1,20 +1,22 @@
 import krakenex
-import mplfinance as fplt
-import matplotlib.pyplot as plt
+from datetime import datetime
+from plotly.offline import plot
+import plotly.graph_objs as go
+import pandas as pd
 
 def generate_graph(pair='XETHZUSD', interval=1440):
     try:
-        # Inicializa el cliente de Kraken
+        # Initialize the Kraken client
         k = krakenex.API()
-        # Obtiene los datos OHLC
+        # Get the OHLC data
         response = k.query_public('OHLC', {'pair': pair, 'interval': interval})
 
         if response['error']:
             throw(response['error'])
 
         ohlc_data = response['result'][pair]
-        ohlc_df = pd.DataFrame(ohlc_data,columns=["timestamp","Open","High","Low","Close","NaN","Volume","MaM"])
-        ohlc_df["timestamp"] = list(map(datetime.utcfromtimestamp, ohlc_df["timestamp"]))
+        ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"])
+        ohlc_df["timestamp"] = list(map(datetime.utcfromtimestamp, ohlc_df["timestamp"].astype(int)))
         ohlc_df = ohlc_df.drop('NaN',axis=1)
         ohlc_df = ohlc_df.drop('MaM',axis=1)
 
@@ -26,18 +28,15 @@ def generate_graph(pair='XETHZUSD', interval=1440):
         ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
 
         ohlc_df = ohlc_df[-60:]
-        ohlc_df["Stochastic"] = (ohlc_df["Close"]-ohlc_df["Low"])/(ohlc_df["High"]-ohlc_df["Low"])*100
 
-        stochastic = fplt.make_addplot(ohlc_df[["Stochastic"]])
-        fig, ax = fplt.plot(
-                ohlc_df,
-                type='candle',
-                addplot = stochastic,
-                title='Title',
-                ylabel='Price ($)',
-                returnfig=True
-            )
+        data = [go.Candlestick(x=ohlc_df.index,
+                               open=ohlc_df['Open'],
+                               high=ohlc_df['High'],
+                               low=ohlc_df['Low'],
+                               close=ohlc_df['Close'])]
+        fig = go.Figure(data=data)
         return fig
 
-    except Exception:
-        st.write('Error: ', Exception)
+    except Exception as e:
+        print(e)
+        print("Error while generating graph")

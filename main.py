@@ -1,9 +1,14 @@
 import krakenex
 from datetime import datetime
 import pandas as pd
+import streamlit as st
+
+import streamlit.components.v1 as components
+import mpld3
 import mplfinance as fplt
 import matplotlib.pyplot as plt
-import streamlit as st
+
+import plotly.figure_factory as ff
 
 from graphs.Stochastic import generate_graph
 
@@ -29,7 +34,8 @@ c2 = st.selectbox(
 #button to generate graph
 if st.button('Plot it!'):
     fig = generate_graph(pair=c1, interval=c2)
-    st.pyplot(fig)
+    fig_dict = fig.to_dict()
+    st.plotly_chart(fig_dict)
 
 
 # Las variables son:
