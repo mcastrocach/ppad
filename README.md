@@ -1,1 +1,1 @@
-Proyecto asignatura python para análisis de datos.
+Proyecto de Python para Análisis de Datos
