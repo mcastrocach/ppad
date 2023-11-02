@@ -2,3 +2,4 @@ pandas
 numpy
 krakenex
 plotly
+streamlit-option-menu
