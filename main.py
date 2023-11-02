@@ -13,4 +13,4 @@ if __name__ == "__main__":
 #     low = data[3]
 #     close = data[4]
 #     volume = data[6]
-# Fórmula del oscilador estocástico, %K = (U - Mi) / (Max - Mi) x 100  (U - cierre, Mi - mínimo, Max - máximo)
+# Fórmula del oscilador estocástico: %K = (U - Mi) / (Max - Mi) x 100, donde U es cierre, Mi es mínimo y Max es máximo
