@@ -5,6 +5,17 @@ from graphs.MobileMeanStochastic import MobileMeanStochastic
 from streamlit_option_menu import option_menu
 import plotly.graph_objects as go
 
+import requests
+
+def get_kraken_pairs():
+    url = 'https://api.kraken.com/0/public/AssetPairs'
+    response = requests.get(url)
+    response_json = response.json()
+    pairs = response_json['result'].keys()
+    return tuple(pairs)
+
+kraken_pairs = get_kraken_pairs()
+
 class Front:
     def __init__(self):
         st.title("Kraken graphs")
@@ -22,7 +33,7 @@ class Front:
         #TODO curate input options to only include valid currency pairs
         self.c1 = st.selectbox(
            "Please select currency pair",
-           ("XETHZUSD", "XXBTZUSD", "XLTCZUSD", "XETHXXBT", "XLTCXXBT", "XLTCZUSD", "XETHZUSD", "XXBTZUSD", "XXMRZUSD", "XXMRXXBT", "XXMRZEUR", "XXMRXBT", "XXMRXXBT", "XXMRZEUR", "XXMRZUSD", "XXRPZUSD", "XXRPXXBT", "XXRPZUSD", "XXRPXXBT", "XXRPZEUR", "XXRPZUSD", "XZECZUSD", "XZECXXBT", "XZECZEUR", "XZECZUSD", "XZECXXBT", "XZECZEUR", "XZECZUSD", "XETCZUSD", "XETCXXBT", "XETCZEUR", "XETCZUSD", "XETCXXBT", "XETCZEUR", "XETCZUSD", "XETHZUSD", "XETHXXBT", "XETHZEUR", "XETHZUSD", "XETHXXBT", "XETHZEUR", "XETHZUSD", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD", "XLTCZUSD", "XLTCXXBT", "XLTCZEUR", "XLTCZUSD", "XLTCXXBT", "XLTCZEUR", "XLTCZUSD", "XETHZUSD", "XETHXXBT", "XETHZEUR", "XETHZUSD", "XETHXXBT", "XETHZEUR", "XETHZUSD", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD", "XXBTZEUR", "XXBTZUSD"),
+           kraken_pairs,
            index=None,
            placeholder="Select currency pair...",
         )
