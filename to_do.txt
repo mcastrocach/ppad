@@ -1,0 +1,5 @@
+[ ] poner un try-except para cuando no hay selección de ningún par de divisas (¿.py para excepciones?)
+[ ] combinar las gráficas en una sola (merge them)
+[ ] poner comentarios y traducir los que ya están a español
+
+[ ] una vez estén todos los archivos más o menos organizados, exponer en el readme lo que hace cada uno
