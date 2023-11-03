@@ -2,5 +2,8 @@
 [ ] combinar las gráficas en una sola (merge them)
 [ ] poner comentarios y traducir los que ya están a español
 [!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
+[ ] Testeo y cobertura (unit-testing, integration-testing)
+[ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
+[ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
 
 [ ] una vez estén todos los archivos más o menos organizados, exponer en el readme lo que hace cada uno
