@@ -3,6 +3,7 @@ from front import *
 if __name__ == "__main__":
     front = Front()
     front.run()
+    
 # Las variables son:
 #     timestamp = data[0]
 #     date_time = datetime.utcfromtimestamp(timestamp)
@@ -13,4 +14,5 @@ if __name__ == "__main__":
 #     low = data[3]
 #     close = data[4]
 #     volume = data[6]
+
 # Fórmula del oscilador estocástico: %K = (U - Mi) / (Max - Mi) x 100, donde U es cierre, Mi es mínimo y Max es máximo
