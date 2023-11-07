@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 
 import requests
 
+# Function to obtain all available currency pairs from the kraken API
 def get_kraken_pairs():
     url = 'https://api.kraken.com/0/public/AssetPairs'
     response = requests.get(url)
