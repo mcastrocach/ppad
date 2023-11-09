@@ -1,6 +1,6 @@
 [ ] poner un try-except para cuando no hay selección de ningún par de divisas (¿.py para excepciones?)
 [ ] combinar las gráficas en una sola (merge them)
-[ ] poner comentarios 
+[ ] poner comentarios y limpiar código para quitar partes innecesarias
 [!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
 [ ] Testeo y cobertura (unit-testing, integration-testing)
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
