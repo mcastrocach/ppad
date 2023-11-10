@@ -5,7 +5,7 @@ from graphs.MobileMeanStochastic import MobileMeanStochastic
 import streamlit as st  # importing streamlit for web app functionality
 from streamlit_option_menu import option_menu  # importing a helper for creating option menus in streamlit
 import plotly.graph_objects as go  # importing Plotly for advanced graphing capabilities
-
+from plotly.subplots import make_subplots
 
 
 import requests  # using requests library to make HTTP requests
@@ -20,7 +20,6 @@ def get_kraken_pairs():
 
 # Retrieve and store the available Kraken currency pairs
 kraken_pairs = get_kraken_pairs()
-
 
 
 # Definition of the Front class for handling the front-end part of the application
@@ -78,10 +77,17 @@ class Front:
                 fig = MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()
 
             elif self.graph_select == "Merge them":  # a combination of the two previous options
-                fig = Stochastic(pair=self.c1, interval=self.c2).generate_graph()
-                fig2 = MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()
-                line_trace = fig2.data[0]
-                fig.add_trace(line_trace)
+                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
+                fig.add_trace(Stochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][0], row=1, col=1)
+                fig.add_trace(MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][0], row=2, col=1)
+                fig.add_trace(MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][1], row=2, col=1)
+                fig.update_layout(
+                    title='Candlestick and Stochastic Oscillator',
+                    yaxis_title='Price',
+                    xaxis2_title='Time',
+                    yaxis2_title='%K - %D',
+                    xaxis_rangeslider_visible=False
+                )
 
             fig_dict = fig.to_dict()  # convert the figure to a dictionary for Streamlit to display
             st.plotly_chart(fig_dict)  # use Streamlit to display the Plotly graph
