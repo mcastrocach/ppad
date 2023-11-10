@@ -52,15 +52,13 @@ class MobileMeanStochastic:
             # Select the last 60 data points for plotting
             ohlc_df = ohlc_df[-60:]
 
-            # Create a list of plotly graph objects for plotting.
-            # This list includes two line plots (Scatter plots), one for the '%K' values and one for the '%D' values of the stochastic oscillator.
             data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
                     go.Scatter(x=ohlc_df.index, y=ohlc_df['%K'], name='%K'),  
 
-                    # The second plot is a line chart for the '%D' line of the stochastic oscillator.
+                    # The second plot is a line chart for the '%D' line of the stochastic oscillator
                     go.Scatter(x=ohlc_df.index, y=ohlc_df['%D'], name='%D')]
 
-            # Define the layout for the plotly figure, setting titles and axis labels.
+            # Define the layout for the plotly figure, setting titles and axis labels
             layout = go.Layout(title='Stochastic Oscillator',  
                                 xaxis=dict(title='Time'),  # label for the x-axis 
                                 yaxis=dict(title='Value'))  # Label for the y-axis
