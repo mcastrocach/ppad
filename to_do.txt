@@ -1,5 +1,6 @@
 [ ] poner un try-except para cuando no hay selección de ningún par de divisas
 [ ] atributo c2 no se actualiza al pulsar los botones
+[ ] conectar la función de agregación al slider y el campo de input
 [ ] Testeo y cobertura (unit-testing, integration-testing)
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
