@@ -43,7 +43,9 @@ class Graph:
         else:
             ohlc_data = response['result'][self.pair]  # extract the OHLC data from the response
             # Convert the OHLC data into a pandas DataFrame with specified column names
-            ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "Volume"])
+            ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"])
+            ohlc_df = ohlc_df.drop('NaN',axis=1)
+            ohlc_df = ohlc_df.drop('MaM',axis=1)
             
             # Convert the 'timestamp' column from Unix time (seconds since January 1, 1970) to datetime objects
             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')
@@ -60,6 +62,7 @@ class Graph:
 
             # Trim the DataFrame to the last 60 data points for visualization
             ohlc_df = ohlc_df[-60:]
+            return ohlc_df
 
 
     @staticmethod

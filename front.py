@@ -1,6 +1,4 @@
-# Importing specific classes from local modules to generate the graphs for the stochastic oscillator and its mobile mean
-from graphs.Stochastic import Stochastic
-from graphs.MobileMeanStochastic import MobileMeanStochastic
+from graphs import Graph  # importing to generate the graphs for the candlestick, stochastic oscillator and its mobile mean
 
 import streamlit as st  # importing streamlit for web app functionality
 from streamlit_option_menu import option_menu  # importing a helper for creating option menus in streamlit
@@ -30,9 +28,12 @@ class Front:
         st.title("Kraken graphs")  # set the title of the Streamlit app
 
         # Initialize default values for currency pair, interval, and selected graph
-        c1 = "XETHZUSD"
-        c2 = "21600"
-        select_graph = "Stochastic"
+        self.c1 = "XETHZUSD"
+        self.c2 = "21600"
+        self.select_graph = "Stochastic"
+
+    def set_c2(self, value):
+        self.c2 = value
 
     # Method to run the main functionality of the Streamlit app
     def run(self):
@@ -52,16 +53,60 @@ class Front:
            placeholder="Select currency pair...",
         )
 
-        # Dropdown to select time interval for graphing
-        self.c2 = st.select_slider(
-            "Please select interval",
-            ["1", "5", "15", "30", "60", "240", "1440", "10080", "21600"],
+        # Options to be displayed in the boxes
+        intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
+        options = intervals.keys()
+
+        # Check if there's already a selection in the session state
+        if 'selected_option' not in st.session_state:
+            st.session_state.selected_option = None
+
+        # Dynamic CSS to highlight the selected button
+        selected_option_key = f"button-{st.session_state.selected_option}" if st.session_state.selected_option else ""
+        st.markdown(
+            f"""
+            <style>
+            div.stButton > button {{
+                width: 100%;
+            }}
+            div.stButton > button#{selected_option_key} {{
+                background-color: #0d6efd;
+                color: white;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
         )
 
+        # Creating a row of columns with the options
+        columns = st.columns(len(options))
+        for i, option in enumerate(options):
+            with columns[i]:
+                button_key = f"button-{option}"
+                if st.button(option, key=button_key):
+                    st.session_state.selected_option = option
+                    self.set_c2(option)
+
+        # Adding a slider
+        value = st.slider(
+            'Select a number',
+            min_value=1,
+            max_value=43200,
+            value=1,  # default value
+            step=1   # step size
+        )
+
+        # Optionally display the selected value
+        st.write(f"You selected: {value}")
+
+        # Creating a number input field
+        number = st.number_input('Enter a number (1 - 43200)', min_value=1, max_value=43200, step=1)
+
         # Horizontal option menu for selecting the graph type.
-        self.graph_select = option_menu(None, ["Stochastic", "MobileMean", "Merge them", "Nada"],
-                                        icons=['house', 'cloud-upload', "list-task", 'gear'],  # TODO: Icons?
+        self.graph_select = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Mobile Mean", "Both options combined"],
+                                        icons=['bar-chart-line', 'activity', "layers"],
                                         menu_icon="cast", default_index=0, orientation="horizontal")
+
 
 
     # Method to handle graph generation and display
@@ -69,25 +114,28 @@ class Front:
 
         # Button to trigger graph plotting based on user selection
         if st.button('Plot it!'):
+            graph = Graph(pair=self.c1, interval=self.c2)
+            ohlc_df = graph.obtain_data()
+            candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
-            if self.graph_select == "Stochastic":  # stochastic oscillator
-                fig = Stochastic(pair=self.c1, interval=self.c2).generate_graph()
+            if self.graph_select == "Candlestick graph of OHLC data":
+                fig = candlestick
 
-            elif self.graph_select == "MobileMean":  # mobile mean of the stochastic oscillator
-                fig = MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()
+            elif self.graph_select == "Stochastic Oscillator & Mobile Mean":
+                fig = stochastic_mm
 
-            elif self.graph_select == "Merge them":  # a combination of the two previous options
+            elif self.graph_select == "Both options combined":
                 fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
-                fig.add_trace(Stochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][0], row=1, col=1)
-                fig.add_trace(MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][0], row=2, col=1)
-                fig.add_trace(MobileMeanStochastic(pair=self.c1, interval=self.c2).generate_graph()['data'][1], row=2, col=1)
+                fig.add_trace(candlestick['data'][0], row=1, col=1)
+                fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
+                fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
+
                 fig.update_layout(
                     title='Candlestick and Stochastic Oscillator',
                     yaxis_title='Price',
                     xaxis2_title='Time',
                     yaxis2_title='%K - %D',
-                    xaxis_rangeslider_visible=False
-                )
+                    xaxis_rangeslider_visible=False)
 
             fig_dict = fig.to_dict()  # convert the figure to a dictionary for Streamlit to display
             st.plotly_chart(fig_dict)  # use Streamlit to display the Plotly graph
