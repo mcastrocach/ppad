@@ -1,9 +1,9 @@
-[ ] poner un try-except para cuando no hay selección de ningún par de divisas (¿.py para excepciones?)
-[ ] combinar las gráficas en una sola (merge them)
-[ ] poner comentarios y limpiar código para quitar partes innecesarias
-[!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
+[ ] poner un try-except para cuando no hay selección de ningún par de divisas
+[ ] atributo c2 no se actualiza al pulsar los botones
 [ ] Testeo y cobertura (unit-testing, integration-testing)
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
 
+[!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
+[ ] revisar comentarios y código para quitar partes innecesarias
 [ ] una vez estén todos los archivos más o menos organizados, exponer en el readme lo que hace cada uno
