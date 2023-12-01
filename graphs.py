@@ -10,12 +10,12 @@ possible_intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
 def find_largest_divisor(num: int, divisors: List[int]) -> Optional[int]:
     valid_divisors = [d for d in divisors if num % d == 0]
     if not valid_divisors:
-        return None  
+        return None
     return max(valid_divisors)
 
 # Definition of the class Graph to create candlestick and stochastic oscillator (w/ mobile mean) graphs for trading analysis
 class Graph:
-    
+
     # Initializing the class with a default currency pair and time interval
     def __init__(self, pair='XETHZUSD', interval=1440):
         self.pair = pair
@@ -46,7 +46,7 @@ class Graph:
             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"])
             ohlc_df = ohlc_df.drop('NaN',axis=1)
             ohlc_df = ohlc_df.drop('MaM',axis=1)
-            
+
             # Convert the 'timestamp' column from Unix time (seconds since January 1, 1970) to datetime objects
             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')
 
@@ -84,7 +84,7 @@ class Graph:
 
         data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                low=df['Low'], close=df['Close'])]
-            
+
         fig = go.Figure(data=data)  # create a Figure object with the candlestick data
         return fig  # return the Figure object for plotting
 
@@ -100,15 +100,15 @@ class Graph:
         df['%D'] = df['%K'].rolling(window=3).mean()
 
         data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
-                go.Scatter(x=df.index, y=df['%K'], name='%K'),  
+                go.Scatter(x=df.index, y=df['%K'], name='%K'),
 
                 # The second plot is a line chart for the '%D' line of the stochastic oscillator
                 go.Scatter(x=df.index, y=df['%D'], name='%D')]
 
         # Define the layout for the plotly figure, setting titles and axis labels.
-        layout = go.Layout(title='Stochastic Oscillator',  
+        layout = go.Layout(title='Stochastic Oscillator',
                            xaxis=dict(title='Time'),   # label for the x-axis 
                            yaxis=dict(title='Value'))  # Label for the y-axis
-            
+
         fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
         return fig  # return the Figure object for plotting
