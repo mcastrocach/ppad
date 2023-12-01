@@ -1,4 +1,4 @@
-from graphs import Graph  # importing to generate the graphs for the candlestick, stochastic oscillator and its mobile mean
+from graphs import Graph
 
 import streamlit as st  # importing streamlit for web app functionality
 from streamlit_option_menu import option_menu  # importing a helper for creating option menus in streamlit
