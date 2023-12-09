@@ -17,10 +17,23 @@ def find_largest_divisor(num: int, divisors: List[int]) -> Optional[int]:
 class Graph:
 
     # Initializing the class with a default currency pair and time interval
-    def __init__(self, pair='XETHZUSD', interval=1440):
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1):
         self.pair = pair
         self.interval = interval
+        self.divisor = divisor
 
+
+    def aggregate_intervals(self, df):
+
+        resampled_df = df.resample(f'{self.interval}T').agg({
+        'Open': 'first', 
+        'High': 'max', 
+        'Low': 'min', 
+        'Close': 'last', 
+        'Volume': 'sum'
+        })
+
+        return resampled_df
 
     # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
     def obtain_data(self):
@@ -30,7 +43,7 @@ class Graph:
             k = krakenex.API()  # initialize the Kraken client to interact with the API
 
             # Get the OHLC (Open, High, Low, Close) data from Kraken for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.interval})
+            response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor})
             if response['error']:  # check for any errors in the response and raise an exception if any are found
                 throw(response['error'])
 
@@ -61,27 +74,13 @@ class Graph:
             ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
 
             # Trim the DataFrame to the last 60 data points for visualization
-            ohlc_df = ohlc_df[-60:]
+            ohlc_df = self.aggregate_intervals(ohlc_df)
             return ohlc_df
-
-
-    @staticmethod
-    def aggregate_intervals(df, interval):
-        largest_divisor = find_largest_divisor(interval, possible_intervals)
-        interval_ratio = interval / largest_divisor
-
-        new_df = pd.DataFrame(df, columns=["timestamp", "Open", "High", "Low", "Close", "Volume"])
-        new_df["Open"] = new_df["Open"].rolling(window=interval_ratio).apply(lambda x: x.iloc[0], raw=False)
-        new_df["High"] = new_df["High"].rolling(window=interval_ratio).max()
-        new_df["Low"] = new_df["Low"].rolling(window=interval_ratio).min()
-        new_df["Close"] = new_df["Close"].rolling(window=interval_ratio).apply(lambda x: x.iloc[-1], raw=False)
-        new_df["Volume"] = new_df["Volume"].rolling(window=interval_ratio).sum()
-        return new_df
 
 
     @staticmethod  # Create a candlestick chart using Plotly with the OHLC data
     def candlestick(df):
-
+        df = df[-60:]
         data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                low=df['Low'], close=df['Close'])]
 
@@ -98,6 +97,7 @@ class Graph:
         df['H14'] = df['High'].rolling(window=14).max()
         df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
         df['%D'] = df['%K'].rolling(window=3).mean()
+        df = df[-60:]
 
         data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
                 go.Scatter(x=df.index, y=df['%K'], name='%K'),
