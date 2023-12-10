@@ -84,8 +84,8 @@ class Front:
 
         # Horizontal option menu for selecting the graph type.
         self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Mobile Mean", "Both options combined"],
-                                        icons=['bar-chart-line', 'activity', "layers"],
-                                        menu_icon="cast", default_index=0, orientation="horizontal")
+                                                icons=['bar-chart-line', 'activity', "layers"],
+                                                menu_icon="cast", default_index=0, orientation="horizontal")
 
 
     # Method to handle graph generation and display

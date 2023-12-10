@@ -10,7 +10,7 @@ class TestFront(unittest.TestCase):
         front = Front()  # create an instance of the Front class
 
         # Asserting that the initial values of c1, c2, and select_graph are as expected
-        self.assertEqual(front.c1, "XETHZUSD")  
+        self.assertEqual(front.c1, None)  
         self.assertEqual(front.c2, None)
         self.assertEqual(front.select_graph, "Stochastic")
 

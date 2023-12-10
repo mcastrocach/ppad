@@ -3,6 +3,8 @@ import plotly.graph_objs as go    # Import plotly's graph objects for creating v
 import pandas as pd               # Import pandas to manipulate the retrieved currency data
 
 
+intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
+
 # Definition of the class Graph to create candlestick and stochastic oscillator (w/ mobile mean) graphs for trading analysis
 class Graph:
 
@@ -13,7 +15,9 @@ class Graph:
         self.divisor = divisor
 
     def aggregate_intervals(self, df):
+        print(int(self.interval/self.divisor))
         resampled_df = df.resample(f'{self.interval}T').agg({'Open':'first', 'High':'max', 'Low':'min', 'Close':'last', 'Volume':'sum'})
+        print(resampled_df.shape[0])
         return resampled_df
 
 
@@ -56,15 +60,18 @@ class Graph:
             ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
 
             # Trim the DataFrame to the last 60 data points for visualization
-            ohlc_df = self.aggregate_intervals(ohlc_df)
+            if self.interval not in intervals:
+                ohlc_df = self.aggregate_intervals(ohlc_df)
             return ohlc_df
 
 
     @staticmethod  # Create a candlestick chart using Plotly with the OHLC data
-    def candlestick(df):
-        df = df[-60:]
+    def candlestick(ohlc_df):
+        df = ohlc_df[-60:]
+        print(df.shape[0])
+        print(df)
         data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                               low=df['Low'], close=df['Close'])]
+                               low=df['Low'], close=df['Close'], name='Candlestick')]
 
         fig = go.Figure(data=data)  # create a Figure object with the candlestick data
         return fig  # return the Figure object for plotting
@@ -73,24 +80,24 @@ class Graph:
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
     def stochastic_mm(df):
 
-        df['SMA'] = df['Close'].rolling(window=14).mean()
-        df['SMA'] = df['Close'].rolling(window=14).mean()
-        df['L14'] = df['Low'].rolling(window=14).min()
-        df['H14'] = df['High'].rolling(window=14).max()
+        window = 14 if df.shape[0]>=60 else 3
+        df['SMA'] = df['Close'].rolling(window=window).mean()
+        df['L14'] = df['Low'].rolling(window=window).min()
+        df['H14'] = df['High'].rolling(window=window).max()
         df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
         df['%D'] = df['%K'].rolling(window=3).mean()
         df = df[-60:]
 
         data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
-                go.Scatter(x=df.index, y=df['%K'], name='%K'),
+                go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator'),
 
                 # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                go.Scatter(x=df.index, y=df['%D'], name='%D')]
+                go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
 
         # Define the layout for the plotly figure, setting titles and axis labels.
         layout = go.Layout(title='Stochastic Oscillator',
                            xaxis=dict(title='Time'),   # label for the x-axis 
-                           yaxis=dict(title='Value'))  # Label for the y-axis
+                           yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
 
         fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
         return fig  # return the Figure object for plotting
