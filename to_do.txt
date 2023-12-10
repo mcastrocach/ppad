@@ -1,10 +1,15 @@
-[ ] poner un try-except para cuando no hay selección de ningún par de divisas
-[ ] atributo c2 no se actualiza al pulsar los botones
-[ ] conectar la función de agregación al slider y el campo de input
+[ ] Poner try-excepts para casos límite
+[ ] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)
+[ ] Analizar rendimiento de la media móvil como métrica para la inversión
+[ ] Agregación como una opción adicional
+
 [ ] Testeo y cobertura (unit-testing, integration-testing)
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
 
+[ ] Importante: redactar un documento para mergear con lo que Rodrigo está redactando para la memoria
 [!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
-[ ] revisar comentarios y código para quitar partes innecesarias
-[ ] una vez estén todos los archivos más o menos organizados, exponer en el readme lo que hace cada uno
+[ ] Revisar comentarios y código para quitar partes innecesarias
+
+[ ] (Opcional) Poner un README bueno
+[ ] (Opcional) Desplegar en Docker
