@@ -1,17 +1,7 @@
-import krakenex  # import the krakenex library to interact with the Kraken cryptocurrency exchange
-from plotly.offline import plot  # import plotly's offline plotting functionality
-import plotly.graph_objs as go  # import plotly's graph objects for creating various types of plots
-import pandas as pd  # import pandas for data manipulation and analysis
-from typing import List, Optional  # import List and Optional from typing for type hinting in function signatures
+import krakenex                   # Import the krakenex library to interact with the Kraken cryptocurrency exchange
+import plotly.graph_objs as go    # Import plotly's graph objects for creating various types of plots
+import pandas as pd               # Import pandas to manipulate the retrieved currency data
 
-possible_intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
-
-# Function to find the largest divisor of the integer num in a list of divisors
-def find_largest_divisor(num: int, divisors: List[int]) -> Optional[int]:
-    valid_divisors = [d for d in divisors if num % d == 0]
-    if not valid_divisors:
-        return None
-    return max(valid_divisors)
 
 # Definition of the class Graph to create candlestick and stochastic oscillator (w/ mobile mean) graphs for trading analysis
 class Graph:
@@ -22,18 +12,10 @@ class Graph:
         self.interval = interval
         self.divisor = divisor
 
-
     def aggregate_intervals(self, df):
-
-        resampled_df = df.resample(f'{self.interval}T').agg({
-        'Open': 'first', 
-        'High': 'max', 
-        'Low': 'min', 
-        'Close': 'last', 
-        'Volume': 'sum'
-        })
-
+        resampled_df = df.resample(f'{self.interval}T').agg({'Open':'first', 'High':'max', 'Low':'min', 'Close':'last', 'Volume':'sum'})
         return resampled_df
+
 
     # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
     def obtain_data(self):
