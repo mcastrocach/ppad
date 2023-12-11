@@ -1,4 +1,4 @@
-[ ] Poner try-excepts para casos límite
+[x] Poner try-excepts para casos límite > he añadido dos mensajes para casos en los que no se ha seleccionado par de divisas o intervalo
 [ ] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)
 [ ] Analizar rendimiento de la media móvil como métrica para la inversión
 [ ] Agregación como una opción adicional
