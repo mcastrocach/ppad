@@ -1,7 +1,8 @@
 [x] Poner try-excepts para casos límite > he añadido dos mensajes para casos en los que no se ha seleccionado par de divisas o intervalo
 [x] Ajustar el rolling para el oscilador estocástico en caso de criptos nuevas que cuenten con pocos datos según el intervalo
 
-[ ] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)
+[~] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)  <REVISAR EN CONJUNTO>
+
 [ ] Analizar rendimiento de la media móvil como métrica para la inversión
 [ ] Agregación como una opción adicional
 
