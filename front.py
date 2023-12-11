@@ -143,9 +143,3 @@ class Front:
         # Button to trigger graph plotting based on user selection
         if st.button('Plot it!'):
             self.display_graph()  # Call method defined below to display the selected graph
-
-
-# Execute the main code only if the script is run directly (and not imported as a module elsewhere)
-if __name__ == "__main__":
-    front = Front()  # Instantiating an object 'front' from the class 'Front' (which is defined in the 'front' module)
-    front.run()      # Running the main process of the 'front' object which starts the streamlit application
