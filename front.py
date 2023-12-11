@@ -32,7 +32,9 @@ class Front:
 
     # Method to initialize all objects from the Front class
     def __init__(self):
-        st.title("Kraken graphs")  # Set the title of the Streamlit app
+        st.title("Kraken Currency Analysis Tool")  # Set the title of the Streamlit app
+        st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")
+        st.markdown("<hr>", unsafe_allow_html=True)
 
         # Initialize default values for currency pair and interval
         self.c1 = None
@@ -45,15 +47,17 @@ class Front:
 
         # Dropdown to select currency pair
         self.c1 = st.selectbox(
-           "Please select currency pair",
+           "Select a currency pair from the available options",
            kraken_pairs,
            index=None,
-           placeholder="Select currency pair...",
+           placeholder="xxxxxxx",
         )
+
+        st.markdown("<hr>", unsafe_allow_html=True)
 
         # Dynamic CSS to highlight the selected button
         selected_option_key = f"button-{st.session_state.selected_option}" if st.session_state.selected_option else ""
-        st.markdown(
+        st.markdown("We have selected some of the most used time windows, pick one from the following..." + 
             f"""
             <style>
             div.stButton > button {{
@@ -78,9 +82,12 @@ class Front:
                     st.session_state.selected_option = self.c2
 
         # Creating a number input field
-        number = st.number_input('Enter a number (1 - 43200)', min_value=1, max_value=43200, step=1, value=None)
+        st.markdown('&nbsp;'*85 + "...or enter an integer number of minutes in the range (1 - 43200)")
+        number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
         if number is not None: 
             self.c2 = number
+
+        st.markdown("<hr>", unsafe_allow_html=True)
 
         # Horizontal option menu for selecting the graph type.
         self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Mobile Mean", "Both options combined"],
@@ -91,41 +98,51 @@ class Front:
     # Method to handle graph generation and display
     def display_graph(self):
 
-        # Button to trigger graph plotting based on user selection
-        if st.button('Plot it!'):
-            graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
-            ohlc_df = graph.obtain_data()
-            candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
+        # Verificar si self.c1 es None
+        if self.c1 is None:
+            st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+            return  # Finalizar la ejecución del método
+        
+        # Verificar si self.c2 es None
+        if self.c2 is None:
+            st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+            return  # Finalizar la ejecución del método
 
-            if self.graph_selected == "Candlestick graph of OHLC data":
-                fig = candlestick
+        graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
+        ohlc_df = graph.obtain_data()
+        candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
-            elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
-                fig = stochastic_mm
+        if self.graph_selected == "Candlestick graph of OHLC data":
+            fig = candlestick
 
-            elif self.graph_selected == "Both options combined":
-                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
-                fig.add_trace(candlestick['data'][0], row=1, col=1)
-                fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
-                fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
+        elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
+            fig = stochastic_mm
 
-                fig.update_layout(
-                    title='Candlestick and Stochastic Oscillator',
-                    yaxis_title='Price',
-                    xaxis2_title='Time',
-                    yaxis2_title='%K - %D',
-                    xaxis_rangeslider_visible=False)
+        elif self.graph_selected == "Both options combined":
+            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
+            fig.add_trace(candlestick['data'][0], row=1, col=1)
+            fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
+            fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
 
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+            fig.update_layout(
+                title='Candlestick and Stochastic Oscillator',
+                yaxis_title='Price',
+                xaxis2_title='Time',
+                yaxis2_title='%K - %D',
+                xaxis_rangeslider_visible=False)
+
+        fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+        st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
     
     # Method to run the main functionality of the Streamlit app
     def run(self):
-        st.write('Please select a currency pair')  # Prompt user to select a currency pair
+        #st.write('Please select a currency pair')  # Prompt user to select a currency pair
         self.select_boxes()   # Call method defined below to display selection boxes
-        self.display_graph()  # Call method defined below to display the selected graph
-
+        
+        # Button to trigger graph plotting based on user selection
+        if st.button('Plot it!'):
+            self.display_graph()  # Call method defined below to display the selected graph
 
 
 # Execute the main code only if the script is run directly (and not imported as a module elsewhere)
