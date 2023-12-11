@@ -82,7 +82,7 @@ class Front:
                     st.session_state.selected_option = self.c2
 
         # Creating a number input field
-        st.markdown('&nbsp;'*85 + "...or enter an integer number of minutes in the range (1 - 43200)")
+        st.markdown('&nbsp;'*75 + "...or introduce an integer number of minutes in the range (1 - 43200)")
         number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
         if number is not None: 
             self.c2 = number
