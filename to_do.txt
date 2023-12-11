@@ -1,4 +1,6 @@
 [x] Poner try-excepts para casos límite > he añadido dos mensajes para casos en los que no se ha seleccionado par de divisas o intervalo
+[x] Ajustar el rolling para el oscilador estocástico en caso de criptos nuevas que cuenten con pocos datos según el intervalo
+
 [ ] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)
 [ ] Analizar rendimiento de la media móvil como métrica para la inversión
 [ ] Agregación como una opción adicional
@@ -7,7 +9,6 @@
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
 
-[ ] Importante: ajustar el rolling para el oscilador estocástico en caso de criptos nuevas que cuenten con pocos datos según el intervalo
 [ ] Importante: redactar un documento para mergear con lo que Rodrigo está redactando para la memoria
 [!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
 [ ] Revisar comentarios y código para quitar partes innecesarias
