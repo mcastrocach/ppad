@@ -14,12 +14,12 @@ class Graph:
         self.interval = interval
         self.divisor = divisor
 
+    # Function to aggregate the information in specific intervals that are not available for direct data retrieval using the API
     def aggregate_intervals(self, df):
         print(int(self.interval/self.divisor))
         resampled_df = df.resample(f'{self.interval}T').agg({'Open':'first', 'High':'max', 'Low':'min', 'Close':'last', 'Volume':'sum'})
         print(resampled_df.shape[0])
         return resampled_df
-
 
     # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
     def obtain_data(self):
@@ -30,17 +30,17 @@ class Graph:
 
             # Get the OHLC (Open, High, Low, Close) data from Kraken for the specified currency pair and interval
             response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor})
-            if response['error']:  # check for any errors in the response and raise an exception if any are found
+            if response['error']:  # Check for any errors in the response and raise an exception if any are found
                 throw(response['error'])
 
         # Exception handling block to catch any errors during the process
         except Exception as e:
-            print(e)  # print the exception error message
-            print("Error while generating graph")  # print a general error message indicating failure to generate the graph
+            print(e)                               # Print the exception error message
+            print("Error while generating graph")  # Print a general error message indicating failure to generate the graph
 
         # If no excepetion occurs, the information is retrieved and stored in a pandas dataframe
         else:
-            ohlc_data = response['result'][self.pair]  # extract the OHLC data from the response
+            ohlc_data = response['result'][self.pair]  # Extract the OHLC data from the response
             # Convert the OHLC data into a pandas DataFrame with specified column names
             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"])
             ohlc_df = ohlc_df.drop('NaN',axis=1)
@@ -64,7 +64,6 @@ class Graph:
                 ohlc_df = self.aggregate_intervals(ohlc_df)
             return ohlc_df
 
-
     @staticmethod  # Create a candlestick chart using Plotly with the OHLC data
     def candlestick(ohlc_df):
         try:
@@ -74,16 +73,14 @@ class Graph:
             data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                 low=df['Low'], close=df['Close'], name='Candlestick')]
 
-            fig = go.Figure(data=data)  # create a Figure object with the candlestick data
-            return fig  # return the Figure object for plotting
+            fig = go.Figure(data=data)  # Create a Figure object with the candlestick data
+            return fig                  # Return the Figure object for plotting
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
 
-
-
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
-    def stochastic_mm(df):
+    def stochastic_mm(df, sma=False, ema=False):
         try:
             window = 14 if df.shape[0]>=60 else 3
             df['SMA'] = df['Close'].rolling(window=window).mean()
@@ -106,6 +103,7 @@ class Graph:
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
             return fig  # return the Figure object for plotting
+        
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
