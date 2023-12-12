@@ -42,7 +42,6 @@ class Front:
         st.session_state.selected_option = st.session_state.get("selected_option")
         self.c2 = st.session_state.selected_option
 
-
     # Method to create selection boxes for user input
     def select_boxes(self):
 
@@ -129,7 +128,7 @@ class Front:
                 fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
 
                 fig.update_layout(
-                    title='Candlestick and Stochastic Oscillator',
+                    title='Candlestick and Stochastic Oscillator with Mobile Mean',
                     yaxis_title='Price',
                     xaxis2_title='Time',
                     yaxis2_title='%K - %D',

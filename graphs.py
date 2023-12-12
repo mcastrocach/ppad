@@ -16,9 +16,7 @@ class Graph:
 
     # Function to aggregate the information in specific intervals that are not available for direct data retrieval using the API
     def aggregate_intervals(self, df):
-        print(int(self.interval/self.divisor))
         resampled_df = df.resample(f'{self.interval}T').agg({'Open':'first', 'High':'max', 'Low':'min', 'Close':'last', 'Volume':'sum'})
-        print(resampled_df.shape[0])
         return resampled_df
 
     # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
@@ -68,13 +66,13 @@ class Graph:
     def candlestick(ohlc_df):
         try:
             df = ohlc_df[-60:]
-            print(df.shape[0])
-            print(df)
             data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                 low=df['Low'], close=df['Close'], name='Candlestick')]
 
             fig = go.Figure(data=data)  # Create a Figure object with the candlestick data
+            fig.update_layout(title='Candlestick')
             return fig                  # Return the Figure object for plotting
+        
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
@@ -97,7 +95,7 @@ class Graph:
                     go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
-            layout = go.Layout(title='Stochastic Oscillator',
+            layout = go.Layout(title='Stochastic Oscillator with Mobile Mean',
                             xaxis=dict(title='Time'),   # label for the x-axis 
                             yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
 
