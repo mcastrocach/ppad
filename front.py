@@ -98,41 +98,42 @@ class Front:
     # Method to handle graph generation and display
     def display_graph(self):
 
-        # Verificar si self.c1 es None
-        if self.c1 is None:
-            st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-            return  # Finalizar la ejecución del método
-        
-        # Verificar si self.c2 es None
-        if self.c2 is None:
-            st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-            return  # Finalizar la ejecución del método
+        if st.button("Plot it!"):
+            # Verificar si self.c1 es None
+            if self.c1 is None:
+                st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                return  # Finalizar la ejecución del método
+            
+            # Verificar si self.c2 es None
+            if self.c2 is None:
+                st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                return  # Finalizar la ejecución del método
 
-        graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
-        ohlc_df = graph.obtain_data()
-        candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
+            graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
+            ohlc_df = graph.obtain_data()
+            candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
-        if self.graph_selected == "Candlestick graph of OHLC data":
-            fig = candlestick
+            if self.graph_selected == "Candlestick graph of OHLC data":
+                fig = candlestick
 
-        elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
-            fig = stochastic_mm
+            elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
+                fig = stochastic_mm
 
-        elif self.graph_selected == "Both options combined":
-            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
-            fig.add_trace(candlestick['data'][0], row=1, col=1)
-            fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
-            fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
+            elif self.graph_selected == "Both options combined":
+                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2])
+                fig.add_trace(candlestick['data'][0], row=1, col=1)
+                fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
+                fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
 
-            fig.update_layout(
-                title='Candlestick and Stochastic Oscillator',
-                yaxis_title='Price',
-                xaxis2_title='Time',
-                yaxis2_title='%K - %D',
-                xaxis_rangeslider_visible=False)
+                fig.update_layout(
+                    title='Candlestick and Stochastic Oscillator',
+                    yaxis_title='Price',
+                    xaxis2_title='Time',
+                    yaxis2_title='%K - %D',
+                    xaxis_rangeslider_visible=False)
 
-        fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-        st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
     
     # Method to run the main functionality of the Streamlit app
