@@ -1,12 +1,12 @@
-from front import *  # importing everything from the 'front' module
+from front import *  # import everything from the 'front' module
 
 # Execute the main code only if the script is run directly (and not imported as a module elsewhere)
 if __name__ == "__main__":
-    front = Front()  # instantiating an object 'front' from the class 'Front' (which is defined in the 'front' module)
+    front = Front()  # create an instance of the Front class (which is defined in the 'front' module)
     front.run()  # running the main process of the 'front' object which starts the streamlit application 
 
 
-
+""""""
 #  timestamp = data[0]  -> unix timestamp of the data entry
 #  date_time = datetime.utcfromtimestamp(timestamp)  -> converting the timestamp to a datetime object
 #  date = date_time.strftime('%Y-%m-%d')  -> formatting the date in YYYY-MM-DD format
