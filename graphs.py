@@ -67,37 +67,45 @@ class Graph:
 
     @staticmethod  # Create a candlestick chart using Plotly with the OHLC data
     def candlestick(ohlc_df):
-        df = ohlc_df[-60:]
-        print(df.shape[0])
-        print(df)
-        data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                               low=df['Low'], close=df['Close'], name='Candlestick')]
+        try:
+            df = ohlc_df[-60:]
+            print(df.shape[0])
+            print(df)
+            data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                low=df['Low'], close=df['Close'], name='Candlestick')]
 
-        fig = go.Figure(data=data)  # create a Figure object with the candlestick data
-        return fig  # return the Figure object for plotting
+            fig = go.Figure(data=data)  # create a Figure object with the candlestick data
+            return fig  # return the Figure object for plotting
+        except Exception as e:
+            print(f"An error occurred while creating the candlestick chart: {e}")
+            return go.Figure()
+
 
 
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
     def stochastic_mm(df):
+        try:
+            window = 14 if df.shape[0]>=60 else 3
+            df['SMA'] = df['Close'].rolling(window=window).mean()
+            df['L14'] = df['Low'].rolling(window=window).min()
+            df['H14'] = df['High'].rolling(window=window).max()
+            df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
+            df['%D'] = df['%K'].rolling(window=3).mean()
+            df = df[-60:]
 
-        window = 14 if df.shape[0]>=60 else 3
-        df['SMA'] = df['Close'].rolling(window=window).mean()
-        df['L14'] = df['Low'].rolling(window=window).min()
-        df['H14'] = df['High'].rolling(window=window).max()
-        df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
-        df['%D'] = df['%K'].rolling(window=3).mean()
-        df = df[-60:]
+            data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
+                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator'),
 
-        data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
-                go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator'),
+                    # The second plot is a line chart for the '%D' line of the stochastic oscillator
+                    go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
 
-                # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
+            # Define the layout for the plotly figure, setting titles and axis labels.
+            layout = go.Layout(title='Stochastic Oscillator',
+                            xaxis=dict(title='Time'),   # label for the x-axis 
+                            yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
 
-        # Define the layout for the plotly figure, setting titles and axis labels.
-        layout = go.Layout(title='Stochastic Oscillator',
-                           xaxis=dict(title='Time'),   # label for the x-axis 
-                           yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
-
-        fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
-        return fig  # return the Figure object for plotting
+            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
+            return fig  # return the Figure object for plotting
+        except Exception as e:
+            print(f"An error occurred while creating the candlestick chart: {e}")
+            return go.Figure()

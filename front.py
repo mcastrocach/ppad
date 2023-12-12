@@ -17,7 +17,7 @@ def get_kraken_pairs():
 kraken_pairs = get_kraken_pairs()  # Retrieve and store the available Kraken currency pairs
 
 
-intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
+intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600, "Other":-1}
 keys, options = intervals.keys(), intervals.values()
 
 def find_largest_divisor(n):
@@ -137,9 +137,16 @@ class Front:
     
     # Method to run the main functionality of the Streamlit app
     def run(self):
-        #st.write('Please select a currency pair')  # Prompt user to select a currency pair
-        self.select_boxes()   # Call method defined below to display selection boxes
-        
-        # Button to trigger graph plotting based on user selection
-        if st.button('Plot it!'):
+        try:
+            st.write('Please select a currency pair')  # Prompt user to select a currency pair
+            self.select_boxes()   # Call method defined below to display selection boxes
             self.display_graph()  # Call method defined below to display the selected graph
+        except Exception as e:
+            st.error(f"An error ocurred: {e}")
+
+
+
+# Execute the main code only if the script is run directly (and not imported as a module elsewhere)
+if __name__ == "__main__":
+    front = Front()  # Instantiating an object 'front' from the class 'Front' (which is defined in the 'front' module)
+    front.run()      # Running the main process of the 'front' object which starts the streamlit application

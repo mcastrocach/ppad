@@ -4,10 +4,10 @@
 [~] Estética de la aplicación (título, encabezados de cada sección, descripción del proyecto, autores, fecho)  <REVISAR EN CONJUNTO>
 
 [ ] Analizar rendimiento de la media móvil como métrica para la inversión
-[ ] Agregación como una opción adicional
+[x] Agregación como una opción adicional
 
-[ ] Testeo y cobertura (unit-testing, integration-testing)
-[ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip)
+[x] Testeo y cobertura (unit-testing, integration-testing)
+[x] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip) Esto ya estaba
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
 
 [ ] Importante: redactar un documento para mergear con lo que Rodrigo está redactando para la memoria

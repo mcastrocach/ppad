@@ -2,5 +2,5 @@ pandas
 numpy
 krakenex
 plotly
-streamlit
 streamlit-option-menu
+coverage
