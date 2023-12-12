@@ -1,6 +1,7 @@
 import krakenex                   # Import the krakenex library to interact with the Kraken cryptocurrency exchange
 import plotly.graph_objs as go    # Import plotly's graph objects for creating various types of plots
 import pandas as pd               # Import pandas to manipulate the retrieved currency data
+import numpy as np
 
 
 intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
@@ -69,7 +70,7 @@ class Graph:
         try:
             df = ohlc_df[-60:]
             print(df.shape[0])
-            print(df)
+            #print(df)
             data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                 low=df['Low'], close=df['Close'], name='Candlestick')]
 
@@ -88,6 +89,8 @@ class Graph:
             df['H14'] = df['High'].rolling(window=window).max()
             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
             df['%D'] = df['%K'].rolling(window=3).mean()
+            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 30)
+            df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 70)
             df = df[-60:]
 
             data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
@@ -107,3 +110,24 @@ class Graph:
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
+    
+    def calculate_profit(self, df):
+        try:
+            df['Buy_Price'] = np.where(df['Buy_Signal'], df['Close'], np.nan)
+            df['Sell_Price'] = np.where(df['Sell_Signal'], df['Close'], np.nan)
+            df['Profit'] = df['Sell_Price'].fillna(method='ffill') - df['Buy_Price'].fillna(method='ffill')
+            return df
+        except Exception as e:
+            print(f"An error occurred while creating the profit data: {e}")
+            return pd.DataFrame()
+    
+    def profit_graph(self, df):
+        try:
+            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit')]
+            layout = go.Layout(title='Profit',
+                        xaxis=dict(title='Time'),   # label for the x-axis 
+                        yaxis=dict(title='Value'))  # Label for the y-axis
+            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the profit data
+            return fig  # return the Figure object for plotting
+        except Exception as e:
+            print(f"An error occurred while creating the profit chart: {e}")
