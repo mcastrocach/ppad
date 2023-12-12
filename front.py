@@ -17,7 +17,7 @@ def get_kraken_pairs():
 kraken_pairs = get_kraken_pairs()  # Retrieve and store the available Kraken currency pairs
 
 
-intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600, "Other":-1}
+intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
 keys, options = intervals.keys(), intervals.values()
 
 def find_largest_divisor(n):
@@ -80,12 +80,12 @@ class Front:
                 if st.button(key, key=button_key):
                     self.c2 = int(intervals[key])
                     st.session_state.selected_option = self.c2
-
+        if st.button("...or introduce an integer number of minutes in the range (1 - 43200)", key=f"Other"):
         # Creating a number input field
-        st.markdown('&nbsp;'*75 + "...or introduce an integer number of minutes in the range (1 - 43200)")
-        number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
-        if number is not None: 
-            self.c2 = number
+            number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
+            if number is not None: 
+                self.c2 = number
+
 
         st.markdown("<hr>", unsafe_allow_html=True)
 
