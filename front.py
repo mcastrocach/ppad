@@ -1,10 +1,10 @@
 from graphs import Graph
-import streamlit as st  # importing streamlit for web app functionality
-from streamlit_option_menu import option_menu  # importing a helper for creating option menus in streamlit
+import streamlit as st                         # Import streamlit for web app functionality
+from streamlit_option_menu import option_menu  # Import a helper for creating option menus in streamlit
 from plotly.subplots import make_subplots
 
 
-import requests  # importing requests library to make HTTP requests
+import requests  # Import requests library to make HTTP requests
 
 # Function to retrieve all available currency pairs from the Kraken API
 def get_kraken_pairs():
@@ -20,6 +20,7 @@ kraken_pairs = get_kraken_pairs()  # Retrieve and store the available Kraken cur
 intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
 keys, options = intervals.keys(), intervals.values()
 
+# Function to find the largest divisor of an integer from the values of the dictionary 'intervals'
 def find_largest_divisor(n):
     valid_divisors = [d for d in options if n % d == 0]
     if not valid_divisors:
@@ -80,6 +81,7 @@ class Front:
                 if st.button(key, key=button_key):
                     self.c2 = int(intervals[key])
                     st.session_state.selected_option = self.c2
+
         if st.button("...or introduce an integer number of minutes in the range (1 - 43200)", key=f"Other"):
         # Creating a number input field
             number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
@@ -99,15 +101,16 @@ class Front:
     def display_graph(self):
 
         if st.button("Plot it!"):
-            # Verificar si self.c1 es None
+
+            # Conditional to verify if self.c1 is of NoneType
             if self.c1 is None:
                 st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-                return  # Finalizar la ejecución del método
+                return  # End the execution of this method
             
-            # Verificar si self.c2 es None
+            # Conditional to verify if self.c2 is of NoneType
             if self.c2 is None:
                 st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-                return  # Finalizar la ejecución del método
+                return  # End the execution of this method
 
             graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
             ohlc_df = graph.obtain_data()
