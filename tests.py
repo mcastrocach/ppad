@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 from unittest.mock import patch
 
 # Definition of a test case class for the 'front' module
-class TestFront(unittest.TestCase):  
+class TestFront(unittest.TestCase):
 
     # Test method to test the initialization of the Front class
     @patch('streamlit.session_state', {'selected_option': None})

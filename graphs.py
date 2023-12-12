@@ -1,6 +1,7 @@
 import krakenex                   # Import the krakenex library to interact with the Kraken cryptocurrency exchange
 import plotly.graph_objs as go    # Import plotly's graph objects for creating various types of plots
 import pandas as pd               # Import pandas to manipulate the retrieved currency data
+import numpy as np
 
 
 intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
@@ -86,6 +87,8 @@ class Graph:
             df['H14'] = df['High'].rolling(window=window).max()
             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
             df['%D'] = df['%K'].rolling(window=3).mean()
+            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 30)
+            df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 70)
             df = df[-60:]
 
             data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
