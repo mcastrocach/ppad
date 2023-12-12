@@ -1,0 +1,382 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\date{}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 3.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation 0bp
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+
+\series bold
+\size largest
+Python para el análisis de datos.
+ Proyecto Final (MEBDS)
+\end_layout
+
+\begin_layout Standard
+\align center
+Realizado por
+\emph on
+: Rodrigo de la Nuez Moraleda 
+\emph default
+y
+\emph on
+ Marcos Castro Cacho
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 15bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+¿cómo hemos descubierto las columnas qué utiliza kraken?
+\end_layout
+
+\begin_layout Standard
+¿cómo hemos descubierto los intervalos de tiempo disponibles?
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Descripción de cómo se ha afrontado el proyecto y por qué
+\end_layout
+
+\begin_layout Standard
+En este proyecto se busca ser capaz de obtener y graficar datos actualizados
+ de la cotización de un par de divisas de forma que se pueda realizar un
+ análisis financiero y estudio de las tendencias del mercado.
+ Este proceso ha sido llevado a cabo utilizando la plataforma Kraken, cuyo
+ servicio ofrece información en tiempo real sobre precios y cotizaciones
+ de diversas monedas, incluyendo criptomonedas como Bitcoin y Ethereum,
+ entre otras, así como pares de divisas tradicionales.
+ Con este objetivo se ha utilizado la librería 
+\emph on
+krakenex 
+\emph default
+que permite inicializar un cliente que interactúe a través de consultas
+ con la propia API de la plataforma, en nuestro caso hemos tomado la información
+ OHLC para un par de divisas e intervalo (unidad de minutos) seleccionado
+ de entre los que la plataforma permite seleccionar.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Descripción detallada de cada uno de los puntnos que se evalúan
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Descripción de la estructura del código y estructura de ficheros
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Descripción de la forma de ejecución del código
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Pantallazos de todo Aquel punto que requiera algún tipo de visualización
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIAI SERÁ EVALUADO,
+ AUNQUE ESTÉ REALIZADO EN EL CÓDIGO
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+1.
+ Lectura y representación del movimiento del par de monedas 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Descargar datos, utilizando la librería Kraken (https://github.com/veox/python3-k
+rakenex)
+\end_layout
+
+\begin_layout Standard
+Para la descarga de datos primero obtenemos la nomenclatura que utiliza
+ la plataforma para almacenar la información de los distintos pares de divisas,
+ de forma que mediante la librería requests hacemos webscraping y obtenemos
+ todos los pares disponibles de forma que el usuario pueda seleccionar el
+ par de divisas que desee observar.
+ Además, se da la opción de seleccionar un intervalo de tiempo (en minutos)
+ de hasta un mes para que se muestre la información agregada según dicho
+ intervalo.
+ Con esta información hacemos una consulta a la API de Kraken teniendo en
+ cuenta los intervalos que permite seleccionar en los dos siguientes escenarios:
+\end_layout
+
+\begin_layout Standard
+- 1ª opción: el intervalo seleccionado se encuentra entre los disponibles
+ (<mencionar cuáles son>) y, por tanto, con una consulta directa se pueden
+ obtener los datos deseados para poder transformarlos a un dataframe de
+ pandas y manipularlos para crear un índice temporal acorde al intervalo
+ seleccionado y transformar los tipos necesarios
+\end_layout
+
+\begin_layout Standard
+- 2ª opción: el intervalo seleccionado no se encuentra entre los disponibles,
+ en tal caso calculamos el máximo divisor de entre los posibles para que
+ al realizar la agregación el coste computacional sea el menor posible.
+ Utilizamos los datos como en el caso anterior tomando como intervalo selecciona
+do el divisor y usando una función de agregación para transformarlos al
+ nuevo intervalo que queremos mostrar en la aplicación creada.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Graficar cotizaciones.
+ Graficar el par ETH/USDT.
+ Input de usuario que permita graficar cualquier cotización a una a elegir
+ en el menú.
+\begin_inset Newline newline
+\end_inset
+
+
+\series default
+En una primera instancia realizamos pruebas con el par ETH/USD a través
+ de las librerías matplotlib y mplfinance para realizar gráficos de velas
+ y de líneas con el oscilador estocástico y la media móvil pero finalmente
+ utilizamos plotly.graph_objs para este objetivo.
+\end_layout
+
+\begin_layout Standard
+<Insertar imágenes de los gráficos con ETH/USD y otro par a seleccionar,
+ yo propongo bitcoin-libra esterlina>
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+2.
+ Indicadores técnicos.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\begin_inset Formula $\bullet$
+\end_inset
+
+ Calcular el estocástico y graficarlo.
+ 
+\end_layout
+
+\begin_layout Standard
+Explicación del estocástico
+\end_layout
+
+\begin_layout Standard
+Explicación de nuestra forma de calcularlo
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\begin_inset Formula $\bullet$
+\end_inset
+
+ Calcular el estocástico sobre una media móvil.
+ 
+\end_layout
+
+\begin_layout Standard
+Explicación de la media móvil y su utilidad
+\end_layout
+
+\begin_layout Standard
+Explicación de nuestro cálculo
+\end_layout
+
+\begin_layout Standard
+<Insertar imagen con los dos pares anteriores>
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\begin_inset Formula $\bullet$
+\end_inset
+
+ Graficar el indicador junto con la cotización del par calculado.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+3.
+ Estructuración.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Funciones
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Utilización de clases
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Manejo de errores y excepciones
+\end_layout
+
+\begin_layout Standard
+Durante todo el proceso hemos buscado evitar casos que puedan dar pie a
+ errores por incongruencia con el tipado de las variables o la no selección
+ de alguno de los atributos necesarios par el cálculo de los distintos tipos
+ de gráficas.
+\end_layout
+
+\end_body
+\end_document
