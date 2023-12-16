@@ -71,9 +71,7 @@ class Graph:
                                 low=df['Low'], close=df['Close'], name='Candlestick')]
 
             fig = go.Figure(data=data)  # Create a Figure object with the candlestick data
-            fig.update_layout(title='Candlestick')
             return fig                  # Return the Figure object for plotting
-        
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
@@ -98,7 +96,7 @@ class Graph:
                     go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
-            layout = go.Layout(title='Stochastic Oscillator with Mobile Mean',
+            layout = go.Layout(title='Stochastic Oscillator',
                             xaxis=dict(title='Time'),   # label for the x-axis 
                             yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
 
@@ -108,3 +106,24 @@ class Graph:
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
+    
+    def calculate_profit(self, df):
+        try:
+            df['Buy_Price'] = np.where(df['Buy_Signal'], df['Close'], np.nan)
+            df['Sell_Price'] = np.where(df['Sell_Signal'], df['Close'], np.nan)
+            df['Profit'] = df['Sell_Price'].fillna(method='ffill') - df['Buy_Price'].fillna(method='ffill')
+            return df
+        except Exception as e:
+            print(f"An error occurred while creating the profit data: {e}")
+            return pd.DataFrame()
+    
+    def profit_graph(self, df):
+        try:
+            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit')]
+            layout = go.Layout(title='Profit',
+                        xaxis=dict(title='Time'),   # label for the x-axis 
+                        yaxis=dict(title='Value'))  # Label for the y-axis
+            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the profit data
+            return fig  # return the Figure object for plotting
+        except Exception as e:
+            print(f"An error occurred while creating the profit chart: {e}")
