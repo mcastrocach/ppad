@@ -128,8 +128,10 @@ class Front:
                 fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
                 profit_df = graph.calculate_profit(ohlc_df)
                 fig_profit = graph.profit_graph(profit_df)
-                print(profit_df)
+                print(profit_df.to_string())
                 fig.add_trace(fig_profit['data'][0], row=3, col=1)
+                fig.add_trace(fig_profit['data'][1], row=3, col=1)
+                fig.add_trace(fig_profit['data'][2], row=3, col=1)
 
                 fig.update_layout(
                     title='Candlestick and Stochastic Oscillator with Mobile Mean',

@@ -102,24 +102,38 @@ class Graph:
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
             return fig  # return the Figure object for plotting
-        
+
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
-    
+
     def calculate_profit(self, df):
         try:
+            coins = 0
+            total_spent = 0
             df['Buy_Price'] = np.where(df['Buy_Signal'], df['Close'], np.nan)
             df['Sell_Price'] = np.where(df['Sell_Signal'], df['Close'], np.nan)
-            df['Profit'] = df['Sell_Price'].fillna(method='ffill') - df['Buy_Price'].fillna(method='ffill')
+            for i in range(len(df)):
+                if df['Buy_Signal'].iloc[i]:
+                    coins += 100
+                    total_spent += df['Buy_Price'].iloc[i]*100
+                if df['Sell_Signal'].iloc[i] and coins >= 100:
+                    coins -= 100
+                    total_spent -= df['Sell_Price'].iloc[i]*100
+            df['Profit'] = df['Close'] * coins - total_spent
             return df
         except Exception as e:
             print(f"An error occurred while creating the profit data: {e}")
             return pd.DataFrame()
-    
+
     def profit_graph(self, df):
         try:
-            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit')]
+            df = df[-60:]
+            first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
+            df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy signal onwards
+            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit'),
+                    go.Scatter(x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='green', size=10), name='Buy Signal'),
+                    go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='red', size=10), name='Sell Signal')]
             layout = go.Layout(title='Profit',
                         xaxis=dict(title='Time'),   # label for the x-axis 
                         yaxis=dict(title='Value'))  # Label for the y-axis
