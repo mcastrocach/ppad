@@ -132,6 +132,21 @@ Descripción de cómo se ha afrontado el proyecto y por qué
 \end_layout
 
 \begin_layout Standard
+Este proyecto se desarrolló con el objetivo de proporcionar una herramienta para analizar pares de divisas de la bolsa de criptomonedas Kraken.
+Utiliza la API de Kraken para obtener datos de precios en tiempo real para varios pares de divisas y visualiza estos datos utilizando la biblioteca plotly.
+Además, calcula indicadores de análisis técnico como el oscilador estocástico y su media móvil, que pueden ayudar en las decisiones de trading.
+
+El proyecto está escrito en Python y utiliza varias bibliotecas, como pandas para la manipulación de datos, plotly para la visualización de datos y krakenex para interactuar con la API de Kraken.
+También utiliza Streamlit para la funcionalidad de la aplicación web.
+
+El código se ha estructurado en varios módulos y clases para facilitar la organización y la reutilización del código.
+Por ejemplo, la clase Graph en el módulo `graphs.py` se encarga de crear gráficos de velas y osciladores estocásticos para el análisis de trading.
+La clase Front Front en el módulo `front.py` se encarga de manejar la parte frontal de la aplicación.
+
+Durante el desarrollo del proyecto, tomamos varias decisiones de diseño. Por ejemplo, elegimos usar la biblioteca plotly para la visualización de datos debido a su flexibilidad y potencia. También decidimos usar la biblioteca krakenex para interactuar con la API de Kraken debido a su simplicidad y facilidad de uso. Además, abordamos varios desafíos durante el desarrollo del proyecto, como la manipulación de datos en tiempo real y la visualización de datos de trading de manera efectiva.
+\end_layout
+
+\begin_layout Standard
 En este proyecto se busca ser capaz de obtener y graficar datos actualizados
  de la cotización de un par de divisas de forma que se pueda realizar un
  análisis financiero y estudio de las tendencias del mercado.
@@ -169,6 +184,19 @@ Descripción detallada de cada uno de los puntos que se evalúan
  
 \series bold
 Descripción de la estructura del código y estructura de ficheros
+\end_layout
+\begin_layout Standard
+La estructura del código y de los archivos del proyecto se organiza de la siguiente manera:
+
+El código principal del proyecto se encuentra en el archivo main.py, que importa y utiliza las funciones y clases definidas en otros módulos. Estos módulos incluyen graphs.py, que contiene la clase Graph para la creación de gráficos de velas y osciladores estocásticos, y front.py, que contiene la clase Front para manejar la interfaz de usuario de la aplicación.
+
+Además, el proyecto incluye un archivo README.md que proporciona una descripción general del proyecto y las instrucciones para su uso. También se incluye una carpeta docs que contiene varios archivos de texto que proporcionan más detalles sobre el proyecto y sus requisitos. En particular, el archivo enunciado.txt contiene los detalles del enunciado del proyecto, y los archivos memoria_kraken.lyx y memoria_kraken.lyx~ contienen la memoria del proyecto.
+
+Finalmente, el archivo to_do.txt contiene una lista de tareas pendientes para el proyecto.
+
+Durante el desarrollo del proyecto, se tomaron varias decisiones de diseño. Por ejemplo, se eligió usar la biblioteca plotly para la visualización de datos debido a su flexibilidad y potencia. También se decidió usar la biblioteca krakenex para interactuar con la API de Kraken debido a su simplicidad y facilidad de uso. Además, se abordaron varios desafíos durante el desarrollo del proyecto, como la manipulación de datos en tiempo real y la visualización de datos de trading de manera efectiva.
+
+Para la descarga de datos, primero se obtiene la nomenclatura que utiliza la plataforma para almacenar la información de los distintos pares de divisas. Mediante la librería requests se hace webscraping y se obtienen todos los pares disponibles para que el usuario pueda seleccionar el par de divisas que desee observar. Además, se da la opción de seleccionar un intervalo de tiempo (en minutos) de hasta un mes para que se muestre la información agregada según dicho intervalo. Con esta información se hace una consulta a la API de Kraken teniendo en cuenta los intervalos que permite seleccionar.
 \end_layout
 
 \begin_layout Standard
@@ -289,13 +317,26 @@ En una primera instancia realizamos pruebas con el par ETH/USD a través
 \series bold
 \begin_inset Formula $\bullet$
 \end_inset
-
  Calcular el estocástico y graficarlo.
- 
 \end_layout
 
 \begin_layout Standard
-Explicación del estocástico
+El estocástico es un indicador de momentum desarrollado en los años 50.
+Se utiliza para mostrar la ubicación del cierre actual en relación con el rango alto/bajo durante un número determinado de períodos.
+La fórmula para calcular el estocástico es la siguiente:
+
+\begin_inset Formula
+%K = (Precio de cierre actual - Mínimo más bajo) / (Máximo más alto - Mínimo más bajo) * 100
+\end_inset
+
+Donde:
+- Precio de cierre actual: es el último precio al que se negoció un activo.
+- Mínimo más bajo: es el precio más bajo negociado del activo durante un período determinado.
+- Máximo más alto: es el precio más alto negociado del activo durante un período determinado.
+
+El estocástico se representa con dos líneas, %K y %D. La línea %D es una media móvil de %K.
+Cuando la línea %K cruza por encima de la línea %D, se genera una señal de compra. Cuando la línea %K cruza por debajo de la línea %D, se genera una señal de venta.
+
 \end_layout
 
 \begin_layout Standard
@@ -322,19 +363,6 @@ Explicación de nuestro cálculo
 
 \begin_layout Standard
 <Insertar imagen con los dos pares anteriores>
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\begin_inset Formula $\bullet$
-\end_inset
-
- Graficar el indicador junto con la cotización del par calculado.
-\begin_inset Newline newline
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
