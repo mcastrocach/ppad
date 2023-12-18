@@ -99,7 +99,7 @@ class Front:
     # Method to handle graph generation and display
     def display_graph(self):
 
-        if st.button("Plot it!"):
+        if st.button("Plot it!") or 'fig_dict' in st.session_state:
 
             # Conditional to verify if self.c1 is of NoneType
             if self.c1 is None:
@@ -122,16 +122,10 @@ class Front:
                 fig = stochastic_mm
 
             elif self.graph_selected == "Both options combined":
-                fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.8, 0.2,0.3])
+                fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.01, row_heights=[0.8, 0.2,0.3])
                 fig.add_trace(candlestick['data'][0], row=1, col=1)
                 fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
                 fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
-                profit_df = graph.calculate_profit(ohlc_df)
-                fig_profit = graph.profit_graph(profit_df)
-                print(profit_df.to_string())
-                fig.add_trace(fig_profit['data'][0], row=3, col=1)
-                fig.add_trace(fig_profit['data'][1], row=3, col=1)
-                fig.add_trace(fig_profit['data'][2], row=3, col=1)
 
                 fig.update_layout(
                     title='Candlestick and Stochastic Oscillator with Mobile Mean',
@@ -140,9 +134,22 @@ class Front:
                     yaxis2_title='%K - %D',
                     xaxis_rangeslider_visible=False)
 
+
             fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
             st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
+            # Moved the button definition here
+            if st.button("Calculate potential earnings"):
+                st.write("This graph simulates potential profit based on the data.")
+                st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
+                profit_df = graph.calculate_profit(ohlc_df)
+                fig_profit = graph.profit_graph(profit_df)
+                fig_profit.add_trace(fig_profit['data'][0])
+                fig_profit.add_trace(fig_profit['data'][1])
+                fig_profit.add_trace(fig_profit['data'][2])
+                fig_profit_dict = fig_profit.to_dict()
+                st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
     
     # Method to run the main functionality of the Streamlit app
     def run(self):

@@ -22,11 +22,11 @@ class Graph:
 
     # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
     def obtain_data(self):
-
+        
         # Attempt to perform operations that may fail
         try:
             k = krakenex.API()  # initialize the Kraken client to interact with the API
-
+            
             # Get the OHLC (Open, High, Low, Close) data from Kraken for the specified currency pair and interval
             response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor})
             if response['error']:  # Check for any errors in the response and raise an exception if any are found
@@ -85,8 +85,8 @@ class Graph:
             df['H14'] = df['High'].rolling(window=window).max()
             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
             df['%D'] = df['%K'].rolling(window=3).mean()
-            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 30)
-            df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 70)
+            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 20)
+            df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)
             df = df[-60:]
 
             data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
