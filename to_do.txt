@@ -3,6 +3,7 @@
 
 [ ] Analizar rendimiento de la media móvil como métrica para la inversión
 [ ] Bug si no hay señal de compra profit retorna null
+[ ] Lo de la fecha
 
 [ ] Añadir más tests de unit-testing y ver si se puede arreglar el test de inicio
 [ ] Hacer integration testing

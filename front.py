@@ -124,6 +124,8 @@ class Front:
             elif self.graph_selected == "Both options combined":
                 fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.01, row_heights=[0.8, 0.2,0.3])
                 fig.add_trace(candlestick['data'][0], row=1, col=1)
+                fig.add_trace(candlestick['data'][1], row=1, col=1)
+                fig.add_trace(candlestick['data'][2], row=1, col=1)
                 fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
                 fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
 
@@ -140,16 +142,21 @@ class Front:
             st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
             # Moved the button definition here
+            profit_df = graph.calculate_profit(ohlc_df)
+            fig_profit = graph.profit_graph(profit_df)
             if st.button("Calculate potential earnings"):
-                st.write("This graph simulates potential profit based on the data.")
-                st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
-                profit_df = graph.calculate_profit(ohlc_df)
-                fig_profit = graph.profit_graph(profit_df)
-                fig_profit.add_trace(fig_profit['data'][0])
-                fig_profit.add_trace(fig_profit['data'][1])
-                fig_profit.add_trace(fig_profit['data'][2])
-                fig_profit_dict = fig_profit.to_dict()
-                st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
+                if fig_profit is not None:
+                    st.write("This graph simulates potential profit based on the data.")
+                    st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
+                    fig_profit.add_trace(fig_profit['data'][0])
+                    fig_profit.add_trace(fig_profit['data'][1])
+                    fig_profit.add_trace(fig_profit['data'][2])
+                    fig_profit_dict = fig_profit.to_dict()
+                    st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
+                else:
+                    st.write("there are no buy signals")
+                    st.write("asdf")
+
     
     # Method to run the main functionality of the Streamlit app
     def run(self):

@@ -1,3 +1,4 @@
+import json
 import krakenex                   # Import the krakenex library to interact with the Kraken cryptocurrency exchange
 import plotly.graph_objs as go    # Import plotly's graph objects for creating various types of plots
 import pandas as pd               # Import pandas to manipulate the retrieved currency data
@@ -58,6 +59,11 @@ class Graph:
             ohlc_df["Close"] = ohlc_df["Close"].astype(float)
             ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
 
+            window = 14 if ohlc_df.shape[0]>=60 else 3
+            ohlc_df['SMA'] = ohlc_df['Close'].rolling(window=window).mean()
+            ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
+
+
             # Trim the DataFrame to the last 60 data points for visualization
             if self.interval not in intervals:
                 ohlc_df = self.aggregate_intervals(ohlc_df)
@@ -68,7 +74,9 @@ class Graph:
         try:
             df = ohlc_df[-60:]
             data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                low=df['Low'], close=df['Close'], name='Candlestick')]
+                                low=df['Low'], close=df['Close'], name='Candlestick'),
+            go.Scatter(x=df.index, y=df['SMA'], name='Simple Mobile Mean'),
+            go.Scatter(x=df.index, y=df['EMA'], name='Exponential Mobile Mean')]
 
             fig = go.Figure(data=data)  # Create a Figure object with the candlestick data
             return fig                  # Return the Figure object for plotting
@@ -129,6 +137,9 @@ class Graph:
     def profit_graph(self, df):
         try:
             df = df[-60:]
+            if not df['Buy_Signal'].any():  # Check if there are any buy signals
+                print("No buy signals found.")
+                return None  # Return None if no buy signals
             first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
             df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy signal onwards
             data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit'),
@@ -141,3 +152,4 @@ class Graph:
             return fig  # return the Figure object for plotting
         except Exception as e:
             print(f"An error occurred while creating the profit chart: {e}")
+            return go.Figure()

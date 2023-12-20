@@ -1,0 +1,32 @@
+# .gitignore
+
+# Ignore Python build artifacts
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Ignore Jupyter Notebook
+.ipynb_checkpoints
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore files related to virtual environments
+venv/
+*.venv
+*.venv/
+
+# Ignore Docker files
+*.dockerignore
+*.Dockerfile
+*.docker-compose.yml
+
+# Ignore LyX backup files
+*.lyx~
