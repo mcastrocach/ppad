@@ -152,9 +152,6 @@ class Front:
                 if fig_profit is not None:
                     st.write("This graph simulates potential profit based on the data.")
                     st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
-                    fig_profit.add_trace(fig_profit['data'][0])
-                    fig_profit.add_trace(fig_profit['data'][1])
-                    fig_profit.add_trace(fig_profit['data'][2])
                     fig_profit_dict = fig_profit.to_dict()
                     st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
                 else:
