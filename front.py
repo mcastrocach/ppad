@@ -1,69 +1,71 @@
-from graphs import Graph
-import streamlit as st                         # Import streamlit for web app functionality
-from streamlit_option_menu import option_menu  # Import a helper for creating option menus in streamlit
-from plotly.subplots import make_subplots
+import streamlit as st                         # Import Streamlit for creating web applications
+from streamlit_option_menu import option_menu  # Import option_menu for creating option menus in Streamlit apps
+from plotly.subplots import make_subplots      # Import make_subplots from Plotly for creating combined plots
+from graphs import Graph                       # Import Graph class from the 'graphs' module for graph operations
 
 
-import requests  # Import requests library to make HTTP requests
+import requests  # Import the requests library for HTTP request handling
 
-# Function to retrieve all available currency pairs from the Kraken API
+# Retrieves all available currency pairs from the Kraken cryptocurrency exchange API
 def get_kraken_pairs():
-    url = 'https://api.kraken.com/0/public/AssetPairs'  # API endpoint for Kraken currency pairs
-    response = requests.get(url)                        # Making a GET request to the API
-    response_json = response.json()                     # Parsing the JSON response
-    pairs = response_json['result'].keys()              # Extraction of the currency pairs
-    return tuple(pairs)                                 # Returning the currency pairs as a tuple
+    url = 'https://api.kraken.com/0/public/AssetPairs'  # Endpoint URL for fetching Kraken currency pairs
+    response = requests.get(url)                        # Send a GET request to the Kraken API
+    response_json = response.json()                     # Convert the response to JSON format
+    pairs = response_json['result'].keys()              # Extract currency pair identifiers from the JSON data
+    return tuple(pairs)                                 # Return the currency pairs as a tuple
 
-kraken_pairs = get_kraken_pairs()  # Retrieve and store the available Kraken currency pairs
+kraken_pairs = get_kraken_pairs()  # Get and store the list of currency pairs available on Kraken
 
 
+# A dictionary mapping time intervals to their durations in minutes
 intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
-keys, options = intervals.keys(), intervals.values()
+keys, options = intervals.keys(), intervals.values()  # Separate lists of interval labels and their corresponding durations
 
-# Function to find the largest divisor of an integer from the values of the dictionary 'intervals'
+# Finds the largest duration in 'intervals' that is a divisor of 'n'
 def find_largest_divisor(n):
-    valid_divisors = [d for d in options if n % d == 0]
+    valid_divisors = [d for d in options if n % d == 0]  # Filters durations that are divisors of 'n'
     if not valid_divisors:
-        return None  
-    return max(valid_divisors)
+        return None                                      # Returns None if no valid divisors are found
+    return max(valid_divisors)                           # Returns the largest divisor found
 
 
-# Definition of the Front class for handling the front-end part of the application
+# The Front class manages the front-end of the application, particularly the Streamlit interface
 class Front:
 
-    # Method to initialize all objects from the Front class
+    # Constructor for initializing the Front class instances.
     def __init__(self):
-        st.title("Kraken Currency Analysis Tool")  # Set the title of the Streamlit app
-        st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.title("Kraken Currency Analysis Tool")                                 # Displays the title on the Streamlit app interface
+        st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")  # Credits authors in the app
+        st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
 
-        # Initialize default values for currency pair and interval
-        self.c1 = None
-        st.session_state.selected_option = st.session_state.get("selected_option")
-        self.c2 = st.session_state.selected_option
+        # Initialize variables for tracking currency pair selections
+        self.currency_pair = None                                                   # Placeholder for the first currency in the pair
+        st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
+        self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
 
-    # Method to create selection boxes for user input
+
+    # Method to create user input interfaces, including dropdowns and buttons
     def select_boxes(self):
 
-        # Dropdown to select currency pair
-        self.c1 = st.selectbox(
-           "Select a currency pair from the available options",
-           kraken_pairs,
-           index=None,
-           placeholder="xxxxxxx",
+        # Dropdown menu for selecting a currency pair
+        self.currency_pair = st.selectbox(
+           label = 'placeholder',            # Streamlit's selectbox requires a label, even when collapsed
+           options = kraken_pairs,           # List of currency pairs from Kraken
+           index = None,
+           placeholder = "xxxxxxx",          # Placeholder text in the dropdown
+           label_visibility = "collapsed"
         )
 
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
-        # Dynamic CSS to highlight the selected button
-        selected_option_key = f"button-{st.session_state.selected_option}" if st.session_state.selected_option else ""
-        st.markdown("We have selected some of the most used time windows, pick one from the following..." + 
+        # Applies dynamic CSS to highlight the selected time interval button
+        st.markdown("2. Choose a time window from the most commonly used options:" + 
             f"""
             <style>
             div.stButton > button {{
                 width: 100%;
             }}
-            div.stButton > button#{selected_option_key} {{
+            div.stButton > button# {{
                 background-color: #0d6efd;
                 color: white;
             }}
@@ -72,52 +74,57 @@ class Front:
             unsafe_allow_html=True,
         )
         
-        # Creating a row of columns with the options
+        # Generate a row of buttons for selecting time intervals
         columns = st.columns(len(keys))
         for i, key in enumerate(keys):
             with columns[i]:
                 button_key = f"button-{key}"
                 if st.button(key, key=button_key):
-                    self.c2 = int(intervals[key])
-                    st.session_state.selected_option = self.c2
+                    self.time_interval = int(intervals[key])               # Sets the selected time interval
+                    st.session_state.selected_option = self.time_interval  # Updates the session state
 
-        if st.button("...or introduce an integer number of minutes in the range (1 - 43200)", key=f"Other"):
-        # Creating a number input field
+        # Button for allowing custom time interval input
+        if st.button("...or enter a custom time interval (in minutes)", key="Other"):
+            # Input field for custom time interval in minutes
             number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
             if number is not None: 
-                self.c2 = number
+                self.time_interval = number  # Update the time interval with the custom input
 
 
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
-        # Horizontal option menu for selecting the graph type.
+        # Horizontal menu for selecting the type of graph to display
         self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Mobile Mean", "Both options combined"],
                                                 icons=['bar-chart-line', 'activity', "layers"],
                                                 menu_icon="cast", default_index=0, orientation="horizontal")
 
 
-    # Method to handle graph generation and display
+    # Method to generate and display graphs based on user-selected parameters.
     def display_graph(self):
 
+        # Trigger graph plotting if the button is clicked or a figure is already in the session state
         if st.button("Plot it!") or 'fig_dict' in st.session_state:
 
-            # Conditional to verify if self.c1 is of NoneType
-            if self.c1 is None:
-                st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-                return  # End the execution of this method
+            # Check if a currency pair is selected; show error message if not
+            if self.currency_pair is None:
+                st.markdown('&nbsp;'*33 + 'Please select a currency pair to graph the corresponding data.', unsafe_allow_html=True)
+                return  # Exit the method if no currency pair is selected.
             
-            # Conditional to verify if self.c2 is of NoneType
-            if self.c2 is None:
-                st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
-                return  # End the execution of this method
+            # Check if a time interval is selected; show error message if not
+            if self.time_interval is None:
+                st.markdown('&nbsp;'*30 + 'Please choose a time interval to graph the corresponding data.', unsafe_allow_html=True)
+                return  # Exit the method if no time interval is selected
 
-            graph = Graph(pair=self.c1, interval=self.c2, divisor=find_largest_divisor(self.c2))
+            # Instantiate Graph with selected parameters and retrieve data
+            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval))
             ohlc_df = graph.obtain_data()
+
+            # Generate the selected graph type based on user input
             candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
             if self.graph_selected == "Candlestick graph of OHLC data":
                 fig = candlestick
-
+                
             elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
                 fig = stochastic_mm
 
@@ -136,33 +143,33 @@ class Front:
                     yaxis2_title='%K - %D',
                     xaxis_rangeslider_visible=False)
 
+            # Convert the figure to a dictionary and display it using Streamlit
+            fig_dict = fig.to_dict()
+            st.session_state['fig_dict'] = fig_dict
+            st.plotly_chart(fig_dict)
 
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
-
-            # Moved the button definition here
+            # Profit calculation and display section
             profit_df = graph.calculate_profit(ohlc_df)
-            fig_profit = graph.profit_graph(profit_df)
             if st.button("Calculate potential earnings"):
-                if fig_profit is not None:
-                    st.write("This graph simulates potential profit based on the data.")
-                    st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
-                    fig_profit.add_trace(fig_profit['data'][0])
-                    fig_profit.add_trace(fig_profit['data'][1])
-                    fig_profit.add_trace(fig_profit['data'][2])
+                fig_profit = graph.profit_graph(profit_df)
+                if fig_profit:
+                    st.write("Graph simulates potential profit/loss based on buy/sell signals.")
                     fig_profit_dict = fig_profit.to_dict()
-                    st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
+                    st.plotly_chart(fig_profit_dict)
                 else:
-                    st.write("there are no buy signals")
-                    st.write("asdf")
+                    st.write("No buy or sell signals to display.")
 
     
-    # Method to run the main functionality of the Streamlit app
+    # Method to execute the core operations of the Streamlit application
     def run(self):
         try:
-            st.write('Please select a currency pair')  # Prompt user to select a currency pair
-            self.select_boxes()   # Call method defined below to display selection boxes
-            self.display_graph()  # Call method defined below to display the selected graph
+            # Prompt user to select a currency pair from the pairs retrieved
+            st.write("1. Please select a currency pair from the available options.")
+
+            # Invoke methods to display user input options and the graph based on selections
+            self.select_boxes()   # Displays currency pair and time interval selection options
+            self.display_graph()  # Renders the graph based on user selections
+
         except Exception as e:
-            st.error(f"An error ocurred: {e}")
+            # Handle and display any exceptions that occur during execution
+            st.error(f"An error occurred: {e}")  # Show the error message to the user in the app
