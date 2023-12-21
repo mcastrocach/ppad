@@ -53,15 +53,15 @@ class Graph:
             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
 
             # Convert timestamps to datetime format and set as DataFrame index
-            ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')
+            ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')    # Unix timestamp to Python datetime
             ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
 
             # Convert all price and volume data to float type for calculations
-            ohlc_df["Open"] = ohlc_df["Open"].astype(float)
-            ohlc_df["High"] = ohlc_df["High"].astype(float)
-            ohlc_df["Low"] = ohlc_df["Low"].astype(float)
-            ohlc_df["Close"] = ohlc_df["Close"].astype(float)
-            ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
+            ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening price of a financial instrument for the given period
+            ohlc_df["High"] = ohlc_df["High"].astype(float)       # Highest price of the instrument in the given period
+            ohlc_df["Low"] = ohlc_df["Low"].astype(float)         # Lowest price of the instrument in the given period
+            ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price of the instrument for the given period
+            ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the given period
 
             # Add Simple Moving Average (SMA) and Exponential Moving Average (EMA) to the DataFrame
             window = 14 if ohlc_df.shape[0] >= 60 else 3  # Determine window size based on data points
@@ -81,12 +81,11 @@ class Graph:
             df = ohlc_df[-60:]
 
             # Define the candlestick chart components and moving averages
-            data = [
-                    go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+            data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                    low=df['Low'], close=df['Close'], name='Candlestick'),
 
-                    go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving Average'),
-                    go.Scatter(x=df.index, y=df['EMA'], name='Exponential Moving Average')]
+                     go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving Average'),
+                     go.Scatter(x=df.index, y=df['EMA'], name='Exponential Moving Average') ]
 
             fig = go.Figure(data=data)  # Instantiate a Plotly Figure object with the defined data
             return fig                  # Return the Figure object for visualization
