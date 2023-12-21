@@ -2,6 +2,9 @@ import krakenex                   # Import krakenex to interact with the Kraken 
 import plotly.graph_objs as go    # Import Plotly's graph objects for advanced data visualization
 import pandas as pd               # Import Pandas for data analysis and manipulation
 import numpy as np                # Import NumPy for numerical operations and array processing
+import time                       # Import time for time.mktime
+import datetime
+
 
 
 # The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
@@ -12,6 +15,7 @@ class Graph:
         self.pair = pair          # The currency pair to be analyzed
         self.interval = interval  # Time interval for each data point in minutes
         self.divisor = divisor    # Divisor for interval adjustment
+        self.since = int(time.mktime(datetime.datetime.now().timetuple()))
 
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
@@ -32,7 +36,7 @@ class Graph:
             k = krakenex.API()  # Initialize the Kraken client
             
             # Query for OHLC data for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor})
+            response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor,'since':self.since})
             if response['error']:  # Check and raise an exception if errors exist in the response
                 raise Exception(response['error'])
 

@@ -2,7 +2,7 @@ import streamlit as st                         # Import Streamlit for creating w
 from streamlit_option_menu import option_menu  # Import option_menu for creating option menus in Streamlit apps
 from plotly.subplots import make_subplots      # Import make_subplots from Plotly for creating combined plots
 from graphs import Graph                       # Import Graph class from the 'graphs' module for graph operations
-
+import time                                    # Import time for converting date to Unix timestamp
 
 import requests  # Import the requests library for HTTP request handling
 
@@ -90,6 +90,10 @@ class Front:
             if number is not None: 
                 self.time_interval = number  # Update the time interval with the custom input
 
+        # Date picker for selecting the start date
+        self.start_date = st.date_input('Start date', value=None)
+        if self.start_date is not None:
+            self.start_timestamp = int(self.start_date.timestamp())
 
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
@@ -115,7 +119,7 @@ class Front:
                 st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
                 return  # End the execution of this method
 
-            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval))
+            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.start_timestamp)
             ohlc_df = graph.obtain_data()
             candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
