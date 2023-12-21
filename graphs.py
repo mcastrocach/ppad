@@ -1,3 +1,4 @@
+import json
 import krakenex                   # Import krakenex to interact with the Kraken cryptocurrency exchange API
 import plotly.graph_objs as go    # Import Plotly's graph objects for advanced data visualization
 import pandas as pd               # Import Pandas for data analysis and manipulation
@@ -11,11 +12,11 @@ import datetime
 class Graph:
 
     # Constructor for initializing a Graph instance with a currency pair, interval, and divisor
-    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1):
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int(time.mktime(datetime.datetime.now().timetuple()))):
         self.pair = pair          # The currency pair to be analyzed
         self.interval = interval  # Time interval for each data point in minutes
         self.divisor = divisor    # Divisor for interval adjustment
-        self.since = int(time.mktime(datetime.datetime.now().timetuple()))
+        self.since = since
 
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
@@ -39,6 +40,10 @@ class Graph:
             response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor,'since':self.since})
             if response['error']:  # Check and raise an exception if errors exist in the response
                 raise Exception(response['error'])
+            
+            # Save the response data to a JSON file
+            with open('response_data.json', 'w') as json_file:
+                json.dump(response, json_file)
 
         # Catch and print any exceptions during the data retrieval process
         except Exception as e:
@@ -151,7 +156,6 @@ class Graph:
         try:
             df = df[-60:]
             if not df['Buy_Signal'].any():  # Check if there are any buy signals
-                print("No buy signals found.")
                 return None  # Return None if no buy signals
             first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
             df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy signal onwards

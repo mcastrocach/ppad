@@ -3,6 +3,7 @@ from streamlit_option_menu import option_menu  # Import option_menu for creating
 from plotly.subplots import make_subplots      # Import make_subplots from Plotly for creating combined plots
 from graphs import Graph                       # Import Graph class from the 'graphs' module for graph operations
 import time                                    # Import time for converting date to Unix timestamp
+import datetime                                # Import datetime for date and time operations
 
 import requests  # Import the requests library for HTTP request handling
 
@@ -42,6 +43,7 @@ class Front:
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
         st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
         self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
+        self.since = None                                                      # Initialize since attribute
 
 
     # Method to create user input interfaces, including dropdowns and buttons
@@ -91,9 +93,11 @@ class Front:
                 self.time_interval = number  # Update the time interval with the custom input
 
         # Date picker for selecting the start date
-        self.start_date = st.date_input('Start date', value=None)
-        if self.start_date is not None:
-            self.start_timestamp = int(self.start_date.timestamp())
+        self.since = st.date_input('Start date', value=None)
+        if self.since is not None:
+            # Convert date to datetime
+            self.since = datetime.datetime.combine(self.since, datetime.datetime.min.time())
+            self.since = datetime.datetime.strptime(str(self.since), "%Y-%m-%d %H:%M:%S").timestamp()
 
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
@@ -119,7 +123,7 @@ class Front:
                 st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
                 return  # End the execution of this method
 
-            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.start_timestamp)
+            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.since)
             ohlc_df = graph.obtain_data()
             candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
