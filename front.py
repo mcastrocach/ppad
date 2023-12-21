@@ -32,7 +32,7 @@ def find_largest_divisor(n):
 # The Front class manages the front-end of the application, particularly the Streamlit interface
 class Front:
 
-    # Constructor for initializing the Front class instances.
+    # Constructor for initializing the Front class instances
     def __init__(self):
         st.title("Kraken Currency Analysis Tool")                                 # Displays the title on the Streamlit app interface
         st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")  # Credits authors in the app
@@ -100,31 +100,28 @@ class Front:
 
 
     # Method to generate and display graphs based on user-selected parameters.
+    # Method to handle graph generation and display
     def display_graph(self):
 
-        # Trigger graph plotting if the button is clicked or a figure is already in the session state
         if st.button("Plot it!") or 'fig_dict' in st.session_state:
 
-            # Check if a currency pair is selected; show error message if not
+            # Conditional to verify if self.currency_pair is of NoneType
             if self.currency_pair is None:
-                st.markdown('&nbsp;'*33 + 'Please select a currency pair to graph the corresponding data.', unsafe_allow_html=True)
-                return  # Exit the method if no currency pair is selected.
+                st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                return  # End the execution of this method
             
-            # Check if a time interval is selected; show error message if not
+            # Conditional to verify if self.time_interval is of NoneType
             if self.time_interval is None:
-                st.markdown('&nbsp;'*30 + 'Please choose a time interval to graph the corresponding data.', unsafe_allow_html=True)
-                return  # Exit the method if no time interval is selected
+                st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                return  # End the execution of this method
 
-            # Instantiate Graph with selected parameters and retrieve data
             graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval))
             ohlc_df = graph.obtain_data()
-
-            # Generate the selected graph type based on user input
             candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
 
             if self.graph_selected == "Candlestick graph of OHLC data":
                 fig = candlestick
-                
+
             elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
                 fig = stochastic_mm
 
@@ -143,21 +140,25 @@ class Front:
                     yaxis2_title='%K - %D',
                     xaxis_rangeslider_visible=False)
 
-            # Convert the figure to a dictionary and display it using Streamlit
-            fig_dict = fig.to_dict()
-            st.session_state['fig_dict'] = fig_dict
-            st.plotly_chart(fig_dict)
 
-            # Profit calculation and display section
+            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+
+            # Moved the button definition here
             profit_df = graph.calculate_profit(ohlc_df)
+            fig_profit = graph.profit_graph(profit_df)
             if st.button("Calculate potential earnings"):
-                fig_profit = graph.profit_graph(profit_df)
-                if fig_profit:
-                    st.write("Graph simulates potential profit/loss based on buy/sell signals.")
+                if fig_profit is not None:
+                    st.write("This graph simulates potential profit based on the data.")
+                    st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
+                    fig_profit.add_trace(fig_profit['data'][0])
+                    fig_profit.add_trace(fig_profit['data'][1])
+                    fig_profit.add_trace(fig_profit['data'][2])
                     fig_profit_dict = fig_profit.to_dict()
-                    st.plotly_chart(fig_profit_dict)
+                    st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
                 else:
-                    st.write("No buy or sell signals to display.")
+                    st.write("There are no buy signals")
 
     
     # Method to execute the core operations of the Streamlit application

@@ -1,56 +1,56 @@
-import json
-import krakenex                   # Import the krakenex library to interact with the Kraken cryptocurrency exchange
-import plotly.graph_objs as go    # Import plotly's graph objects for creating various types of plots
-import pandas as pd               # Import pandas to manipulate the retrieved currency data
-import numpy as np
+import krakenex                   # Import krakenex to interact with the Kraken cryptocurrency exchange API
+import plotly.graph_objs as go    # Import Plotly's graph objects for advanced data visualization
+import pandas as pd               # Import Pandas for data analysis and manipulation
+import numpy as np                # Import NumPy for numerical operations and array processing
 
 
-intervals = (1, 5, 15, 30, 60, 240, 1440, 10080, 21600)
-
-# Definition of the class Graph to create candlestick and stochastic oscillator (w/ mobile mean) graphs for trading analysis
+# The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
 class Graph:
 
-    # Initializing the class with a default currency pair and time interval
+    # Constructor for initializing a Graph instance with a currency pair, interval, and divisor
     def __init__(self, pair='XETHZUSD', interval=1440, divisor=1):
-        self.pair = pair
-        self.interval = interval
-        self.divisor = divisor
+        self.pair = pair          # The currency pair to be analyzed
+        self.interval = interval  # Time interval for each data point in minutes
+        self.divisor = divisor    # Divisor for interval adjustment
 
-    # Function to aggregate the information in specific intervals that are not available for direct data retrieval using the API
+    # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
-        resampled_df = df.resample(f'{self.interval}T').agg({'Open':'first', 'High':'max', 'Low':'min', 'Close':'last', 'Volume':'sum'})
+        # Resamples the DataFrame to the specified interval and aggregates key metrics
+        resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first', 
+                                                              'High': 'max', 
+                                                              'Low': 'min', 
+                                                              'Close': 'last', 
+                                                              'Volume': 'sum'})
         return resampled_df
 
-    # Retrieving all the useful information from the Kraken API and storing it in a pandas dataframe
+
+    # Retrieves trading data from the Kraken API and organizes it into a Pandas DataFrame
     def obtain_data(self):
         
-        # Attempt to perform operations that may fail
+        # Initializing a Kraken API client and querying data within a try-except block
         try:
-            k = krakenex.API()  # initialize the Kraken client to interact with the API
+            k = krakenex.API()  # Initialize the Kraken client
             
-            # Get the OHLC (Open, High, Low, Close) data from Kraken for the specified currency pair and interval
+            # Query for OHLC data for the specified currency pair and interval
             response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor})
-            if response['error']:  # Check for any errors in the response and raise an exception if any are found
-                throw(response['error'])
+            if response['error']:  # Check and raise an exception if errors exist in the response
+                raise Exception(response['error'])
 
-        # Exception handling block to catch any errors during the process
+        # Catch and print any exceptions during the data retrieval process
         except Exception as e:
-            print(e)                               # Print the exception error message
-            print("Error while generating graph")  # Print a general error message indicating failure to generate the graph
+            print(f"An error occurred: {e}")       # Print the specific error message
+            print("Error while generating graph")  # Indicate a graph generation error
 
-        # If no excepetion occurs, the information is retrieved and stored in a pandas dataframe
+        # Process the retrieved data if no exceptions occur
         else:
-            ohlc_data = response['result'][self.pair]  # Extract the OHLC data from the response
-            # Convert the OHLC data into a pandas DataFrame with specified column names
-            ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"])
-            ohlc_df = ohlc_df.drop('NaN',axis=1)
-            ohlc_df = ohlc_df.drop('MaM',axis=1)
+            ohlc_data = response['result'][self.pair]  # Extract OHLC data from API response
 
-            # Convert the 'timestamp' column from Unix time (seconds since January 1, 1970) to datetime objects
+            # Convert OHLC data to a DataFrame and remove unnecessary columns
+            ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
+
+            # Convert timestamps to datetime format and set as DataFrame index
             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')
-
-            # Set the DataFrame index to the 'timestamp' column for time series analysis
-            ohlc_df.index = pd.DatetimeIndex(ohlc_df["timestamp"])
+            ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
 
             # Convert all price and volume data to float type for calculations
             ohlc_df["Open"] = ohlc_df["Open"].astype(float)
@@ -59,36 +59,44 @@ class Graph:
             ohlc_df["Close"] = ohlc_df["Close"].astype(float)
             ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)
 
-            window = 14 if ohlc_df.shape[0]>=60 else 3
+            # Add Simple Moving Average (SMA) and Exponential Moving Average (EMA) to the DataFrame
+            window = 14 if ohlc_df.shape[0] >= 60 else 3  # Determine window size based on data points
             ohlc_df['SMA'] = ohlc_df['Close'].rolling(window=window).mean()
             ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
 
-
-            # Trim the DataFrame to the last 60 data points for visualization
-            if self.interval not in intervals:
+            # Aggregate data into custom intervals if needed
+            if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
                 ohlc_df = self.aggregate_intervals(ohlc_df)
-            return ohlc_df
+            return ohlc_df  # Return the prepared DataFrame
 
-    @staticmethod  # Create a candlestick chart using Plotly with the OHLC data
+
+    @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
     def candlestick(ohlc_df):
         try:
+            # Use the last 60 data points from the OHLC DataFrame for the chart
             df = ohlc_df[-60:]
-            data = [go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                low=df['Low'], close=df['Close'], name='Candlestick'),
-            go.Scatter(x=df.index, y=df['SMA'], name='Simple Mobile Mean'),
-            go.Scatter(x=df.index, y=df['EMA'], name='Exponential Mobile Mean')]
 
-            fig = go.Figure(data=data)  # Create a Figure object with the candlestick data
-            return fig                  # Return the Figure object for plotting
+            # Define the candlestick chart components and moving averages
+            data = [
+                    go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                   low=df['Low'], close=df['Close'], name='Candlestick'),
+
+                    go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving Average'),
+                    go.Scatter(x=df.index, y=df['EMA'], name='Exponential Moving Average')]
+
+            fig = go.Figure(data=data)  # Instantiate a Plotly Figure object with the defined data
+            return fig                  # Return the Figure object for visualization
+        
         except Exception as e:
+            # Handle exceptions in chart creation and return an empty figure in case of an error
             print(f"An error occurred while creating the candlestick chart: {e}")
-            return go.Figure()
+            return go.Figure()  # Return an empty Plotly Figure object if an error occurs
+
 
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
-    def stochastic_mm(df, sma=False, ema=False):
+    def stochastic_mm(df):
         try:
             window = 14 if df.shape[0]>=60 else 3
-            df['SMA'] = df['Close'].rolling(window=window).mean()
             df['L14'] = df['Low'].rolling(window=window).min()
             df['H14'] = df['High'].rolling(window=window).max()
             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
@@ -115,6 +123,7 @@ class Graph:
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()
 
+
     def calculate_profit(self, df):
         try:
             coins = 0
@@ -133,6 +142,7 @@ class Graph:
         except Exception as e:
             print(f"An error occurred while creating the profit data: {e}")
             return pd.DataFrame()
+
 
     def profit_graph(self, df):
         try:
