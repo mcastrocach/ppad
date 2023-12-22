@@ -7,6 +7,7 @@
 \textclass article
 \begin_preamble
 \date{}
+\usepackage{pythonhighlight}
 \end_preamble
 \use_default_options true
 \maintain_unincluded_children false
@@ -202,6 +203,66 @@ Para ello primero inicializamos el cliente de kraken, para hacer una llamada
  al endpoint publico OHCL.
 \end_layout
 
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+     def calculate_profit(self, df):        try:            coins = 0  
+          total_spent = 0            df['Buy_Price'] = np.where(df['Buy_Signal'],
+ df['Close'], np.nan)            df['Sell_Price'] = np.where(df['Sell_Signal'],
+ df['Close'], np.nan)            for i in range(len(df)):               
+ if df['Buy_Signal'].iloc[i]:                    coins += 100           
+         total_spent += df['Buy_Price'].iloc[i]*100                if df['Sell_Si
+gnal'].iloc[i] and coins >= 100:                    coins -= 100        
+            total_spent -= df['Sell_Price'].iloc[i]*100 º           df['Profit']
+ = df['Close'] * coins - total_spent            return df        except
+ Exception as e:           print(f"An error occurred while creating the
+ profit data: {e}")            return pd.DataFrame()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 En la llamada hacemos uso de los siguientes argumentos:
 \end_layout
@@ -212,28 +273,6 @@ Pair: La pareja de monedas de la que sacaremos los datos.
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-# Retrieves all available currency pairs from the Kraken cryptocurrency
- exchange API def get_kraken_pairs():     url = 'https://api.kraken.com/0/public/A
-ssetPairs'  # Endpoint URL for fetching Kraken currency pairs     response
- = requests.get(url)                        # Send a GET request to the Kraken
- API     response_json = response.json()                     # Convert the
- response to JSON format     pairs = response_json['result'].keys()     
-         # Extract currency pair identifiers from the JSON data     return
- tuple(pairs)                                 # Return the currency pairs
- as a tuple
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 Interval: El periodo de tiempo del que sacamos los datos.
 \end_layout
 
@@ -241,119 +280,8 @@ Interval: El periodo de tiempo del que sacamos los datos.
 Since: El punto de partida para los datos.
 \end_layout
 
-\begin_layout Labeling
-\labelwidthstring 00.00.0000
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-# Retrieves trading data from the Kraken API and organizes it into a Pandas
- DataFrame
-\end_layout
-
-\begin_layout Plain Layout
-
-    def obtain_data(self):
-\end_layout
-
-\begin_layout Plain Layout
-
-                 # Initializing a Kraken API client and querying data within
- a try-except block
-\end_layout
-
-\begin_layout Plain Layout
-
-        try:
-\end_layout
-
-\begin_layout Plain Layout
-
-            k = krakenex.API() # Initialize the Kraken client
-\end_layout
-
-\begin_layout Plain Layout
-
-    # Retrieves trading data from the Kraken API and organizes it into a
- Pandas DataFrame    def obtain_data(self):                # Initializing
- a Kraken API client and querying data within a try-except block       
- try:            k = krakenex.API()  # Initialize the Kraken client     
-                   # Query for OHLC data for the specified currency pair
- and interval            response = k.query_public('OHLC', {'pair': self.pair,
- 'interval': self.divisor,'since':self.since})            if response['error']:
-  # Check and raise an exception if errors exist in the response       
-         raise Exception(response['error'])
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Standard
 Acto seguido limpiamos los datos:
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-            ohlc_data = response['result'][self.pair]  # Extract OHLC data
- from API response
-\end_layout
-
-\begin_layout Plain Layout
-
-            # Convert OHLC data to a DataFrame and remove unnecessary columns
-             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open",
- "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
-\end_layout
-
-\begin_layout Plain Layout
-
-            # Convert timestamps to datetime format and set as DataFrame
- index             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"],
- unit='s')    # Unix timestamp to Python datetime             ohlc_df.set_index(p
-d.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
-\end_layout
-
-\begin_layout Plain Layout
-
-            # Convert all price and volume data to float type for calculations
-             ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening
- price of a financial instrument for the given period             ohlc_df["High"
-] = ohlc_df["High"].astype(float)       # Highest price of the instrument
- in the given period             ohlc_df["Low"] = ohlc_df["Low"].astype(float)
-         # Lowest price of the instrument in the given period          
-   ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price
- of the instrument for the given period             ohlc_df["Volume"] =
- ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the
- given period
-\end_layout
-
-\begin_layout Plain Layout
-
-            # Add Simple Moving Average (SMA) and Exponential Moving Average
- (EMA) to the DataFrame             window = 14 if ohlc_df.shape[0] >= 60
- else 3  # Determine window size based on data points             ohlc_df['SMA']
- = ohlc_df['Close'].rolling(window=window).mean()             ohlc_df['EMA']
- = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
-\end_layout
-
-\begin_layout Plain Layout
-
-            # Aggregate data into custom intervals if needed           
-  if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):  
-               ohlc_df = self.aggregate_intervals(ohlc_df)             return
- ohlc_df  # Return the prepared DataFrame
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \end_deeper
@@ -367,7 +295,7 @@ TODO,descripcion, referenciar codigo y añadir capturas
 \end_layout
 
 \begin_layout Enumerate
-Calcular el estocástico y graficarlo
+Calcular el estocástico y la media móvil
 \end_layout
 
 \begin_deeper
@@ -396,10 +324,6 @@ Explicación de nuestra forma de calcularlo
 \end_layout
 
 \end_deeper
-\begin_layout Enumerate
-Calcular el estocástico sobre una media móvil
-\end_layout
-
 \begin_layout Enumerate
 Graficar el indicador junto con la cotización del par calculado
 \end_layout
@@ -605,6 +529,30 @@ En una primera instancia realizamos pruebas con el par ETH/USD a través
 \begin_layout Standard
 <Insertar imágenes de los gráficos con ETH/USD y otro par a seleccionar,
  yo propongo bitcoin-libra esterlina>
+\end_layout
+
+\begin_layout Standard
+RESUMEN PUBLICAR PYPI
+\end_layout
+
+\begin_layout Standard
+pip install hatch 
+\end_layout
+
+\begin_layout Standard
+pip install pip twine
+\end_layout
+
+\begin_layout Standard
+Crear cuenta de pypi, activar 2fa y usar api token
+\end_layout
+
+\begin_layout Standard
+hatch build
+\end_layout
+
+\begin_layout Standard
+twine upload dist/* (con tu cuenta de pypi)
 \end_layout
 
 \end_body

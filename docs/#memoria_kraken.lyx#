@@ -234,7 +234,7 @@ begin{python}
  if df['Buy_Signal'].iloc[i]:                    coins += 100           
          total_spent += df['Buy_Price'].iloc[i]*100                if df['Sell_Si
 gnal'].iloc[i] and coins >= 100:                    coins -= 100        
-            total_spent -= df['Sell_Price'].iloc[i]*100            df['Profit']
+            total_spent -= df['Sell_Price'].iloc[i]*100 º           df['Profit']
  = df['Close'] * coins - total_spent            return df        except
  Exception as e:           print(f"An error occurred while creating the
  profit data: {e}")            return pd.DataFrame()
