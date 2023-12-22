@@ -40,10 +40,6 @@ class Graph:
             response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor,'since':self.since})
             if response['error']:  # Check and raise an exception if errors exist in the response
                 raise Exception(response['error'])
-            
-            # Save the response data to a JSON file
-            with open('response_data.json', 'w') as json_file:
-                json.dump(response, json_file)
 
         # Catch and print any exceptions during the data retrieval process
         except Exception as e:
