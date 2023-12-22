@@ -27,7 +27,6 @@ class TestFront(unittest.TestCase):
         self.assertIsInstance(result, tuple)
         self.assertTrue(len(result) > 0)
 
-    # Additional test methods can be added here as needed
 class TestGraph(unittest.TestCase):
 
     def test_find_largest_divisor(self):
@@ -53,6 +52,12 @@ class TestGraph(unittest.TestCase):
         fig = graph.stochastic_mm(df)
         self.assertIsInstance(fig, go.Figure)
 
+    # New test method to test the initialization of the Graph class
+    def test_init(self):
+        graph = Graph(pair='XETHZUSD', interval=1440, divisor=1)  # create an instance of the Graph class
+        self.assertEqual(graph.pair, 'XETHZUSD')  # Asserting that the pair attribute is correctly set
+        self.assertEqual(graph.interval, 1440)  # Asserting that the interval attribute is correctly set
+        self.assertEqual(graph.divisor, 1)  # Asserting that the divisor attribute is correctly set
 
 # This block runs if the script is executed directly
 if __name__ == '__main__':  

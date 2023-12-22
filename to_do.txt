@@ -1,15 +1,8 @@
 [!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
 [ ] Documentar: el despliegue en Docker, el funcionamiento del test de cobertura, el cómo se crearía un entorno para reproducir el proyecto,
-
-[ ] Analizar rendimiento de la media móvil como métrica para la inversión
-[ ] Bug si no hay señal de compra profit retorna null
-[ ] Lo de la fecha
-
-[ ] Añadir más tests de unit-testing y ver si se puede arreglar el test de inicio
-[ ] Hacer integration testing
-[ ] (Rodrigo) a ver si se me ocurre un test que aproveche el funcionamiento de find_largest_divisor
 [ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip) > tenemos requirements.txt, investigar lo demás
-
-[ ] Revisar comentarios y código para quitar partes innecesarias
-[ ] Escribir el README, cuando enviemos dejar bien el repo y hacer mención a él en la memoria
 [ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
+
+[ ] (Rodrigo) a ver si se me ocurre un test que aproveche el funcionamiento de find_largest_divisor
+
+[ ] Escribir el README, cuando enviemos dejar bien el repo y hacer mención a él en la memoria

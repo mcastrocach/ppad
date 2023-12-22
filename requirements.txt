@@ -1,7 +1,7 @@
-pandas
-numpy
-krakenex
-plotly
-streamlit
-streamlit-option-menu
-coverage
+pandas==1.2.3
+numpy==1.20.2
+krakenex==2.1.1
+plotly==4.14.3
+streamlit==0.79.0
+streamlit-option-menu==0.1.0
+coverage==5.5

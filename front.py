@@ -30,16 +30,13 @@ def find_largest_divisor(n):
     return max(valid_divisors)                           # Returns the largest divisor found
 
 
-# The Front class manages the front-end of the application, particularly the Streamlit interface
 class Front:
 
-    # Constructor for initializing the Front class instances
     def __init__(self):
         st.title("Kraken Currency Analysis Tool")                                 # Displays the title on the Streamlit app interface
         st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")  # Credits authors in the app
         st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
 
-        # Initialize variables for tracking currency pair selections
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
         st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
         self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
