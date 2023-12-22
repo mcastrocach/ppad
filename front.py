@@ -99,7 +99,7 @@ class Front:
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
         # Horizontal menu for selecting the type of graph to display
-        self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Mobile Mean", "Both options combined"],
+        self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Smoothed Version", "Both options combined"],
                                                 icons=['bar-chart-line', 'activity', "layers"],
                                                 menu_icon="cast", default_index=0, orientation="horizontal")
 
@@ -122,24 +122,24 @@ class Front:
 
             graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.since)
             ohlc_df = graph.obtain_data()
-            candlestick, stochastic_mm = graph.candlestick(ohlc_df), graph.stochastic_mm(ohlc_df)
+            candlestick, stochastic = graph.candlestick(ohlc_df), graph.stochastic(ohlc_df)
 
             if self.graph_selected == "Candlestick graph of OHLC data":
                 fig = candlestick
 
-            elif self.graph_selected == "Stochastic Oscillator & Mobile Mean":
-                fig = stochastic_mm
+            elif self.graph_selected == "Stochastic Oscillator & Smoothed Version":
+                fig = stochastic
 
             elif self.graph_selected == "Both options combined":
                 fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.01, row_heights=[0.8, 0.2,0.3])
                 fig.add_trace(candlestick['data'][0], row=1, col=1)
                 fig.add_trace(candlestick['data'][1], row=1, col=1)
                 fig.add_trace(candlestick['data'][2], row=1, col=1)
-                fig.add_trace(stochastic_mm['data'][0], row=2, col=1)
-                fig.add_trace(stochastic_mm['data'][1], row=2, col=1)
+                fig.add_trace(stochastic['data'][0], row=2, col=1)
+                fig.add_trace(stochastic['data'][1], row=2, col=1)
 
                 fig.update_layout(
-                    title='Candlestick and Stochastic Oscillator with Mobile Mean',
+                    title='Candlestick Graph with Moving Average and Stochastic Oscillator',
                     yaxis_title='Price',
                     xaxis2_title='Time',
                     yaxis2_title='%K - %D',
