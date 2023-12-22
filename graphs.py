@@ -83,13 +83,17 @@ class Graph:
 
             # Define the candlestick chart components and moving averages
             data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                   low=df['Low'], close=df['Close'], name='Candlestick'),
+                                   low=df['Low'], close=df['Close'], name='Candlestick Data'),
 
                      go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving Average'),
                      go.Scatter(x=df.index, y=df['EMA'], name='Exponential Moving Average') ]
 
-            fig = go.Figure(data=data)  # Instantiate a Plotly Figure object with the defined data
-            return fig                  # Return the Figure object for visualization
+            # Define the layout for the plotly figure, setting titles and axis labels.
+            layout = go.Layout(title='Candlestick Graph with Moving Average',
+                               yaxis=dict(title='Price'))  # Label for the y-axis
+
+            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the OHLC data
+            return fig  # return the Figure object for plotting
         
         except Exception as e:
             # Handle exceptions in chart creation and return an empty figure in case of an error
@@ -98,7 +102,7 @@ class Graph:
 
 
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
-    def stochastic_mm(df):
+    def stochastic(df):
         try:
             window = 14 if df.shape[0]>=60 else 3
             df['L14'] = df['Low'].rolling(window=window).min()
@@ -113,12 +117,11 @@ class Graph:
                     go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator'),
 
                     # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Mobile Mean')]
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic Oscillator')]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
-            layout = go.Layout(title='Stochastic Oscillator',
-                            xaxis=dict(title='Time'),   # label for the x-axis 
-                            yaxis=dict(title='Value', range=[0,100]))  # Label for the y-axis
+            layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
+                               yaxis=dict(title='Value (%)', range=[0,100]))  # Label for the y-axis
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
             return fig  # return the Figure object for plotting
