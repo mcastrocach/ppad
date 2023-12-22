@@ -132,6 +132,32 @@ Descripción de cómo se ha afrontado el proyecto y por qué
 \end_layout
 
 \begin_layout Standard
+Este proyecto se desarrolló con el objetivo de proporcionar una herramienta
+ para analizar pares de divisas de la bolsa de criptomonedas Kraken.Utiliza
+ la API de Kraken para obtener datos de precios en tiempo real para varios
+ pares de divisas y visualiza estos datos utilizando la biblioteca plotly.Además,
+ calcula indicadores de análisis técnico como el oscilador estocástico y
+ su media móvil, que pueden ayudar en las decisiones de trading.El proyecto
+ está escrito en Python y utiliza varias bibliotecas, como pandas para la
+ manipulación de datos, plotly para la visualización de datos y krakenex
+ para interactuar con la API de Kraken.También utiliza Streamlit para la
+ funcionalidad de la aplicación web.El código se ha estructurado en varios
+ módulos y clases para facilitar la organización y la reutilización del
+ código.Por ejemplo, la clase Graph en el módulo `graphs.py` se encarga de
+ crear gráficos de velas y osciladores estocásticos para el análisis de
+ trading.La clase Front Front en el módulo `front.py` se encarga de manejar
+ la parte frontal de la aplicación.Durante el desarrollo del proyecto, tomamos
+ varias decisiones de diseño.
+ Por ejemplo, elegimos usar la biblioteca plotly para la visualización de
+ datos debido a su flexibilidad y potencia.
+ También decidimos usar la biblioteca krakenex para interactuar con la API
+ de Kraken debido a su simplicidad y facilidad de uso.
+ Además, abordamos varios desafíos durante el desarrollo del proyecto, como
+ la manipulación de datos en tiempo real y la visualización de datos de
+ trading de manera efectiva.
+\end_layout
+
+\begin_layout Standard
 En este proyecto se busca ser capaz de obtener y graficar datos actualizados
  de la cotización de un par de divisas de forma que se pueda realizar un
  análisis financiero y estudio de las tendencias del mercado.
@@ -159,9 +185,196 @@ que permite inicializar un cliente que interactúe a través de consultas
 
  
 \series bold
-Descripción detallada de cada uno de los puntnos que se evalúan
+Descripción detallada de cada uno de los puntos que se evalúan
 \end_layout
 
+\begin_layout Enumerate
+- Lectura y representación del movimiento del par de monedas
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Para la descarga de los datos hacemos una llamada a la API de kraken.
+\end_layout
+
+\begin_layout Standard
+Para ello primero inicializamos el cliente de kraken, para hacer una llamada
+ al endpoint publico OHCL.
+\end_layout
+
+\begin_layout Standard
+En la llamada hacemos uso de los siguientes argumentos:
+\end_layout
+
+\begin_layout Standard
+Pair: La pareja de monedas de la que sacaremos los datos.
+ La lista de todas las parejas la sacamos tambien de la api de kraken.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+# Retrieves all available currency pairs from the Kraken cryptocurrency
+ exchange API def get_kraken_pairs():     url = 'https://api.kraken.com/0/public/A
+ssetPairs'  # Endpoint URL for fetching Kraken currency pairs     response
+ = requests.get(url)                        # Send a GET request to the Kraken
+ API     response_json = response.json()                     # Convert the
+ response to JSON format     pairs = response_json['result'].keys()     
+         # Extract currency pair identifiers from the JSON data     return
+ tuple(pairs)                                 # Return the currency pairs
+ as a tuple
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Interval: El periodo de tiempo del que sacamos los datos.
+\end_layout
+
+\begin_layout Standard
+Since: El punto de partida para los datos.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+# Retrieves trading data from the Kraken API and organizes it into a Pandas
+ DataFrame
+\end_layout
+
+\begin_layout Plain Layout
+
+    def obtain_data(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+                 # Initializing a Kraken API client and querying data within
+ a try-except block
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            k = krakenex.API() # Initialize the Kraken client
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Retrieves trading data from the Kraken API and organizes it into a
+ Pandas DataFrame    def obtain_data(self):                # Initializing
+ a Kraken API client and querying data within a try-except block       
+ try:            k = krakenex.API()  # Initialize the Kraken client     
+                   # Query for OHLC data for the specified currency pair
+ and interval            response = k.query_public('OHLC', {'pair': self.pair,
+ 'interval': self.divisor,'since':self.since})            if response['error']:
+  # Check and raise an exception if errors exist in the response       
+         raise Exception(response['error'])
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Acto seguido limpiamos los datos:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+            ohlc_data = response['result'][self.pair]  # Extract OHLC data
+ from API response
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert OHLC data to a DataFrame and remove unnecessary columns
+             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open",
+ "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert timestamps to datetime format and set as DataFrame
+ index             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"],
+ unit='s')    # Unix timestamp to Python datetime             ohlc_df.set_index(p
+d.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert all price and volume data to float type for calculations
+             ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening
+ price of a financial instrument for the given period             ohlc_df["High"
+] = ohlc_df["High"].astype(float)       # Highest price of the instrument
+ in the given period             ohlc_df["Low"] = ohlc_df["Low"].astype(float)
+         # Lowest price of the instrument in the given period          
+   ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price
+ of the instrument for the given period             ohlc_df["Volume"] =
+ ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the
+ given period
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Add Simple Moving Average (SMA) and Exponential Moving Average
+ (EMA) to the DataFrame             window = 14 if ohlc_df.shape[0] >= 60
+ else 3  # Determine window size based on data points             ohlc_df['SMA']
+ = ohlc_df['Close'].rolling(window=window).mean()             ohlc_df['EMA']
+ = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Aggregate data into custom intervals if needed           
+  if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):  
+               ohlc_df = self.aggregate_intervals(ohlc_df)             return
+ ohlc_df  # Return the prepared DataFrame
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+- Graficar cotizaciones.
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Calcular el estocástico y graficarlo
+\end_layout
+
+\begin_layout Enumerate
+Calcular el estocástico sobre una media móvil
+\end_layout
+
+\begin_layout Enumerate
+Graficar el indicador junto con la cotización del par calculado
+\end_layout
+
+\end_deeper
 \begin_layout Standard
 \begin_inset Formula $\bullet$
 \end_inset
@@ -169,6 +382,42 @@ Descripción detallada de cada uno de los puntnos que se evalúan
  
 \series bold
 Descripción de la estructura del código y estructura de ficheros
+\end_layout
+
+\begin_layout Standard
+La estructura del código y de los archivos del proyecto se organiza de la
+ siguiente manera:El código principal del proyecto se encuentra en el archivo
+ main.py, que importa y utiliza las funciones y clases definidas en otros
+ módulos.
+ Estos módulos incluyen graphs.py, que contiene la clase Graph para la creación
+ de gráficos de velas y osciladores estocásticos, y front.py, que contiene
+ la clase Front para manejar la interfaz de usuario de la aplicación.Además,
+ el proyecto incluye un archivo README.md que proporciona una descripción
+ general del proyecto y las instrucciones para su uso.
+ También se incluye una carpeta docs que contiene varios archivos de texto
+ que proporcionan más detalles sobre el proyecto y sus requisitos.
+ En particular, el archivo enunciado.txt contiene los detalles del enunciado
+ del proyecto, y los archivos memoria_kraken.lyx y memoria_kraken.lyx~ contienen
+ la memoria del proyecto.Finalmente, el archivo to_do.txt contiene una lista
+ de tareas pendientes para el proyecto.Durante el desarrollo del proyecto,
+ se tomaron varias decisiones de diseño.
+ Por ejemplo, se eligió usar la biblioteca plotly para la visualización
+ de datos debido a su flexibilidad y potencia.
+ También se decidió usar la biblioteca krakenex para interactuar con la
+ API de Kraken debido a su simplicidad y facilidad de uso.
+ Además, se abordaron varios desafíos durante el desarrollo del proyecto,
+ como la manipulación de datos en tiempo real y la visualización de datos
+ de trading de manera efectiva.Para la descarga de datos, primero se obtiene
+ la nomenclatura que utiliza la plataforma para almacenar la información
+ de los distintos pares de divisas.
+ Mediante la librería requests se hace webscraping y se obtienen todos los
+ pares disponibles para que el usuario pueda seleccionar el par de divisas
+ que desee observar.
+ Además, se da la opción de seleccionar un intervalo de tiempo (en minutos)
+ de hasta un mes para que se muestre la información agregada según dicho
+ intervalo.
+ Con esta información se hace una consulta a la API de Kraken teniendo en
+ cuenta los intervalos que permite seleccionar.
 \end_layout
 
 \begin_layout Standard
@@ -291,11 +540,26 @@ En una primera instancia realizamos pruebas con el par ETH/USD a través
 \end_inset
 
  Calcular el estocástico y graficarlo.
- 
 \end_layout
 
 \begin_layout Standard
-Explicación del estocástico
+El estocástico es un indicador de momentum desarrollado en los años 50.Se
+ utiliza para mostrar la ubicación del cierre actual en relación con el
+ rango alto/bajo durante un número determinado de períodos.La fórmula para
+ calcular el estocástico es la siguiente:
+\begin_inset Formula %K=(Preciodecierreactual-Mínimomásbajo)/(Máximomásalto-Mínimomásbajo)*100
+
+\end_inset
+
+Donde:- Precio de cierre actual: es el último precio al que se negoció un
+ activo.- Mínimo más bajo: es el precio más bajo negociado del activo durante
+ un período determinado.- Máximo más alto: es el precio más alto negociado
+ del activo durante un período determinado.El estocástico se representa con
+ dos líneas, %K y %D.
+ La línea %D es una media móvil de %K.Cuando la línea %K cruza por encima
+ de la línea %D, se genera una señal de compra.
+ Cuando la línea %K cruza por debajo de la línea %D, se genera una señal
+ de venta.
 \end_layout
 
 \begin_layout Standard
@@ -322,19 +586,6 @@ Explicación de nuestro cálculo
 
 \begin_layout Standard
 <Insertar imagen con los dos pares anteriores>
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\begin_inset Formula $\bullet$
-\end_inset
-
- Graficar el indicador junto con la cotización del par calculado.
-\begin_inset Newline newline
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -376,6 +627,42 @@ Durante todo el proceso hemos buscado evitar casos que puedan dar pie a
  errores por incongruencia con el tipado de las variables o la no selección
  de alguno de los atributos necesarios par el cálculo de los distintos tipos
  de gráficas.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+4.
+ Puntuación extra
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Testeo y cobertura (unit-testing, integration-testing)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Facilitar los mecanismos para la reproducción del entorno virtual (ya sea
+ con Poetry, Pipenv o pip)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\bullet$
+\end_inset
+
+ 
+\series bold
+Distribución del proyecto a través de PyPi o una plataforma PaaS (AWS, Heroku,
+ etc)
 \end_layout
 
 \end_body
