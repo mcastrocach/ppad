@@ -211,13 +211,6 @@ status open
 
 
 \backslash
-begin{verbatim}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
 begin{python}
 \end_layout
 
@@ -251,13 +244,6 @@ gnal'].iloc[i] and coins >= 100:                    coins -= 100
 end{python}
 \end_layout
 
-\begin_layout Plain Layout
-
-
-\backslash
-end{verbatim}
-\end_layout
-
 \end_inset
 
 
@@ -268,20 +254,145 @@ En la llamada hacemos uso de los siguientes argumentos:
 \end_layout
 
 \begin_layout Standard
-Pair: La pareja de monedas de la que sacaremos los datos.
- La lista de todas las parejas la sacamos tambien de la api de kraken.
+Pair: La pareja de monedas de la que sacaremos los datos a eleccion del
+ usuario.
+ La lista de todas las parejas la sacamos del endpoint publico de kraken
+ 
+\begin_inset Quotes eld
+\end_inset
+
+AssetPairs
+\begin_inset Quotes erd
+\end_inset
+
+ de la siguiente manera: TODO Captura caja seleccion parejas
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Retrieves all available currency pairs from the Kraken cryptocurrency
+ exchange API def get_kraken_pairs():     url = 'https://api.kraken.com/0/public/A
+ssetPairs'  # Endpoint URL for fetching Kraken currency pairs     response
+ = requests.get(url)                        # Send a GET request to the Kraken
+ API     response_json = response.json()                     # Convert the
+ response to JSON format     pairs = response_json['result'].keys()     
+         # Extract currency pair identifiers from the JSON data     return
+ tuple(pairs)                                 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Interval: El periodo de tiempo del que sacamos los datos.
+Interval: El periodo de tiempo del que sacamos los datos, a elección del
+ usuario tambien, ofrecemos los intervalos de tiempo mas comunes.
+ Entre un minuto a dos semanas, tambien damos la posibilidad de introducir
+ un intervalo personalizado, en minutos.
+ TODO Captura seleccion agregaciones
 \end_layout
 
 \begin_layout Standard
-Since: El punto de partida para los datos.
+Si el intervalo introducido es personalizado, TODO explicar agregaciones
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+  # This function aggregates data into custom time intervals that are not
+ natively provided by the API     def aggregate_intervals(self, df):   
+      # Resamples the DataFrame to the specified interval and aggregates
+ key metrics         resampled_df = df.resample(f'{self.interval}T').agg({
+ 'Open': 'first',                                                      
+          'High': 'max',                                               
+                 'Low': 'min',                                         
+                       'Close': 'last',                                
+                                'Volume': 'sum'})         return resampled_df
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Acto seguido limpiamos los datos:
+Since: El punto de partida para los datos, el punto final se determina por
+ el intervalo.
+ TODO captura del selector de fecha
+\end_layout
+
+\begin_layout Standard
+Acto seguido limpiamos los datos con el siguiente codigo:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+  ohlc_data = response['result'][self.pair]  # Extract OHLC data from API
+ response
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert OHLC data to a DataFrame and remove unnecessary columns
+             ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open",
+ "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert timestamps to datetime format and set as DataFrame
+ index             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"],
+ unit='s')    # Unix timestamp to Python datetime             ohlc_df.set_index(p
+d.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert all price and volume data to float type for calculations
+             ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening
+ price of a financial instrument for the given period             ohlc_df["High"
+] = ohlc_df["High"].astype(float)       # Highest price of the instrument
+ in the given period             ohlc_df["Low"] = ohlc_df["Low"].astype(float)
+         # Lowest price of the instrument in the given period          
+   ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price
+ of the instrument for the given period             ohlc_df["Volume"] =
+ ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the
+ given period
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Add Simple Moving Average (SMA) and Exponential Moving Average
+ (EMA) to the DataFrame             window = 14 if ohlc_df.shape[0] >= 60
+ else 3  # Determine window size based on data points             ohlc_df['SMA']
+ = ohlc_df['Close'].rolling(window=window).mean()             ohlc_df['EMA']
+ = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Aggregate data into custom intervals if needed           
+  if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):  
+               ohlc_df = self.aggregate_intervals(ohlc_df)             return
+ ohlc_df  # Return the prepared DataFrame
+\end_layout
+
+\end_inset
+
+Los datos los convertimos en un DataFrame de pandas para su posterior manipulaci
+ón.
+ Este DataFrame contiene las columnas, precios de apertura, cierre, alto
+ y bajo, así como para el volumen de transacciones para cada intervalo de
+ tiempo.
+ 
 \end_layout
 
 \end_deeper
@@ -294,8 +405,78 @@ Acto seguido limpiamos los datos:
 TODO,descripcion, referenciar codigo y añadir capturas
 \end_layout
 
+\begin_deeper
 \begin_layout Enumerate
-Calcular el estocástico y la media móvil
+Despues de seleccionar los datos para graficar, le damos al usuario 3 opciones
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Graficar las velas con OHCL:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Creamos una figura candlestick de plotly y le pasamos los datos de OHCL.
+ Adicionalmente añadimos un scatter de 'Simple moving average' y 'Exponential
+ moving average' TODO explicacion adicional de los indicadores
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+    @staticmethod  # Static method to create a candlestick chart from OHLC
+ data using Plotly     def candlestick(ohlc_df):         try:          
+   # Use the last 60 data points from the OHLC DataFrame for the chart 
+            df = ohlc_df[-60:]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the candlestick chart components and moving averages
+             data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                    low=df['Low'], close=df['Close'], name='Cand
+lestick Data'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                     go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving
+ Average'),                      go.Scatter(x=df.index, y=df['EMA'], name='Exponen
+tial Moving Average') ]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the layout for the plotly figure, setting titles and
+ axis labels.
+             layout = go.Layout(title='Candlestick Graph with Moving Average',
+                                yaxis=dict(title='Price'))  # Label for
+ the y-axis
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = go.Figure(data=data, layout=layout)  # create a Figure
+ object with the OHLC data             return fig  # return the Figure object
+ for plotting                  except Exception as e:             # Handle
+ exceptions in chart creation and return an empty figure in case of an error
+             print(f"An error occurred while creating the candlestick chart:
+ {e}")             return go.Figure()  # Return an empty Plotly Figure object
+ if an error occurs 
+\end_layout
+
+\end_inset
+
+TODO captura de candlestick
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Graficar el estocástico y la media móvil
 \end_layout
 
 \begin_deeper
@@ -317,29 +498,213 @@ Donde:- Precio de cierre actual: es el último precio al que se negoció un
  de la línea %D, se genera una señal de compra.
  Cuando la línea %K cruza por debajo de la línea %D, se genera una señal
  de venta.
+ TODO comprimir este parrafo a una o dos frases o borrar directamente
 \end_layout
 
 \begin_layout Standard
-Explicación de nuestra forma de calcularlo
+Explicación de nuestra forma de calcularlo: Primero, calcula el oscilador
+ estocástico (%K) y su media móvil (%D) utilizando los precios de cierre,
+ alto y bajo de un DataFrame de pandas.
+ Luego, genera señales de compra y venta basadas en las condiciones especificada
+s en las líneas 117 y 118.
+\end_layout
+
+\begin_layout Standard
+La fórmula (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100 es
+ la implementación de la fórmula del oscilador estocásticoque mide la relación
+ entre el precio de cierre actual y el rango de precios en un número determinado
+ de períodos.
+\end_layout
+
+\begin_layout Standard
+La línea df['%D'] = df['%K'].rolling(window=3).mean() calcula la media móvil
+ de 3 períodos de %K, que se conoce como %D.
+ La media móvil se utiliza para suavizar las fluctuaciones de %K y generar
+ una línea de señal para las señales de compra y venta.
+\end_layout
+
+\begin_layout Standard
+Tambien generamos las señales de compra y venta que utilizaremos en la simulacio
+n de beneficios.
+\end_layout
+
+\begin_layout Itemize
+Las de compra se generan cuando la línea %K cruza por encima de la línea
+ %D y el valor de %D es menor que 20
+\end_layout
+
+\begin_layout Itemize
+Las de venta se generan cuando la línea %K cruza por debajo de la línea
+ %D y el valor de %D es mayor que 80
 \end_layout
 
 \end_deeper
-\begin_layout Enumerate
-Graficar el indicador junto con la cotización del par calculado
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+    @staticmethod  # Calculate and graph the stochastic oscillator and its
+ mobile mean      def stochastic(df):         try:             window =
+ 14 if df.shape[0]>=60 else 3             df['L14'] = df['Low'].rolling(window=win
+dow).min()             df['H14'] = df['High'].rolling(window=window).max()
+             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14'])
+ * 100             df['%D'] = df['%K'].rolling(window=3).mean()          
+   df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift
+(1))) & (df['%D'] < 20)             df['Sell_Signal'] = ((df['%K'] < df['%D'])
+ & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)            
+ df = df[-60:]
 \end_layout
 
+\begin_layout Plain Layout
+
+            data = [# The first plot is a line chart for the '%K' line of
+ the stochastic oscillator                     go.Scatter(x=df.index, y=df['%K'],
+ name='Stochastic Oscillator'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                    # The second plot is a line chart for the '%D' line
+ of the stochastic oscillator                     go.Scatter(x=df.index, y=df['%D'
+], name='Smoothed Stochastic Oscillator')]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the layout for the plotly figure, setting titles and
+ axis labels.
+             layout = go.Layout(title='Stochastic Oscillator with its Smoothed
+ Version',                                yaxis=dict(title='Value (%)',
+ range=[0,100]))  # Label for the y-axis
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = go.Figure(data=data, layout=layout)  # create a Figure
+ object with the candlestick data             return fig  # return the Figure
+ object for plotting
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:             print(f"An error occurred while
+ creating the candlestick chart: {e}")             return go.Figure()
+\end_layout
+
+\end_inset
+
+TODO captura o capturas del K y D
+\end_layout
+
+\begin_layout Enumerate
+Graficar los dos juntos
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Finalmente damos al usuario la opción de graficar las anteriores opciones
+ juntas.
+ TODO captura graficas juntas
+\end_layout
+
+\begin_layout Standard
+Adicionalmente aqui damos la opcion de simular ganancias que sera explicada
+ en su seccion mas adelante TODO Es esta linea necesaria?
+\end_layout
+
+\end_deeper
+\end_deeper
 \begin_layout Enumerate
 Media movil exponencial
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+Es otro tipo de media movil que da mas peso a los datos mas recientes, lo
+ que hace que sea mas sensibles a cambios a corto plazo.
+ TODO confirmame que esto es correcto?
+\end_layout
+
+\end_deeper
 \begin_layout Enumerate
 Media movil media
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+TODO tenemos esto siquiera?, no es el smoothed stochastic oscilator?
+\end_layout
+
+\end_deeper
 \begin_layout Enumerate
 Calculadora de ganancias
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+Damos tambien la opción de hacer una pequeña simulación utilizando los datos
+ que vemos en las graficas.
+ Para ello cogemos las señales de compra y simulamos una cartera en la que
+ compramos 100 unidades de la moneda por señal y vendemos 100 unidades por
+ cada señal de venta.
+ La grafica representa las ganancias o perdidas que se tendrian en el periodo.
+\end_layout
+
+\begin_layout Standard
+No se muestra ninguna grafica si no se han generado señales de compra en
+ el periodo.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+    def calculate_profit(self, df):         try:             coins = 0 
+            total_spent = 0             df['Buy_Price'] = np.where(df['Buy_Signal
+'], df['Close'], np.nan)             df['Sell_Price'] = np.where(df['Sell_Signal']
+, df['Close'], np.nan)             for i in range(len(df)):             
+    if df['Buy_Signal'].iloc[i]:                     coins += 100       
+              total_spent += df['Buy_Price'].iloc[i]*100                
+ if df['Sell_Signal'].iloc[i] and coins >= 100:                     coins
+ -= 100                     total_spent -= df['Sell_Price'].iloc[i]*100 
+            df['Profit'] = df['Close'] * coins - total_spent           
+  return df         except Exception as e:             print(f"An error
+ occurred while creating the profit data: {e}")             return pd.DataFrame()
+\end_layout
+
+\begin_layout Plain Layout
+
+    def profit_graph(self, df):         try:             df = df[-60:] 
+            if not df['Buy_Signal'].any():  # Check if there are any buy
+ signals                 return None  # Return None if no buy signals  
+           first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index
+ of the first buy signal             df = df.loc[first_buy_signal:]  # Slice
+ the DataFrame from the first buy signal onwards             data = [go.Scatter(x
+=df.index, y=df['Profit'].cumsum(), name='Profit'),                     go.Scatter(
+x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='mar
+kers', marker=dict(color='green', size=10), name='Buy Signal'),        
+             go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Pr
+ofit'].cumsum(), mode='markers', marker=dict(color='red', size=10), name='Sell
+ Signal')]             layout = go.Layout(title='Profit',               
+          xaxis=dict(title='Time'),   # label for the x-axis           
+               yaxis=dict(title='Value'))  # Label for the y-axis      
+       fig = go.Figure(data=data, layout=layout)  # create a Figure object
+ with the profit data             return fig  # return the Figure object
+ for plotting         except Exception as e:             print(f"An error
+ occurred while creating the profit chart: {e}")             return go.Figure()
+\end_layout
+
+\end_inset
+
+TODO Captura de la grafica de beneficios
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Enumerate
 Estructura
