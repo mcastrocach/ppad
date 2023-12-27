@@ -143,7 +143,7 @@ class Front:
         self.currency_pair = st.selectbox(
            label = 'placeholder',            # Streamlit's selectbox requires a label, even when collapsed
            options = kraken_pairs,           # List of currency pairs from Kraken
-           index = None,
+           index = None,                     # Index of the preselected option on first render
            placeholder = "xxxxxxx",          # Placeholder text in the dropdown
            label_visibility = "collapsed"
         )
