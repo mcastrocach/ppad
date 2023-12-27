@@ -1,4 +1,3 @@
-import json
 import krakenex                   # Import krakenex to interact with the Kraken cryptocurrency exchange API
 import plotly.graph_objs as go    # Import Plotly's graph objects for advanced data visualization
 import pandas as pd               # Import Pandas for data analysis and manipulation
@@ -37,8 +36,9 @@ class Graph:
             k = krakenex.API()  # Initialize the Kraken client
             
             # Query for OHLC data for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.interval, 'since':self.since-14*self.interval*60})
+            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.interval, 'since':self.since})
             if response['error']:  # Check and raise an exception if errors exist in the response
+                print(f"There was an error with the API call")
                 raise Exception(response['error'])
 
         # Catch and print any exceptions during the data retrieval process
