@@ -1,0 +1,759 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\date{}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{10} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{10}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+morekeywords={self},              % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.5cm
+\topmargin 3cm
+\rightmargin 2.5cm
+\bottommargin 3cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation 0bp
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+
+\series bold
+\size largest
+Python para el Análisis de Datos.
+ Proyecto Final (MEBDS)
+\end_layout
+
+\begin_layout Standard
+\align center
+Realizado por
+\emph on
+: Rodrigo de la Nuez Moraleda 
+\emph default
+y
+\emph on
+ Marcos Castro Cacho
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 15bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color teal
+Descripción de 
+\bar under
+cómo
+\bar default
+ se ha afrontado el proyecto y 
+\bar under
+por qué
+\bar default
+.
+\end_layout
+
+\begin_layout Standard
+Este proyecto ha sido llevado a cabo con el objetivo de aplicar y profundizar
+ en los conocimientos adquiridos en la asignatura 
+\shape italic
+Python para el Análisis de Datos
+\shape default
+.
+ Combinando el aprendizaje académico con nuestra propia investigación de
+ librerías y herramientas externas, hemos creado una aplicación que permite
+ analizar datos reales y actualizados de los precios de distintos de pares
+ de divisas.
+\begin_inset Newline newline
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+Para ello se ha creado una interfaz interactiva que permite crear un gráfico
+ de velas junto con varios indicadores bursátiles a partir de la información
+ OHLC de un par de divisas específico, el intervalo de tiempo usado para
+ la agregación y, opcionalmente, un marco temporal que acote los resultados.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El proceso que se ha seguido para afrontar el proyecto y llevar a cabo el
+ desarrollo del programa creado se puede dividir en varias fases.
+ En primer lugar, estudiamos los datos devueltos por la API de Kraken para
+ el par ETH/USDT con el objetivo de comprender la estructura de los mismos,
+ así como la mejor manera de manipularlos para lograr nuestros objetivos.
+ Tras ello, utilizamos webscraping para obtener todos los pares de divisas
+ disponibles en la API y tener capacidad de elección entre estas opciones.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para la representación gráfica de la cotización de las divisas y los indicadores
+ calculados, se hicieron pruebas con distintas librerías (
+\family typewriter
+matplotlib
+\family default
+, 
+\family typewriter
+mplfinance
+\family default
+) pero finalmente optamos por utilizar 
+\family typewriter
+plotly
+\family default
+ para ello.
+ Por último, estudiamos como utilizar 
+\family typewriter
+streamlit
+\family default
+ para ofrecer al usuario una experiencia interactiva.
+ Tras este punto centramos nuestros esfuerzos en refinar nuestro código
+ (añadir nuevas funcionalidades, mejorar el proceso y la estructura, comentar
+ su funcionamiento, etc.), agregar pruebas que nos permitan evaluar la corrección
+ de nuestro programa, estudiar la reproducción de nuestro entorno a través
+ de distintas herramientas y la documentación de todo el proceso en esta
+ memoria.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color teal
+Descripción de la 
+\bar under
+estructura del código
+\bar default
+ y 
+\bar under
+estructura de ficheros
+\bar default
+.
+\end_layout
+
+\begin_layout Standard
+Nuestro programa necesita de tres ficheros distintos para su correcta ejecución:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+graphs.py
+\family default
+, contiene la clase Graph con métodos para la obtención de los datos y la
+ representación gráfica de los mismos (junto con los indicadores asociados)
+ según el par de divisas, el intervalo de agregación y el marco temporal
+ seleccionados.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+front.py
+\family default
+, contiene la clase Front que crea la interaz de usuario con la que se puede
+ interactuar de forma que la información mostrada coincida con la seleccionada,
+ haciendo uso de los widgets y botones que 
+\family typewriter
+streamlit
+\family default
+ proporciona para la rápida y fácil creación de aplicaciones web.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+main.py
+\family default
+, contiene el código necesario para la ejecución de la aplicación.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Estos ficheros deben encontrarse en el mismo directorio para que el programa
+ pueda acceder a las distintas funcionalidades que han sido creadas sin
+ la aparición de excepciones.
+ Contamos además con un fichero 
+\family typewriter
+tests.py
+\family default
+ para la ejecución de las pruebas de software creadas, un fichero 
+\family typewriter
+requirements.txt
+\family default
+ para poder instalar fácilmente todas las librerías necesarias con las versiones
+ adecuadas para la ejecución del código, un fichero 
+\family typewriter
+setup.py
+\family default
+ 
+\series bold
+\color violet
+(añadir descripción)
+\series default
+\color inherit
+ y un fichero 
+\family typewriter
+dockerfile
+\family default
+ 
+\series bold
+\color violet
+(añadir descripción)
+\series default
+\color inherit
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color teal
+Descripción de la 
+\bar under
+forma de ejecución del código
+\bar default
+.
+\end_layout
+
+\begin_layout Standard
+El comando 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{streamlit run main.py}
+\end_layout
+
+\end_inset
+
+ permite la ejecución del programa desde su directorio.
+\end_layout
+
+\begin_layout Section
+Lectura y representación del movimiento del par de monedas
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color violet
+(añadir descripción)
+\end_layout
+
+\begin_layout Subsection
+Descarga de los datos
+\end_layout
+
+\begin_layout Standard
+Para la descarga de los datos hacemos una llamada a la API de Kraken.
+\end_layout
+
+\begin_layout Standard
+Para ello primero inicializamos el cliente de kraken, para hacer una llamada
+ al endpoint publico OHLC.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En la llamada hacemos uso de los siguientes argumentos:
+\end_layout
+
+\begin_layout Standard
+Pair: La pareja de monedas de la que sacaremos los datos a eleccion del
+ usuario.
+ La lista de todas las parejas la sacamos del endpoint publico de kraken
+ 
+\begin_inset Quotes eld
+\end_inset
+
+AssetPairs
+\begin_inset Quotes erd
+\end_inset
+
+ de la siguiente manera: TODO Captura caja seleccion parejas
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+Interval: El periodo de tiempo del que sacamos los datos, a elección del
+ usuario tambien, ofrecemos los intervalos de tiempo mas comunes.
+ Entre un minuto a dos semanas, tambien damos la posibilidad de introducir
+ un intervalo personalizado, en minutos.
+ TODO Captura seleccion agregaciones
+\end_layout
+
+\begin_layout Standard
+Si el intervalo introducido es personalizado, TODO explicar agregaciones
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+Since: El punto de partida para los datos, el punto final se determina por
+ el intervalo.
+ TODO captura del selector de fecha
+\end_layout
+
+\begin_layout Standard
+Acto seguido limpiamos los datos con el siguiente codigo:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+Los datos los convertimos en un DataFrame de pandas para su posterior manipulaci
+ón.
+ Este DataFrame contiene las columnas, precios de apertura, cierre, alto
+ y bajo, así como para el volumen de transacciones para cada intervalo de
+ tiempo.
+ 
+\end_layout
+
+\begin_layout Subsection
+Grabado de las cotizaciones
+\end_layout
+
+\begin_layout Standard
+TODO,descripcion, referenciar codigo y añadir capturas
+\end_layout
+
+\begin_layout Standard
+Despues de seleccionar los datos para graficar, le damos al usuario 3 opciones
+\end_layout
+
+\begin_layout Standard
+Graficar las velas con OHCL:
+\end_layout
+
+\begin_layout Standard
+Creamos una figura candlestick de plotly y le pasamos los datos de OHCL.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Indicadores técnicos
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color violet
+(añadir descripción) 
+\series default
+\color inherit
+Adicionalmente añadimos un scatter de 'Simple moving average' y 'Exponential
+ moving average' TODO explicacion adicional de los indicadores
+\end_layout
+
+\begin_layout Subsection
+Cálculo y representación gráfica del oscilador estocástico
+\end_layout
+
+\begin_layout Standard
+El estocástico es un indicador de momentum desarrollado en los años 50.Se
+ utiliza para mostrar la ubicación del cierre actual en relación con el
+ rango alto/bajo durante un número determinado de períodos.La fórmula para
+ calcular el estocástico es la siguiente:
+\begin_inset Formula %K=(Preciodecierreactual-Mínimomásbajo)/(Máximomásalto-Mínimomásbajo)*100
+
+\end_inset
+
+Donde:- Precio de cierre actual: es el último precio al que se negoció un
+ activo.- Mínimo más bajo: es el precio más bajo negociado del activo durante
+ un período determinado.- Máximo más alto: es el precio más alto negociado
+ del activo durante un período determinado.El estocástico se representa con
+ dos líneas, %K y %D.
+ La línea %D es una media móvil de %K.Cuando la línea %K cruza por encima
+ de la línea %D, se genera una señal de compra.
+ Cuando la línea %K cruza por debajo de la línea %D, se genera una señal
+ de venta.
+ TODO comprimir este parrafo a una o dos frases o borrar directamente
+\end_layout
+
+\begin_layout Standard
+Explicación de nuestra forma de calcularlo: Primero, calcula el oscilador
+ estocástico (%K) y su media móvil (%D) utilizando los precios de cierre,
+ alto y bajo de un DataFrame de pandas.
+ Luego, genera señales de compra y venta basadas en las condiciones especificada
+s en las líneas 117 y 118.
+\end_layout
+
+\begin_layout Standard
+La fórmula (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100 es
+ la implementación de la fórmula del oscilador estocásticoque mide la relación
+ entre el precio de cierre actual y el rango de precios en un número determinado
+ de períodos.
+\end_layout
+
+\begin_layout Standard
+La línea df['%D'] = df['%K'].rolling(window=3).mean() calcula la media móvil
+ de 3 períodos de %K, que se conoce como %D.
+ La media móvil se utiliza para suavizar las fluctuaciones de %K y generar
+ una línea de señal para las señales de compra y venta.
+\end_layout
+
+\begin_layout Standard
+Tambien generamos las señales de compra y venta que utilizaremos en la simulacio
+n de beneficios.
+\end_layout
+
+\begin_layout Itemize
+Las de compra se generan cuando la línea %K cruza por encima de la línea
+ %D y el valor de %D es menor que 20
+\end_layout
+
+\begin_layout Itemize
+Las de venta se generan cuando la línea %K cruza por debajo de la línea
+ %D y el valor de %D es mayor que 80
+\end_layout
+
+\begin_layout Subsection
+Cálculo del oscilador estocástico sobre una media móvil
+\end_layout
+
+\begin_layout Subsection
+Gráfico del indicador junto con la cotización del par calculado
+\end_layout
+
+\begin_layout Standard
+Graficar los dos juntos
+\end_layout
+
+\begin_layout Standard
+Finalmente damos al usuario la opción de graficar las anteriores opciones
+ juntas.
+ TODO captura gráficas juntas
+\end_layout
+
+\begin_layout Standard
+Adicionalmente aquí damos la opción de simular ganancias que será explciada
+ en su sección más adelante TODO es esta línea necesaria?
+\end_layout
+
+\begin_layout Standard
+(a) Media móvil exponencial
+\end_layout
+
+\begin_layout Standard
+Es otro tipo de media movil que da mas peso a los datos mas recientes, lo
+ que hace que sea mas sensibles a cambios a corto plazo.
+ TODO confirmame que esto es correcto?
+\end_layout
+
+\begin_layout Standard
+(b) Media móvil simple
+\end_layout
+
+\begin_layout Standard
+TODO tenemos esto siquiera?, no es el smoothed stochastic oscillator?
+\end_layout
+
+\begin_layout Section
+Estructuración
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color violet
+(añadir descripción)
+\end_layout
+
+\begin_layout Subsection
+Funciones
+\end_layout
+
+\begin_layout Subsection
+Utilización de clases
+\end_layout
+
+\begin_layout Subsection
+Manejo de errores y excepciones
+\end_layout
+
+\begin_layout Section
+Puntuación Extra
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\color violet
+(añadir descripción)
+\end_layout
+
+\begin_layout Subsection
+Testeo y cobertura (unit-testing, integration-testing)
+\end_layout
+
+\begin_layout Standard
+Durante todo el proceso hemos buscado evitar casos que puedan dar pie a
+ errores por incongruencia con el tipado de las variables o la no selección
+ de alguno de los atributos necesarios par el cálculo de los distintos tipos
+ de gráficas.
+\end_layout
+
+\begin_layout Subsection
+Facilitar los mecanismos para la reproducción del entorno virtual
+\end_layout
+
+\begin_layout Subsection
+Distribución del proyecto a través de PyPi
+\end_layout
+
+\end_body
+\end_document
