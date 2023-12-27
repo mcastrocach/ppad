@@ -6,13 +6,13 @@ import numpy as np                # Import NumPy for numerical operations and ar
 import time                       # Import time for time.mktime
 import datetime
 
-
+from plotly.subplots import make_subplots
 
 # The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
 class Graph:
 
     # Constructor for initializing a Graph instance with a currency pair, interval, and divisor
-    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int(time.mktime(datetime.datetime.now().timetuple()))):
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int((time.mktime(datetime.datetime.now().timetuple())))):
         self.pair = pair          # The currency pair to be analyzed
         self.interval = interval  # Time interval for each data point in minutes
         self.divisor = divisor    # Divisor for interval adjustment
@@ -37,7 +37,7 @@ class Graph:
             k = krakenex.API()  # Initialize the Kraken client
             
             # Query for OHLC data for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair': self.pair, 'interval': self.divisor,'since':self.since})
+            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.interval, 'since':self.since-14*self.interval*60})
             if response['error']:  # Check and raise an exception if errors exist in the response
                 raise Exception(response['error'])
 
@@ -79,8 +79,36 @@ class Graph:
     def candlestick(ohlc_df):
         try:
             # Use the last 60 data points from the OHLC DataFrame for the chart
-            df = ohlc_df[-60:]
+            #df = ohlc_df[-60:]
+            df = ohlc_df[14:]
 
+            colors = ['#008080' if close >= open else 'red' for open, close in zip(df['Open'], df['Close'])]
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+            # include candlestick with rangeselector
+            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Candlestick Data'), secondary_y=True)
+            fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors, opacity=0.25, showlegend=False), secondary_y=False)
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA'], marker=dict(color='#0000FF'), opacity=0.35, name='Simple Moving Average'), secondary_y=True)
+            fig.add_trace(go.Scatter(x=df.index, y=df['EMA'], marker=dict(color='#FF0000'), opacity=0.35, name='Exponential Moving Average'), secondary_y=True)
+            fig.layout.yaxis2.showgrid=False
+            fig.layout.title = 'Candlestick Graph with Moving Average'
+            fig.layout.height = 450
+
+            """
+            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
+                    vertical_spacing=0.03, 
+                    subplot_titles=('OHLC', 'Volume'), 
+                    row_width=[0.2, 0.7])
+
+            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close']), row=1, col=1)
+            fig.add_trace(go.Bar(x=df.index, y=df['Volume']), row=2, col=1)
+            fig.update_layout(title='Stock Price with Volume', 
+                  xaxis_tickfont_size=12, 
+                  yaxis=dict(title='Stock Price'),
+                  yaxis2=dict(title='Volume', overlaying='y', side='right'))
+            """
+
+
+            """
             # Define the candlestick chart components and moving averages
             data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                    low=df['Low'], close=df['Close'], name='Candlestick Data'),
@@ -93,6 +121,8 @@ class Graph:
                                yaxis=dict(title='Price'))  # Label for the y-axis
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the OHLC data
+            """
+            
             return fig  # return the Figure object for plotting
         
         except Exception as e:
@@ -111,19 +141,21 @@ class Graph:
             df['%D'] = df['%K'].rolling(window=3).mean()
             df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 20)
             df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)
-            df = df[-60:]
+            df = df[14:]
 
             data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator'),
+                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF')),
 
                     # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic Oscillator')]
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic Oscillator', marker=dict(color='#FFA500'))]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
                                yaxis=dict(title='Value (%)', range=[0,100]))  # Label for the y-axis
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
+            current_height = fig.layout.height if fig.layout.height is not None else 450
+            fig.layout.height = height=current_height/2
             return fig  # return the Figure object for plotting
 
         except Exception as e:
@@ -153,7 +185,6 @@ class Graph:
 
     def profit_graph(self, df):
         try:
-            df = df[-60:]
             if not df['Buy_Signal'].any():  # Check if there are any buy signals
                 return None  # Return None if no buy signals
             first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
