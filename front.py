@@ -7,6 +7,8 @@ import datetime                                # Import datetime for date and ti
 
 import requests  # Import the requests library for HTTP request handling
 
+import plotly.express as px
+
 # Retrieves all available currency pairs from the Kraken cryptocurrency exchange API
 def get_kraken_pairs():
     url = 'https://api.kraken.com/0/public/AssetPairs'  # Endpoint URL for fetching Kraken currency pairs
@@ -30,17 +32,108 @@ def find_largest_divisor(n):
     return max(valid_divisors)                           # Returns the largest divisor found
 
 
+def set_page_container_style(
+        max_width: int = 1100, max_width_100_percent: bool = False,
+        padding_top: int = 1, padding_right: int = 10, padding_left: int = 1, padding_bottom: int = 10
+    ):
+        if max_width_100_percent:
+            max_width_str = f'max-width: 100%;'
+        else:
+            max_width_str = f'max-width: {max_width}px;'
+        st.markdown(
+            f'''
+            <style>
+                .reportview-container .css-1lcbmhc .css-1outpf7 {{
+                    padding-top: 35px;
+                }}
+                .reportview-container .main .block-container {{
+                    {max_width_str}
+                    padding-top: {padding_top}rem;
+                    padding-right: {padding_right}rem;
+                    padding-left: {padding_left}rem;
+                    padding-bottom: {padding_bottom}rem;
+                }}
+            </style>
+            ''',
+            unsafe_allow_html=True,
+        )
+
 class Front:
 
     def __init__(self):
-        st.title("Kraken Currency Analysis Tool")                                 # Displays the title on the Streamlit app interface
-        st.markdown("Authors: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho")  # Credits authors in the app
+
+        
+        st.markdown("""
+                        <style>
+                            .appview-container .main .block-container {{
+                                padding-top: {padding_top}rem;
+                                padding-bottom: {padding_bottom}rem;
+                                }}
+
+                        </style>""".format(
+                        padding_top=1, padding_bottom=1
+                    ),
+                    unsafe_allow_html=True,
+                )
+
+        st.markdown('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">', unsafe_allow_html=True)
+
+        st.markdown("""
+        <nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #5848d5;">
+        <a class="navbar-brand" href="https://youtube.com/dataprofessor" target="_blank">Data Professor</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link disabled" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://youtube.com/dataprofessor" target="_blank">YouTube</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://twitter.com/thedataprof" target="_blank">Twitter</a>
+            </li>
+            </ul>
+        </div>
+        </nav>
+        """, unsafe_allow_html=True)
+
+        st.markdown(
+            f'''
+            <style>
+                .reportview-container .sidebar-content {{
+                    padding-top: {1}rem;
+                }}
+                .reportview-container .main .block-container {{
+                    padding-top: {1}rem;
+                }}
+            </style>
+            ''',unsafe_allow_html=True)
+
+        set_page_container_style(
+                max_width = 1100, max_width_100_percent = True,
+                padding_top = 0, padding_right = 10, padding_left = 5, padding_bottom = 10
+        )
+
+        st.markdown('''# **Kraken Currency Analysis Tool**
+                    Creators: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho
+                    ''')
+        hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+        st.markdown(hide_st_style, unsafe_allow_html=True)
         st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
 
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
         st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
         self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
-        self.since = None                                                      # Initialize since attribute
+        self.since = None                                                           # Initialize since attribute
 
 
     # Method to create user input interfaces, including dropdowns and buttons
@@ -131,19 +224,19 @@ class Front:
                 fig = stochastic
 
             elif self.graph_selected == "Both options combined":
-                fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.01, row_heights=[0.8, 0.2,0.3])
-                fig.add_trace(candlestick['data'][0], row=1, col=1)
-                fig.add_trace(candlestick['data'][1], row=1, col=1)
-                fig.add_trace(candlestick['data'][2], row=1, col=1)
+                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, row_heights=[0.8, 0.2], specs=[[{"secondary_y": True}], [{}]])
+                fig.add_trace(candlestick['data'][0], row=1, col=1, secondary_y=True)
+                fig.add_trace(candlestick['data'][1], row=1, col=1, secondary_y=False)
+                fig.add_trace(candlestick['data'][2], row=1, col=1, secondary_y=True)
+                fig.add_trace(candlestick['data'][3], row=1, col=1, secondary_y=True)
                 fig.add_trace(stochastic['data'][0], row=2, col=1)
                 fig.add_trace(stochastic['data'][1], row=2, col=1)
 
                 fig.update_layout(
                     title='Candlestick Graph with Moving Average and Stochastic Oscillator',
-                    yaxis_title='Price',
-                    xaxis2_title='Time',
-                    yaxis2_title='%K - %D',
-                    xaxis_rangeslider_visible=False)
+                    yaxis3_title='%K - %D',
+                    xaxis_rangeslider_visible=False,
+                    height=450)
 
 
             fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
