@@ -132,6 +132,8 @@ class Front:
 
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
         st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
+        st.session_state.is_custom_interval = st.session_state.get("is_custom_interval")
+        st.session_state.custom_interval = st.session_state.get("custom_interval")
         self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
         self.since = None                                                           # Initialize since attribute
 
@@ -143,7 +145,7 @@ class Front:
         self.currency_pair = st.selectbox(
            label = 'placeholder',            # Streamlit's selectbox requires a label, even when collapsed
            options = kraken_pairs,           # List of currency pairs from Kraken
-           index = None,                     # Index of the preselected option on first render
+           index = None,
            placeholder = "xxxxxxx",          # Placeholder text in the dropdown
            label_visibility = "collapsed"
         )
@@ -178,9 +180,12 @@ class Front:
         # Button for allowing custom time interval input
         if st.button("...or enter a custom time interval (in minutes)", key="Other"):
             # Input field for custom time interval in minutes
-            number = st.number_input('', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
-            if number is not None: 
-                self.time_interval = number  # Update the time interval with the custom input
+            st.session_state.is_custom_interval = not st.session_state.is_custom_interval
+        if st.session_state.is_custom_interval:
+            st.session_state.custom_interval = st.number_input('Custom interval', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
+        if st.session_state.custom_interval is not None: 
+            self.time_interval = st.session_state.custom_interval
+            st.session_state.selected_option = st.session_state.custom_interval# Update the time interval with the custom input
 
         # Date picker for selecting the start date
         self.since = st.date_input('Start date', value=None)

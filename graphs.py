@@ -20,11 +20,15 @@ class Graph:
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
         # Resamples the DataFrame to the specified interval and aggregates key metrics
+        print(df)
         resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first', 
                                                               'High': 'max', 
                                                               'Low': 'min', 
                                                               'Close': 'last', 
+                                                              'SMA': 'first', 
+                                                              'EMA': 'first', 
                                                               'Volume': 'sum'})
+        print(resampled_df)
         return resampled_df
 
 
@@ -36,7 +40,7 @@ class Graph:
             k = krakenex.API()  # Initialize the Kraken client
             
             # Query for OHLC data for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.interval, 'since':self.since})
+            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.divisor, 'since':self.since})
             if response['error']:  # Check and raise an exception if errors exist in the response
                 print(f"There was an error with the API call")
                 raise Exception(response['error'])
