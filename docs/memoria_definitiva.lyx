@@ -383,59 +383,80 @@ Descarga de los datos
 \end_layout
 
 \begin_layout Standard
-Para la descarga de los datos hacemos una llamada a la API de Kraken.
-\end_layout
-
-\begin_layout Standard
-Para ello primero inicializamos el cliente de kraken, para hacer una llamada
- al endpoint publico OHLC.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{python}
-\end_layout
-
-\begin_layout Plain Layout
-
-# insertar el código
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{python}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-En la llamada hacemos uso de los siguientes argumentos:
-\end_layout
-
-\begin_layout Standard
-Pair: La pareja de monedas de la que sacaremos los datos a eleccion del
- usuario.
- La lista de todas las parejas la sacamos del endpoint publico de kraken
+Para la descarga de los datos contábamos con las siguientes posibilidades:
+ utilizar la librería 
+\family typewriter
+krakenex
+\family default
+, hacer una descarga directa a través de 
+\family typewriter
+pandas
+\family default
+ o descargar directamente el 
+\family typewriter
+.csv
+\family default
+ y utilizar el archivo de forma local.
  
-\begin_inset Quotes eld
+\end_layout
+
+\begin_layout Standard
+Debido a que de estas tres opciones la única que permite recoger información
+ de distintos pares de divisas para crear una herramienta interactiva es
+ la primera de ellas, nuestro programa lleva a cabo esta fase del proceso
+ a través de una consulta a la API de Kraken usando la librería 
+\family typewriter
+krakenex
+\family default
+.
+\begin_inset Newline newline
 \end_inset
 
-AssetPairs
-\begin_inset Quotes erd
+ 
+\end_layout
+
+\begin_layout Standard
+En la 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{class Graph}
+\end_layout
+
 \end_inset
 
- de la siguiente manera: TODO Captura caja seleccion parejas
+ del fichero 
+\family typewriter
+graphs.py
+\family default
+, inicializamos el cliente de Kraken para hacer una llamada al endpoint
+ publico OHLC con la función 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{def obtain_data(self)}
+\end_layout
+
+\end_inset
+
+ y almacenamos en un dataframe de 
+\family typewriter
+pandas
+\family default
+ toda la información recogida en la consulta para la selección escogida
+ por el usuario.
+\begin_inset Newline newline
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -451,7 +472,108 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código
+# Retrieves trading data from the Kraken API and stores it into a Pandas
+ DataFrame
+\end_layout
+
+\begin_layout Plain Layout
+
+def obtain_data(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Initializing a Kraken API client and querying data within a try-except
+ block
+\end_layout
+
+\begin_layout Plain Layout
+
+    try:             
+\end_layout
+
+\begin_layout Plain Layout
+
+        k = krakenex.API()  # Initialize the Kraken client              
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Query for OHLC data for the specified currency pair and interval
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+        response = k.query_public('OHLC', {'pair':self.pair, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                           'interval':self.interval, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                           'since':self.since-14*self.interval*60}
+)
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Check and raise an exception if errors exist in the response 
+           
+\end_layout
+
+\begin_layout Plain Layout
+
+        if response['error']:  
+\end_layout
+
+\begin_layout Plain Layout
+
+            raise Exception(response['error'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Catch and print any exceptions during the data retrieval process 
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+    except Exception as e:             
+\end_layout
+
+\begin_layout Plain Layout
+
+        print(f"An error occurred: {e}")       # Print the specific error
+ message             
+\end_layout
+
+\begin_layout Plain Layout
+
+        print("Error while generating graph")  # Indicate a graph generation
+ error
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    < rest of the code of the obtain_data() function >
 \end_layout
 
 \begin_layout Plain Layout
@@ -463,15 +585,66 @@ end{python}
 
 \end_inset
 
-Interval: El periodo de tiempo del que sacamos los datos, a elección del
- usuario tambien, ofrecemos los intervalos de tiempo mas comunes.
- Entre un minuto a dos semanas, tambien damos la posibilidad de introducir
- un intervalo personalizado, en minutos.
- TODO Captura seleccion agregaciones
+
 \end_layout
 
 \begin_layout Standard
-Si el intervalo introducido es personalizado, TODO explicar agregaciones
+\begin_inset VSpace 15bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para la obtención de datos a través de la consulta que hemos mostrado, se
+ requieren los siguientes argumentos:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+pair
+\family default
+.
+ Denota el identificador del par de divisas para el cual se extraeran datos.
+ Para ofrecer al usuario la posibilidad de elegir entre todos los pares
+ de divisas para los que Kraken tiene información, hemos usado la librería
+ requests para crear una función 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{def get_kraken_pairs()}
+\end_layout
+
+\end_inset
+
+ que guarda en la tupla 
+\family typewriter
+kraken_pairs
+\family default
+ todos los pares de divisas disponibles a través del endpoint público 
+\bar under
+\color cyan
+
+\begin_inset CommandInset href
+LatexCommand href
+name "AssetPairs"
+target "https://api.kraken.com/0/public/AssetPairs"
+literal "false"
+
+\end_inset
+
+
+\bar default
+\color inherit
+.
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 
@@ -484,7 +657,214 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código
+# insertar el código de get_kraken_pairs()
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 15bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Para seleccionar un par de divisas de entre los disponibles, hemos utilizado
+ streamlit para generar un menú dropdown en la aplicación (importamos esta
+ librería como sigue: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{import streamlit as st}
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# Dropdown menu for selecting a currency pair         
+\end_layout
+
+\begin_layout Plain Layout
+
+self.currency_pair = st.selectbox(
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Streamlit's selectbox requires a label, even when collapsed
+\end_layout
+
+\begin_layout Plain Layout
+
+    label = 'placeholder',             
+\end_layout
+
+\begin_layout Plain Layout
+
+    options = kraken_pairs,        # List of currency pairs from Kraken
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+    index = None,                  # Index of the preselected option on
+ first render            
+\end_layout
+
+\begin_layout Plain Layout
+
+    placeholder = "xxxxxxx",       # Placeholder text in the dropdown  
+          
+\end_layout
+
+\begin_layout Plain Layout
+
+    label_visibility = "collapsed"         
+\end_layout
+
+\begin_layout Plain Layout
+
+)
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# captura de cómo se vería el dropdown menu
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+interval
+\family default
+.
+ Denota el intervalo de tiempo (en minutos) que se utiliza para la agregación,
+ es decir, cada vela del gráfico generado contará con datos de tantos minutos
+ como el valor de 
+\family typewriter
+interval
+\family default
+.
+ Para este atributo ofrecemos dos opciones al usuario: seleccionar entre
+ los intervalos de tiempo más comunes (para los que 
+\family typewriter
+krakenex
+\family default
+ ofrece datos con una consulta directa) o escribir el valor del intervalo
+ que desea seleccionar como un número entre entre 1 y 43200 (1 mes).
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# poner código de cómo se ha tomado 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si el intervalo introducido es personalizado, utilizamos la función def
+ find_largest_interval para realizar una consulta inicial y después agregar
+ los valores con la función def aggregate_intervals()
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# insertar el código de find_largest_interval y aggregate_intervals
 \end_layout
 
 \begin_layout Plain Layout
