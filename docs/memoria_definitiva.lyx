@@ -919,21 +919,15 @@ Los datos los convertimos en un DataFrame de pandas para su posterior manipulaci
 Grabado de las cotizaciones
 \end_layout
 
-\begin_layout Standard
-TODO,descripcion, referenciar codigo y añadir capturas
-\end_layout
-
-\begin_layout Standard
-Despues de seleccionar los datos para graficar, le damos al usuario 3 opciones
-\end_layout
-
-\begin_layout Standard
+\begin_layout Enumerate
 Graficar las velas con OHCL:
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 Creamos una figura candlestick de plotly y le pasamos los datos de OHCL.
- 
+ Adicionalmente añadimos un scatter de 'Simple moving average' y 'Exponential
+ moving average' TODO explicacion adicional de los indicadores
 \end_layout
 
 \begin_layout Standard
@@ -949,7 +943,45 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código
+   @staticmethod  # Static method to create a candlestick chart from OHLC
+ data using Plotly     def candlestick(ohlc_df):         try:          
+   # Use the last 60 data points from the OHLC DataFrame for the chart 
+            df = ohlc_df[-60:]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the candlestick chart components and moving averages
+             data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                    low=df['Low'], close=df['Close'], name='Cand
+lestick Data'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                     go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving
+ Average'),                      go.Scatter(x=df.index, y=df['EMA'], name='Exponen
+tial Moving Average') ]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the layout for the plotly figure, setting titles and
+ axis labels.
+             layout = go.Layout(title='Candlestick Graph with Moving Average',
+                                yaxis=dict(title='Price'))  # Label for
+ the y-axis
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = go.Figure(data=data, layout=layout)  # create a Figure
+ object with the OHLC data             return fig  # return the Figure object
+ for plotting                  except Exception as e:             # Handle
+ exceptions in chart creation and return an empty figure in case of an error
+             print(f"An error occurred while creating the candlestick chart:
+ {e}")             return go.Figure()  # Return an empty Plotly Figure object
+ if an error occurs
 \end_layout
 
 \begin_layout Plain Layout
@@ -961,24 +993,272 @@ end{python}
 
 \end_inset
 
-
+TODO captura de candlestick
 \end_layout
 
+\end_deeper
+\begin_layout Enumerate
+Graficar el estocástico y la media móvil
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+El estocástico es un indicador de momentum desarrollado en los años 50.Se
+ utiliza para mostrar la ubicación del cierre actual en relación con el
+ rango alto/bajo durante un número determinado de períodos.La fórmula para
+ calcular el estocástico es la siguiente:
+\begin_inset Formula %K=(Preciodecierreactual-Mínimomásbajo)/(Máximomásalto-Mínimomásbajo)*100
+
+\end_inset
+
+Donde:- Precio de cierre actual: es el último precio al que se negoció un
+ activo.- Mínimo más bajo: es el precio más bajo negociado del activo durante
+ un período determinado.- Máximo más alto: es el precio más alto negociado
+ del activo durante un período determinado.El estocástico se representa con
+ dos líneas, %K y %D.
+ La línea %D es una media móvil de %K.Cuando la línea %K cruza por encima
+ de la línea %D, se genera una señal de compra.
+ Cuando la línea %K cruza por debajo de la línea %D, se genera una señal
+ de venta.
+ TODO comprimir este parrafo a una o dos frases o borrar directamente
+\end_layout
+
+\begin_layout Standard
+Explicación de nuestra forma de calcularlo: Primero, calcula el oscilador
+ estocástico (%K) y su media móvil (%D) utilizando los precios de cierre,
+ alto y bajo de un DataFrame de pandas.
+ Luego, genera señales de compra y venta basadas en las condiciones especificada
+s en las líneas 117 y 118.
+\end_layout
+
+\begin_layout Standard
+La fórmula (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100 es
+ la implementación de la fórmula del oscilador estocásticoque mide la relación
+ entre el precio de cierre actual y el rango de precios en un número determinado
+ de períodos.
+\end_layout
+
+\begin_layout Standard
+La línea df['%D'] = df['%K'].rolling(window=3).mean() calcula la media móvil
+ de 3 períodos de %K, que se conoce como %D.
+ La media móvil se utiliza para suavizar las fluctuaciones de %K y generar
+ una línea de señal para las señales de compra y venta.
+\end_layout
+
+\begin_layout Standard
+Tambien generamos las señales de compra y venta que utilizaremos en la simulacio
+n de beneficios.
+\end_layout
+
+\begin_layout Itemize
+Las de compra se generan cuando la línea %K cruza por encima de la línea
+ %D y el valor de %D es menor que 20
+\end_layout
+
+\begin_layout Itemize
+Las de venta se generan cuando la línea %K cruza por debajo de la línea
+ %D y el valor de %D es mayor que 80
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+   @staticmethod  # Calculate and graph the stochastic oscillator and its
+ mobile mean      def stochastic(df):         try:             window =
+ 14 if df.shape[0]>=60 else 3             df['L14'] = df['Low'].rolling(window=win
+dow).min()             df['H14'] = df['High'].rolling(window=window).max()
+             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14'])
+ * 100             df['%D'] = df['%K'].rolling(window=3).mean()          
+   df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift
+(1))) & (df['%D'] < 20)             df['Sell_Signal'] = ((df['%K'] < df['%D'])
+ & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)            
+ df = df[-60:]
+\end_layout
+
+\begin_layout Plain Layout
+
+            data = [# The first plot is a line chart for the '%K' line of
+ the stochastic oscillator                     go.Scatter(x=df.index, y=df['%K'],
+ name='Stochastic Oscillator'),
+\end_layout
+
+\begin_layout Plain Layout
+
+                    # The second plot is a line chart for the '%D' line
+ of the stochastic oscillator                     go.Scatter(x=df.index, y=df['%D'
+], name='Smoothed Stochastic Oscillator')]
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Define the layout for the plotly figure, setting titles and
+ axis labels.
+             layout = go.Layout(title='Stochastic Oscillator with its Smoothed
+ Version',                                yaxis=dict(title='Value (%)',
+ range=[0,100]))  # Label for the y-axis
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = go.Figure(data=data, layout=layout)  # create a Figure
+ object with the candlestick data             return fig  # return the Figure
+ object for plotting
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:             print(f"An error occurred while
+ creating the candlestick chart: {e}")             return go.Figure()
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+TODO captura o capturas del K y D
+\end_layout
+
+\begin_layout Enumerate
+Graficar los dos juntos
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Finalmente damos al usuario la opción de graficar las anteriores opciones
+ juntas.
+ TODO captura graficas juntas
+\end_layout
+
+\begin_layout Standard
+Adicionalmente aqui damos la opcion de simular ganancias que sera explicada
+ en su seccion mas adelante TODO Es esta linea necesaria?
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Calculadora de ganancias
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Damos tambien la opción de hacer una pequeña simulación utilizando los datos
+ que vemos en las graficas.
+ Para ello cogemos las señales de compra y simulamos una cartera en la que
+ compramos 100 unidades de la moneda por señal y vendemos 100 unidades por
+ cada señal de venta.
+ La grafica representa las ganancias o perdidas que se tendrian en el periodo.
+\end_layout
+
+\begin_layout Standard
+No se muestra ninguna grafica si no se han generado señales de compra en
+ el periodo.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+   def calculate_profit(self, df):         try:             coins = 0  
+           total_spent = 0             df['Buy_Price'] = np.where(df['Buy_Signal'
+], df['Close'], np.nan)             df['Sell_Price'] = np.where(df['Sell_Signal'],
+ df['Close'], np.nan)             for i in range(len(df)):              
+   if df['Buy_Signal'].iloc[i]:                     coins += 100        
+             total_spent += df['Buy_Price'].iloc[i]*100                 if
+ df['Sell_Signal'].iloc[i] and coins >= 100:                     coins -=
+ 100                     total_spent -= df['Sell_Price'].iloc[i]*100    
+         df['Profit'] = df['Close'] * coins - total_spent             return
+ df         except Exception as e:             print(f"An error occurred
+ while creating the profit data: {e}")             return pd.DataFrame()
+\end_layout
+
+\begin_layout Plain Layout
+
+    def profit_graph(self, df):         try:             df = df[-60:] 
+            if not df['Buy_Signal'].any():  # Check if there are any buy
+ signals                 return None  # Return None if no buy signals  
+           first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index
+ of the first buy signal             df = df.loc[first_buy_signal:]  # Slice
+ the DataFrame from the first buy signal onwards             data = [go.Scatter(x
+=df.index, y=df['Profit'].cumsum(), name='Profit'),                     go.Scatter(
+x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='mar
+kers', marker=dict(color='green', size=10), name='Buy Signal'),        
+             go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Pr
+ofit'].cumsum(), mode='markers', marker=dict(color='red', size=10), name='Sell
+ Signal')]             layout = go.Layout(title='Profit',               
+          xaxis=dict(title='Time'),   # label for the x-axis           
+               yaxis=dict(title='Value'))  # Label for the y-axis      
+       fig = go.Figure(data=data, layout=layout)  # create a Figure object
+ with the profit data             return fig  # return the Figure object
+ for plotting         except Exception as e:             print(f"An error
+ occurred while creating the profit chart: {e}")             return go.Figure()
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+TODO Captura de la grafica de beneficios
+\end_layout
+
+\end_deeper
+\end_deeper
 \begin_layout Section
 Indicadores técnicos
 \end_layout
 
-\begin_layout Standard
-
-\series bold
-\color violet
-(añadir descripción) 
-\series default
-\color inherit
-Adicionalmente añadimos un scatter de 'Simple moving average' y 'Exponential
- moving average' TODO explicacion adicional de los indicadores
+\begin_layout Enumerate
+Media movil exponencial
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+Es otro tipo de media movil que da mas peso a los datos mas recientes, lo
+ que hace que sea mas sensibles a cambios a corto plazo.
+ TODO confirmame que esto es correcto?
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Media movil media
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+TODO tenemos esto siquiera?, no es el smoothed stochastic oscilator?
+\end_layout
+
+\end_deeper
 \begin_layout Subsection
 Cálculo y representación gráfica del oscilador estocástico
 \end_layout
@@ -1094,26 +1374,121 @@ Estructuración
 \end_layout
 
 \begin_layout Subsection
-Funciones
+Funciones y utilizacion de clases
 \end_layout
 
-\begin_layout Subsection
-Utilización de clases
+\begin_layout Standard
+El proyecto se estructura en varios módulos y clases para facilitar la organizac
+ión y la reutilización del código.
+\end_layout
+
+\begin_layout Standard
+El módulo principal del proyecto es main.py, que importa y utiliza las funciones
+ y clases definidas en otros módulos.
+\end_layout
+
+\begin_layout Standard
+Los módulos adicionales incluyen graphs.py y front.py.
+\end_layout
+
+\begin_layout Standard
+- graphs.py contiene la clase Graph que se encarga de crear gráficos de velas
+ y osciladores estocásticos para el análisis de trading.
+\end_layout
+
+\begin_layout Standard
+- front.py contiene la clase Front que se encarga de manejar la interfaz
+ de usuario de la aplicación.
+\end_layout
+
+\begin_layout Standard
+Además, el proyecto incluye un archivo README.md que proporciona una descripción
+ general del proyecto y las instrucciones para su uso.
+ También se incluye una carpeta docs que contiene varios archivos de texto
+ que proporcionan más detalles sobre el proyecto y sus requisitos.
 \end_layout
 
 \begin_layout Subsection
 Manejo de errores y excepciones
 \end_layout
 
-\begin_layout Section
-Puntuación Extra
+\begin_layout Standard
+El manejo de excepciones en este proyecto se realiza principalmente a través
+ de la estructura de control de flujo try/except.
+ Esta estructura permite capturar y manejar errores que pueden ocurrir durante
+ la ejecución del programa.
 \end_layout
 
 \begin_layout Standard
+Por ejemplo en el metodo que genera la grafica de beneficios, en caso de
+ encontrar un error imprime un mensaje por consola y retorna una figura
+ vacia.
+\end_layout
 
-\series bold
-\color violet
-(añadir descripción)
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+   def profit_graph(self, df):         try: 			[...]             fig = go.Figure(dat
+a=data, layout=layout)  # create a Figure object with the profit data  
+           return fig  # return the Figure object for plotting         except
+ Exception as e:             print(f"An error occurred while creating the
+ profit chart: {e}")             return go.Figure()
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En esta ocasion por ejemplo imprimimos un mensaje de error directamente
+ en la aplicación.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+   # Method to execute the core operations of the Streamlit application
+     def run(self):         try: 			[...]         except Exception as e:  
+           # Handle and display any exceptions that occur during execution
+             st.error(f"An error occurred: {e}")  # Show the error message
+ to the user in the app
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1121,18 +1496,218 @@ Testeo y cobertura (unit-testing, integration-testing)
 \end_layout
 
 \begin_layout Standard
-Durante todo el proceso hemos buscado evitar casos que puedan dar pie a
- errores por incongruencia con el tipado de las variables o la no selección
- de alguno de los atributos necesarios par el cálculo de los distintos tipos
- de gráficas.
+Hemos gestionado los unit-test e intrgration tests con la libreria unittest.
+ Este módulo permite definir clases de prueba con métodos que representan
+ pruebas individuales.
+ Aquí vemos un ejemplo de los tests que hemos añadido al proyecto.
+ TODO poner algo mas aqui?
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# Test method to test the get_kraken_pairs function     def test_get_kraken_pair
+s(self):         result = get_kraken_pairs()  # Calling the get_kraken_pairs
+ function and storing its result                  # Checking if the result
+ is a tuple and has a length greater than 0         self.assertIsInstance(result,
+ tuple)         self.assertTrue(len(result) > 0)
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+TODO Pideme un a captura de los tests pasando
 \end_layout
 
 \begin_layout Subsection
 Facilitar los mecanismos para la reproducción del entorno virtual
 \end_layout
 
+\begin_layout Enumerate
+Para añadir Poetry al proyecto, se ha utilizado el archivo pyproject.toml
+ que se encuentra en la raíz del proyecto.
+ Este archivo es utilizado por Poetry para manejar las dependencias del
+ proyecto.
+ En este archivo se especifican las dependencias del proyecto, la versión
+ de Python requerida y otros metadatos del proyecto.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+[tool.poetry] name = "krakenpythonmarcosrodrigo" version = "0.1.0" description
+ = "A streamlit tool for rendering kraken data" authors = ["Your Name <you@examp
+le.com>"] readme = "README.md"
+\end_layout
+
+\begin_layout Plain Layout
+
+[tool.poetry.dependencies] python = "^3.11" plotly = "4.14.3" streamlit = "0.79.0"
+ coverage = "5.5" pandas = "2.1.4" numpy = "1.26.2" krakenex = "2.1.0" streamlit-option
+-menu = "0.3.6"
+\end_layout
+
+\begin_layout Plain Layout
+
+[build-system] requires = ["poetry-core"] build-backend = "poetry.core.masonry.api"
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+Para reproducir el entorno virtual utilizando Poetry, se deben seguir los
+ siguientes pasos:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+1.
+ Instalar Poetry.
+ Puedes hacerlo siguiendo las instrucciones en la documentación oficial
+ de Poetry.
+\end_layout
+
+\begin_layout Standard
+2.
+ Clonar el repositorio del proyecto.
+\end_layout
+
+\begin_layout Standard
+3.
+ Navegar hasta el directorio del proyecto.
+\end_layout
+
+\begin_layout Standard
+4.
+ Ejecutar el comando 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+Poetry install
+\end_layout
+
+\end_inset
+
+ Este comando instalará todas las dependencias especificadas en el archivo
+ pyproject.toml.
+\end_layout
+
+\begin_layout Standard
+5.
+ Para activar el entorno virtual creado por Poetry, ejecuta el comando poetry
+ shell.
+ 
+\end_layout
+
+\end_deeper
 \begin_layout Subsection
 Distribución del proyecto a través de PyPi
+\end_layout
+
+\begin_layout Standard
+Primero se han instalado las dependencias de desarrollo Hatch y Twine
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$pip install hatch}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$pip install pip twine}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+2.
+ Crear una cuenta en PyPI, adicionalmente se necesitara activar la autenticancio
+n de doble factor y se debe utilizar la token de la api en twine
+\end_layout
+
+\begin_layout Standard
+3.
+ Para crear el distribuible: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$hatch build}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+4.
+ Para publicar el paquete:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$twine upload dist/*}
+\end_layout
+
+\end_inset
+
+(con tu cuenta de pypi)
 \end_layout
 
 \end_body
