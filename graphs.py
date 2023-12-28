@@ -130,11 +130,11 @@ class Graph:
             df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)
             df = df[14:]
 
-            data = [# The first plot is a line chart for the '%K' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF')),
-
-                    # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#87CEEB'))]
+            data = [# The first plot is a line chart for the '%D' line of the stochastic oscillator
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#87CEEB'), legendgroup='group', legendrank=5),
+                    
+                    # The second plot is a line chart for the '%K' line of the stochastic oscillator
+                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF'), legendgroup='group', legendrank=4)]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
