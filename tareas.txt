@@ -1,0 +1,20 @@
+[] añadir las cosas de marcos en la memoria
+[] cambiarme de ropa
+[] ordenar la mesa
+[] guardar el disco duro
+[] hacer la cama
+[] testing
+
+[] entender cómo están funcionando las funciones de profit
+[] llegar a 10 distintas técnicas de testeo de nuestro código
+
+[] estética de la propia aplicación
+https://blog.kraken.com/news/kraken-rebranding-do-you-like-it
+[] dividir en dos columnas el contenido de la aplicación
+
+[] Usar herencia para simplificar la inicialización de la aplicación
+
+[] mirar si meter más colores de la paleta
+[] mirar todos los documentos del Aula Adi para ver si podemos añadir más cosas
+
+[] mirar las comas después de unsafe_html
