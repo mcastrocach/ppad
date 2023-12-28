@@ -15,9 +15,11 @@ class TestFront(unittest.TestCase):
             front = Front()  # create an instance of the Front class
 
             # Asserting that the initial values of c1, c2, and select_graph are as expected
-            self.assertEqual(front.c1, None)  
-            self.assertEqual(front.c2, None)
-            self.assertEqual(front.select_graph, "Stochastic")
+            self.assertEqual(front.currency_pair, None)  
+            self.assertEqual(front.time_interval, None)
+            self.assertEqual(front.since, None)
+            self.assertEqual(front.until, None)
+            self.assertEqual(front.select_graph, "Candlestick")
 
     # Test method to test the get_kraken_pairs function
     def test_get_kraken_pairs(self):
@@ -49,7 +51,7 @@ class TestGraph(unittest.TestCase):
     def test_stochastic_mm(self):
         graph = Graph(pair='XETHZUSD', interval=1440, divisor=1)
         df = graph.obtain_data()
-        fig = graph.stochastic_mm(df)
+        fig = graph.stochastic(df)
         self.assertIsInstance(fig, go.Figure)
 
     # New test method to test the initialization of the Graph class
