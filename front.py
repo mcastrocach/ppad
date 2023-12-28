@@ -164,6 +164,8 @@ class Front:
             fig.add_trace(candlestick['data'][3], row=1, col=1, secondary_y=True)
             fig.add_trace(stochastic['data'][0], row=2, col=1)
             fig.add_trace(stochastic['data'][1], row=2, col=1)
+            fig.add_trace(stochastic['data'][2], row=2, col=1)
+            fig.add_trace(stochastic['data'][3], row=2, col=1)
 
             fig.update_layout(
                 title='Candlestick Graph with Moving Average and Stochastic Oscillator',
