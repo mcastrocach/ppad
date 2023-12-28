@@ -4,8 +4,67 @@ import pandas as pd               # Import Pandas for data analysis and manipula
 import numpy as np                # Import NumPy for numerical operations and array processing
 import time                       # Import time for time.mktime
 import datetime
+import streamlit as st
 
 from plotly.subplots import make_subplots
+
+# Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
+@st.cache_data(ttl=300)
+def fetch_data(pair, interval, divisor, since, until):
+        
+    # Initializing a Kraken API client and querying data within a try-except block
+    try:
+        k = krakenex.API()  # Initialize the Kraken client
+        
+        # Query for OHLC data for the specified currency pair and interval
+        response = k.query_public('OHLC', {'pair':pair, 'interval':divisor, 'since':since})
+        if response['error']:  # Check and raise an exception if errors exist in the response
+            print(f"There was an error with the API call")
+            raise Exception(response['error'])
+
+    # Catch and print any exceptions during the data retrieval process
+    except Exception as e:
+        print(f"An error occurred: {e}")       # Print the specific error message
+        print("Error while retrieving data")   # Indicate a data retrieval error
+
+    # Process the retrieved data if no exceptions occur
+    else:
+        ohlc_data = response['result'][pair]  # Extract OHLC data from API response
+
+        # Convert OHLC data to a DataFrame and remove unnecessary columns
+        ohlc_df = pd.DataFrame(ohlc_data, columns=["Time", "Open", "High", "Low", "Close", "VWAP", "Volume", "Count"]).drop(['VWAP', 'Count'], axis=1)
+
+        # Convert timestamps to datetime format and set as DataFrame index
+        ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')    # Unix timestamp to pandas datetime
+        ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
+        if until is not None:                                     # Filter data when until is not None
+            cutoff_date = pd.to_datetime(until, unit='s')
+            ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
+
+        # Convert all price and volume data to float type for calculations
+        ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening price of a financial instrument for the given period
+        ohlc_df["High"] = ohlc_df["High"].astype(float)       # Highest price of the instrument in the given period
+        ohlc_df["Low"] = ohlc_df["Low"].astype(float)         # Lowest price of the instrument in the given period
+        ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price of the instrument for the given period
+        ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the given period
+
+        # Add Simple Moving Average (SMA) and Exponential Moving Average (EMA) to the DataFrame
+        window = 14 if ohlc_df.shape[0] >= 60 else 3  # Determine window size based on data points
+        ohlc_df['SMA'] = ohlc_df['Close'].rolling(window=window).mean()
+        ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
+
+        # Aggregate data into custom intervals if needed
+        resampled_df = ohlc_df.resample(f'{interval}T').agg({ 'Open': 'first', 
+                                                              'High': 'max', 
+                                                              'Low': 'min', 
+                                                              'Close': 'last', 
+                                                              'SMA': 'mean', 
+                                                              'EMA': 'mean', 
+                                                              'Volume': 'sum'})
+
+        if interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
+            ohlc_df = resampled_df            
+        return ohlc_df  # Return the prepared DataFrame
 
 # The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
 class Graph:
@@ -32,53 +91,7 @@ class Graph:
 
     # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
     def obtain_data(self):
-        
-        # Initializing a Kraken API client and querying data within a try-except block
-        try:
-            k = krakenex.API()  # Initialize the Kraken client
-            
-            # Query for OHLC data for the specified currency pair and interval
-            response = k.query_public('OHLC', {'pair':self.pair, 'interval':self.divisor, 'since':self.since})
-            if response['error']:  # Check and raise an exception if errors exist in the response
-                print(f"There was an error with the API call")
-                raise Exception(response['error'])
-
-        # Catch and print any exceptions during the data retrieval process
-        except Exception as e:
-            print(f"An error occurred: {e}")       # Print the specific error message
-            print("Error while retrieving data")   # Indicate a data retrieval error
-
-        # Process the retrieved data if no exceptions occur
-        else:
-            ohlc_data = response['result'][self.pair]  # Extract OHLC data from API response
-
-            # Convert OHLC data to a DataFrame and remove unnecessary columns
-            ohlc_df = pd.DataFrame(ohlc_data, columns=["Time", "Open", "High", "Low", "Close", "VWAP", "Volume", "Count"]).drop(['VWAP', 'Count'], axis=1)
-
-            # Convert timestamps to datetime format and set as DataFrame index
-            ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')    # Unix timestamp to pandas datetime
-            ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
-            if self.until is not None:                                     # Filter data when until is not None
-                cutoff_date = pd.to_datetime(self.until, unit='s')
-                ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
-
-            # Convert all price and volume data to float type for calculations
-            ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening price of a financial instrument for the given period
-            ohlc_df["High"] = ohlc_df["High"].astype(float)       # Highest price of the instrument in the given period
-            ohlc_df["Low"] = ohlc_df["Low"].astype(float)         # Lowest price of the instrument in the given period
-            ohlc_df["Close"] = ohlc_df["Close"].astype(float)     # Closing price of the instrument for the given period
-            ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)   # Volume of transactions occurred in the given period
-
-            # Add Simple Moving Average (SMA) and Exponential Moving Average (EMA) to the DataFrame
-            window = 14 if ohlc_df.shape[0] >= 60 else 3  # Determine window size based on data points
-            ohlc_df['SMA'] = ohlc_df['Close'].rolling(window=window).mean()
-            ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
-
-            # Aggregate data into custom intervals if needed
-            if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
-                ohlc_df = self.aggregate_intervals(ohlc_df)
-                
-            return ohlc_df  # Return the prepared DataFrame
+        return fetch_data(self.pair, self.interval, self.divisor, self.since, self.until)
 
 
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
