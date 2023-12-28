@@ -8,9 +8,21 @@ import streamlit as st
 
 from plotly.subplots import make_subplots
 
+# This function aggregates data into custom time intervals that are not natively provided by the Kraken API to make queries
+def aggregate_intervals(interval, df):
+        # Resamples the DataFrame to the specified interval and aggregates key metrics
+        resampled_df = df.resample(f'{interval}T').agg({ 'Open': 'first', 
+                                                         'High': 'max', 
+                                                         'Low': 'min', 
+                                                         'Close': 'last', 
+                                                         'SMA': 'mean', 
+                                                         'EMA': 'mean', 
+                                                         'Volume': 'sum'})
+        return resampled_df
+
 # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
 @st.cache_data(ttl=300)
-def fetch_data(pair, interval, divisor, since, until):
+def obtain_function(pair, interval, divisor, since, until):
         
     # Initializing a Kraken API client and querying data within a try-except block
     try:
@@ -54,13 +66,7 @@ def fetch_data(pair, interval, divisor, since, until):
         ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean()
 
         # Aggregate data into custom intervals if needed
-        resampled_df = ohlc_df.resample(f'{interval}T').agg({ 'Open': 'first', 
-                                                              'High': 'max', 
-                                                              'Low': 'min', 
-                                                              'Close': 'last', 
-                                                              'SMA': 'mean', 
-                                                              'EMA': 'mean', 
-                                                              'Volume': 'sum'})
+        resampled_df = aggregate_intervals(interval, ohlc_df)
 
         if interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
             ohlc_df = resampled_df            
@@ -77,22 +83,9 @@ class Graph:
         self.since = since        # Start of the time window
         self.until = until        # Time limit for the time window
 
-    # This function aggregates data into custom time intervals that are not natively provided by the Kraken API to make queries
-    def aggregate_intervals(self, df):
-        # Resamples the DataFrame to the specified interval and aggregates key metrics
-        resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first', 
-                                                              'High': 'max', 
-                                                              'Low': 'min', 
-                                                              'Close': 'last', 
-                                                              'SMA': 'mean', 
-                                                              'EMA': 'mean', 
-                                                              'Volume': 'sum'})
-        return resampled_df
-
     # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
     def obtain_data(self):
-        return fetch_data(self.pair, self.interval, self.divisor, self.since, self.until)
-
+        return obtain_function(self.pair, self.interval, self.divisor, self.since, self.until)
 
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
     def candlestick(ohlc_df):
@@ -194,13 +187,18 @@ class Graph:
                 return None  # Return None if no buy signals
             first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
             df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy signal onwards
-            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit'),
-                    go.Scatter(x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='green', size=10), name='Buy Signal'),
-                    go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='red', size=10), name='Sell Signal')]
-            layout = go.Layout(title='Profit',
-                        xaxis=dict(title='Time'),   # label for the x-axis 
-                        yaxis=dict(title='Value'))  # Label for the y-axis
+            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit', marker=dict(color='#0d0c52')),
+                    go.Scatter(x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='#05e3a0', size=10), name='Buy Signal'),
+                    go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='#f77088', size=10), name='Sell Signal')]
+            
+            # Adjust layout, including margin settings
+            layout = go.Layout(
+                yaxis=dict(title='Value'),  # Label for the y-axis
+                margin=dict(l=40, r=40, t=20, b=40)  # Adjust left, right, top, bottom margins
+            )
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the profit data
+            fig.layout.height = 350
+            fig.layout.width = 650
             return fig  # return the Figure object for plotting
         except Exception as e:
             print(f"An error occurred while creating the profit chart: {e}")

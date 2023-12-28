@@ -182,8 +182,8 @@ class Front:
             profit_df = graph.calculate_profit(ohlc_df)
             fig = graph.profit_graph(profit_df)
             if fig is not None:
-                st.write("This graph simulates potential profit based on the data." +
-                            "Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
+                st.write("This graph shows simulated profit using data-driven signals. " + 
+                         "It follows the strategy to buy 100 units of the chosen currency at each *Buy Signal* and sells 100 units at each *Sell Signal*.")
                 fig_dict = fig.to_dict()
                 st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
             else:
