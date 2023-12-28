@@ -1074,37 +1074,86 @@ begin{python}
 
 \begin_layout Plain Layout
 
-   @staticmethod  # Calculate and graph the stochastic oscillator and its
- mobile mean      def stochastic(df):         try:             window =
- 14 if df.shape[0]>=60 else 3             df['L14'] = df['Low'].rolling(window=win
-dow).min()             df['H14'] = df['High'].rolling(window=window).max()
-             df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14'])
- * 100             df['%D'] = df['%K'].rolling(window=3).mean()          
-   df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift
-(1))) & (df['%D'] < 20)             df['Sell_Signal'] = ((df['%K'] < df['%D'])
- & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)            
- df = df[-60:]
+   @staticmethod
 \end_layout
 
 \begin_layout Plain Layout
 
-            data = [# The first plot is a line chart for the '%K' line of
+  # Calculate and graph the stochastic oscillator and its mobile mean
+\end_layout
+
+\begin_layout Plain Layout
+
+     def stochastic(df):
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            window = 14 if df.shape[0]>=60 else 3
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['L14'] = df['Low'].rolling(window=window).min()
+\end_layout
+
+\begin_layout Plain Layout
+
+           df['H14'] = df['High'].rolling(window=window).max()
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14'])
+ * 100
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['%D'] = df['%K'].rolling(window=3).mean()
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1)
+ < df['%D'].shift(1))) & (df['%D'] < 20)             df['Sell_Signal'] =
+ ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D']
+ > 80)             
+\end_layout
+
+\begin_layout Plain Layout
+
+			df = df[-60:]
+\end_layout
+
+\begin_layout Plain Layout
+
+           data = [# The first plot is a line chart for the '%K' line of
  the stochastic oscillator                     go.Scatter(x=df.index, y=df['%K'],
  name='Stochastic Oscillator'),
 \end_layout
 
 \begin_layout Plain Layout
 
-                    # The second plot is a line chart for the '%D' line
- of the stochastic oscillator                     go.Scatter(x=df.index, y=df['%D'
-], name='Smoothed Stochastic Oscillator')]
+           # The second plot is a line chart for the '%D' line of the stochastic
+ oscillator                     go.Scatter(x=df.index, y=df['%D'], name='Smoothed
+ Stochastic Oscillator')]
 \end_layout
 
 \begin_layout Plain Layout
 
             # Define the layout for the plotly figure, setting titles and
  axis labels.
-             layout = go.Layout(title='Stochastic Oscillator with its Smoothed
+\end_layout
+
+\begin_layout Plain Layout
+
+            layout = go.Layout(title='Stochastic Oscillator with its Smoothed
  Version',                                yaxis=dict(title='Value (%)',
  range=[0,100]))  # Label for the y-axis
 \end_layout
@@ -1118,8 +1167,18 @@ dow).min()             df['H14'] = df['High'].rolling(window=window).max()
 
 \begin_layout Plain Layout
 
-        except Exception as e:             print(f"An error occurred while
- creating the candlestick chart: {e}")             return go.Figure()
+        except Exception as e:
+\end_layout
+
+\begin_layout Plain Layout
+
+            print(f"An error occurred while creating the candlestick chart:
+ {e}")
+\end_layout
+
+\begin_layout Plain Layout
+
+            return go.Figure()
 \end_layout
 
 \begin_layout Plain Layout
@@ -1184,39 +1243,93 @@ begin{python}
 
 \begin_layout Plain Layout
 
-   def calculate_profit(self, df):         try:             coins = 0  
-           total_spent = 0             df['Buy_Price'] = np.where(df['Buy_Signal'
-], df['Close'], np.nan)             df['Sell_Price'] = np.where(df['Sell_Signal'],
- df['Close'], np.nan)             for i in range(len(df)):              
-   if df['Buy_Signal'].iloc[i]:                     coins += 100        
-             total_spent += df['Buy_Price'].iloc[i]*100                 if
- df['Sell_Signal'].iloc[i] and coins >= 100:                     coins -=
- 100                     total_spent -= df['Sell_Price'].iloc[i]*100    
-         df['Profit'] = df['Close'] * coins - total_spent             return
- df         except Exception as e:             print(f"An error occurred
- while creating the profit data: {e}")             return pd.DataFrame()
+   def calculate_profit(self, df):
 \end_layout
 
 \begin_layout Plain Layout
 
-    def profit_graph(self, df):         try:             df = df[-60:] 
-            if not df['Buy_Signal'].any():  # Check if there are any buy
- signals                 return None  # Return None if no buy signals  
-           first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index
- of the first buy signal             df = df.loc[first_buy_signal:]  # Slice
- the DataFrame from the first buy signal onwards             data = [go.Scatter(x
-=df.index, y=df['Profit'].cumsum(), name='Profit'),                     go.Scatter(
-x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='mar
-kers', marker=dict(color='green', size=10), name='Buy Signal'),        
-             go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Pr
-ofit'].cumsum(), mode='markers', marker=dict(color='red', size=10), name='Sell
- Signal')]             layout = go.Layout(title='Profit',               
-          xaxis=dict(title='Time'),   # label for the x-axis           
-               yaxis=dict(title='Value'))  # Label for the y-axis      
-       fig = go.Figure(data=data, layout=layout)  # create a Figure object
- with the profit data             return fig  # return the Figure object
- for plotting         except Exception as e:             print(f"An error
- occurred while creating the profit chart: {e}")             return go.Figure()
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            coins = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+            total_spent = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['Buy_Price'] = np.where(df['Buy_Signal'], df['Close'], np.nan)
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['Sell_Price'] = np.where(df['Sell_Signal'], df['Close'], np.nan)
+\end_layout
+
+\begin_layout Plain Layout
+
+            for i in range(len(df)):
+\end_layout
+
+\begin_layout Plain Layout
+
+                if df['Buy_Signal'].iloc[i]:
+\end_layout
+
+\begin_layout Plain Layout
+
+                    coins += 100
+\end_layout
+
+\begin_layout Plain Layout
+
+                    total_spent += df['Buy_Price'].iloc[i]*100
+\end_layout
+
+\begin_layout Plain Layout
+
+                if df['Sell_Signal'].iloc[i] and coins >= 100:
+\end_layout
+
+\begin_layout Plain Layout
+
+                    coins -= 100
+\end_layout
+
+\begin_layout Plain Layout
+
+                    total_spent -= df['Sell_Price'].iloc[i]*100
+\end_layout
+
+\begin_layout Plain Layout
+
+            df['Profit'] = df['Close'] * coins - total_spent
+\end_layout
+
+\begin_layout Plain Layout
+
+            return df
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:
+\end_layout
+
+\begin_layout Plain Layout
+
+            print(f"An error occurred while creating the profit data: {e}")
+\end_layout
+
+\begin_layout Plain Layout
+
+            return pd.DataFrame()
 \end_layout
 
 \begin_layout Plain Layout
@@ -1228,6 +1341,114 @@ end{python}
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+    def profit_graph(self, df):
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            df = df[-60:]
+\end_layout
+
+\begin_layout Plain Layout
+
+            if not df['Buy_Signal'].any():
+\end_layout
+
+\begin_layout Plain Layout
+
+ 		   # Check if there are any buy signals
+\end_layout
+
+\begin_layout Plain Layout
+
+              return None  # Return None if no buy signals
+\end_layout
+
+\begin_layout Plain Layout
+
+            first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index
+ of the first buy signal           
+\end_layout
+
+\begin_layout Plain Layout
+
+			df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy
+ signal onwards
+\end_layout
+
+\begin_layout Plain Layout
+
+            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit'),
+                     				go.Scatter(x=df[df['Buy_Signal']].index, y=df[df['Buy_Sig
+nal']]['Profit'].cumsum(),mode='markers', marker=dict(color='green', size=10),
+ name='Buy Signal'),                     				go.Scatter(x=df[df['Sell_Signal']].in
+dex, y=df[df['Sell_Signal']]['Profit'].cumsum(), 			mode='markers', marker=dict(c
+olor='red', size=10), name='Sell Signal')]             layout = 			go.Layout(titl
+e='Profit',
+\end_layout
+
+\begin_layout Plain Layout
+
+			xaxis=dict(title='Time'),   # label for the x-axis                  
+        			yaxis=dict(title='Value'))  # Label for the y-axis
+\end_layout
+
+\begin_layout Plain Layout
+
+           fig = go.Figure(data=data, layout=layout)  # create a Figure object
+ with the profit data             			return fig  # return the Figure object
+ for plotting
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:
+\end_layout
+
+\begin_layout Plain Layout
+
+            print(f"An error occurred while creating the profit chart: {e}")
+\end_layout
+
+\begin_layout Plain Layout
+
+            return go.Figure()
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 TODO Captura de la grafica de beneficios
 \end_layout
 
@@ -1293,15 +1514,63 @@ s en las líneas 117 y 118.
 \end_layout
 
 \begin_layout Standard
-La fórmula (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100 es
- la implementación de la fórmula del oscilador estocásticoque mide la relación
- entre el precio de cierre actual y el rango de precios en un número determinado
- de períodos.
+La fórmula
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+(df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+es la implementación de la fórmula del oscilador estocásticoque mide la
+ relación entre el precio de cierre actual y el rango de precios en un número
+ determinado de períodos.
 \end_layout
 
 \begin_layout Standard
-La línea df['%D'] = df['%K'].rolling(window=3).mean() calcula la media móvil
- de 3 períodos de %K, que se conoce como %D.
+La línea 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+df['%D'] = df['%K'].rolling(window=3).mean() 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+calcula la media móvil de 3 períodos de %K, que se conoce como %D.
  La media móvil se utiliza para suavizar las fluctuaciones de %K y generar
  una línea de señal para las señales de compra y venta.
 \end_layout
@@ -1438,11 +1707,43 @@ begin{python}
 
 \begin_layout Plain Layout
 
-   def profit_graph(self, df):         try: 			[...]             fig = go.Figure(dat
-a=data, layout=layout)  # create a Figure object with the profit data  
-           return fig  # return the Figure object for plotting         except
- Exception as e:             print(f"An error occurred while creating the
- profit chart: {e}")             return go.Figure()
+   def profit_graph(self, df):
+\end_layout
+
+\begin_layout Plain Layout
+
+     try:
+\end_layout
+
+\begin_layout Plain Layout
+
+         [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+         fig = go.Figure(data=data, layout=layout)  # create a Figure object
+ with the profit data
+\end_layout
+
+\begin_layout Plain Layout
+
+         return fig  # return the Figure object for plotting         
+\end_layout
+
+\begin_layout Plain Layout
+
+     except Exception as e:
+\end_layout
+
+\begin_layout Plain Layout
+
+        print(f"An error occurred while creating the profit chart: {e}")
+\end_layout
+
+\begin_layout Plain Layout
+
+        return go.Figure()
 \end_layout
 
 \begin_layout Plain Layout
@@ -1473,10 +1774,38 @@ begin{python}
 \begin_layout Plain Layout
 
    # Method to execute the core operations of the Streamlit application
-     def run(self):         try: 			[...]         except Exception as e:  
-           # Handle and display any exceptions that occur during execution
-             st.error(f"An error occurred: {e}")  # Show the error message
- to the user in the app
+     
+\end_layout
+
+\begin_layout Plain Layout
+
+   def run(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+     try:
+\end_layout
+
+\begin_layout Plain Layout
+
+       [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+     except Exception as e:
+\end_layout
+
+\begin_layout Plain Layout
+
+       # Handle and display any exceptions that occur during execution
+\end_layout
+
+\begin_layout Plain Layout
+
+       st.error(f"An error occurred: {e}")  # Show the error message to the
+ user in the app
 \end_layout
 
 \begin_layout Plain Layout
@@ -1513,11 +1842,34 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# Test method to test the get_kraken_pairs function     def test_get_kraken_pair
-s(self):         result = get_kraken_pairs()  # Calling the get_kraken_pairs
- function and storing its result                  # Checking if the result
- is a tuple and has a length greater than 0         self.assertIsInstance(result,
- tuple)         self.assertTrue(len(result) > 0)
+# Test method to test the get_kraken_pairs function
+\end_layout
+
+\begin_layout Plain Layout
+
+    def test_get_kraken_pairs(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        result = get_kraken_pairs()  # Calling the get_kraken_pairs function
+ and storing its result
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Checking if the result is a tuple and has a length greater than
+ 0
+\end_layout
+
+\begin_layout Plain Layout
+
+        self.assertIsInstance(result, tuple)
+\end_layout
+
+\begin_layout Plain Layout
+
+        self.assertTrue(len(result) > 0)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1555,21 +1907,92 @@ begin{python}
 
 \begin_layout Plain Layout
 
-[tool.poetry] name = "krakenpythonmarcosrodrigo" version = "0.1.0" description
- = "A streamlit tool for rendering kraken data" authors = ["Your Name <you@examp
-le.com>"] readme = "README.md"
+[tool.poetry]
 \end_layout
 
 \begin_layout Plain Layout
 
-[tool.poetry.dependencies] python = "^3.11" plotly = "4.14.3" streamlit = "0.79.0"
- coverage = "5.5" pandas = "2.1.4" numpy = "1.26.2" krakenex = "2.1.0" streamlit-option
--menu = "0.3.6"
+name = "krakenpythonmarcosrodrigo"
 \end_layout
 
 \begin_layout Plain Layout
 
-[build-system] requires = ["poetry-core"] build-backend = "poetry.core.masonry.api"
+version = "0.1.0"
+\end_layout
+
+\begin_layout Plain Layout
+
+description = "A streamlit tool for rendering kraken data"
+\end_layout
+
+\begin_layout Plain Layout
+
+authors = ["Your Name <you@example.com>"]
+\end_layout
+
+\begin_layout Plain Layout
+
+readme = "README.md"
+\end_layout
+
+\begin_layout Plain Layout
+
+[tool.poetry.dependencies]
+\end_layout
+
+\begin_layout Plain Layout
+
+python = "^3.11"
+\end_layout
+
+\begin_layout Plain Layout
+
+plotly = "4.14.3"
+\end_layout
+
+\begin_layout Plain Layout
+
+streamlit = "0.79.0"
+\end_layout
+
+\begin_layout Plain Layout
+
+coverage = "5.5"
+\end_layout
+
+\begin_layout Plain Layout
+
+pandas = "2.1.4"
+\end_layout
+
+\begin_layout Plain Layout
+
+numpy = "1.26.2"
+\end_layout
+
+\begin_layout Plain Layout
+
+krakenex = "2.1.0"
+\end_layout
+
+\begin_layout Plain Layout
+
+streamlit-option-menu = "0.3.6"
+\end_layout
+
+\begin_layout Plain Layout
+
+[build-system]
+\end_layout
+
+\begin_layout Plain Layout
+
+requires = ["poetry-core"]
+\end_layout
+
+\begin_layout Plain Layout
+
+build-backend = "poetry.core.masonry.api"
 \end_layout
 
 \begin_layout Plain Layout
