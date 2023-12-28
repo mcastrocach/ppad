@@ -84,7 +84,11 @@ class Graph:
         try:
             # Use the last 60 data points from the OHLC DataFrame for the chart
             #df = ohlc_df[-60:]
-            df = ohlc_df[14:]
+            size = len(ohlc_df)
+            if size < 14:
+                df = ohlc_df[:]
+            else:
+                df = ohlc_df[14:]
 
             colors = ['#008080' if close >= open else 'red' for open, close in zip(df['Open'], df['Close'])]
             fig = make_subplots(specs=[[{"secondary_y": True}]])
