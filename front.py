@@ -24,11 +24,9 @@ kraken_pairs = get_kraken_pairs()  # Get and store the list of currency pairs av
 intervals = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080, "2w":21600}
 keys, options = intervals.keys(), intervals.values()  # Separate lists of interval labels and their corresponding durations
 
-# Finds the largest duration in 'intervals' that is a divisor of 'n'
+# Finds the largest duration in 'options' that is a divisor of n
 def find_largest_divisor(n):
-    valid_divisors = [d for d in options if n % d == 0]  # Filters durations that are divisors of 'n'
-    if not valid_divisors:
-        return None                                      # Returns None if no valid divisors are found
+    valid_divisors = [d for d in options if n % d == 0]  # Filters durations that are divisors of n
     return max(valid_divisors)                           # Returns the largest divisor found
 
 
@@ -139,13 +137,13 @@ class Front:
     def select_boxes(self):
 
         # Prompt user to select a currency pair from the pairs retrieved
-        st.write("1. Please select a currency pair from the available options.")
+        st.write("1. Please select a currency pair from the available options:")
 
         # Dropdown menu for selecting a currency pair
         self.currency_pair = st.selectbox(
-           label = 'placeholder',            # Streamlit's selectbox requires a label, even when collapsed
+           label = 'placeholder',            # Streamlit's selectbox requires a label
            options = kraken_pairs,           # List of currency pairs from Kraken
-           index = None,                     # Index of the preselected option on first render
+           index = None,                     # Index of the preselected option
            placeholder = "xxxxxxx",          # Placeholder text in the dropdown
            label_visibility = "collapsed"
         )
@@ -153,19 +151,15 @@ class Front:
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
         # Applies dynamic CSS to highlight the selected time interval button
-        st.markdown("2. Choose a time window from the most commonly used options:" + 
+        st.markdown("2. Choose a time interval for the candles from the most commonly used options..." + 
             f"""
             <style>
             div.stButton > button {{
                 width: 100%;
             }}
-            div.stButton > button# {{
-                background-color: #0d6efd;
-                color: white;
-            }}
             </style>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
         
         # Generate a row of buttons for selecting time intervals
@@ -181,11 +175,13 @@ class Front:
         if st.button("...or enter a custom time interval (in minutes)", key="Other"):
             # Input field for custom time interval in minutes
             st.session_state.is_custom_interval = not st.session_state.is_custom_interval
+
         if st.session_state.is_custom_interval:
             st.session_state.custom_interval = st.number_input('Custom interval', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
+
         if st.session_state.custom_interval is not None: 
             self.time_interval = st.session_state.custom_interval
-            st.session_state.selected_option = st.session_state.custom_interval# Update the time interval with the custom input
+            st.session_state.selected_option = st.session_state.custom_interval # Update the time interval with the custom input
 
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 

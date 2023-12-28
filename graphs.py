@@ -21,7 +21,6 @@ class Graph:
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
         # Resamples the DataFrame to the specified interval and aggregates key metrics
-        print(df)
         resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first', 
                                                               'High': 'max', 
                                                               'Low': 'min', 
@@ -29,9 +28,7 @@ class Graph:
                                                               'SMA': 'first', 
                                                               'EMA': 'first', 
                                                               'Volume': 'sum'})
-        print(resampled_df)
         return resampled_df
-
 
     # Retrieves trading data from the Kraken API and organizes it into a Pandas DataFrame
     def obtain_data(self):
@@ -86,8 +83,6 @@ class Graph:
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
     def candlestick(ohlc_df):
         try:
-            # Use the last 60 data points from the OHLC DataFrame for the chart
-            #df = ohlc_df[-60:]
             size = len(ohlc_df)
             if size < 14:
                 df = ohlc_df[:]
@@ -106,37 +101,7 @@ class Graph:
             fig.layout.height = 400
             fig.layout.width = 650
 
-            """
-            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
-                    vertical_spacing=0.03, 
-                    subplot_titles=('OHLC', 'Volume'), 
-                    row_width=[0.2, 0.7])
-
-            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close']), row=1, col=1)
-            fig.add_trace(go.Bar(x=df.index, y=df['Volume']), row=2, col=1)
-            fig.update_layout(title='Stock Price with Volume', 
-                  xaxis_tickfont_size=12, 
-                  yaxis=dict(title='Stock Price'),
-                  yaxis2=dict(title='Volume', overlaying='y', side='right'))
-            """
-
-
-            """
-            # Define the candlestick chart components and moving averages
-            data = [ go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                   low=df['Low'], close=df['Close'], name='Candlestick Data'),
-
-                     go.Scatter(x=df.index, y=df['SMA'], name='Simple Moving Average'),
-                     go.Scatter(x=df.index, y=df['EMA'], name='Exponential Moving Average') ]
-
-            # Define the layout for the plotly figure, setting titles and axis labels.
-            layout = go.Layout(title='Candlestick Graph with Moving Average',
-                               yaxis=dict(title='Price'))  # Label for the y-axis
-
-            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the OHLC data
-            """
-            
-            return fig  # return the Figure object for plotting
+            return fig  # Return the Figure object for plotting
         
         except Exception as e:
             # Handle exceptions in chart creation and return an empty figure in case of an error
