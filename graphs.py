@@ -10,13 +10,13 @@ from plotly.subplots import make_subplots
 # The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
 class Graph:
 
-    # Constructor for initializing a Graph instance with a currency pair, interval, and divisor
-    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int((time.mktime(datetime.datetime.now().timetuple()))), until=None):
+    # Constructor for initializing a Graph instance
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since=None, until=None):
         self.pair = pair          # The currency pair to be analyzed
         self.interval = interval  # Time interval for each data point in minutes
         self.divisor = divisor    # Divisor for interval adjustment
-        self.since = since
-        self.until = until
+        self.since = since        # Start of the time window
+        self.until = until        # Time limit for the time window
 
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
@@ -56,11 +56,11 @@ class Graph:
             ohlc_data = response['result'][self.pair]  # Extract OHLC data from API response
 
             # Convert OHLC data to a DataFrame and remove unnecessary columns
-            ohlc_df = pd.DataFrame(ohlc_data, columns=["timestamp", "Open", "High", "Low", "Close", "NaN", "Volume", "MaM"]).drop(['NaN', 'MaM'], axis=1)
+            ohlc_df = pd.DataFrame(ohlc_data, columns=["Time", "Open", "High", "Low", "Close", "VWAP", "Volume", "Count"]).drop(['VWAP', 'Count'], axis=1)
 
             # Convert timestamps to datetime format and set as DataFrame index
-            ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')    # Unix timestamp to Python datetime
-            ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
+            ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')    # Unix timestamp to pandas datetime
+            ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
             if self.until is not None:
                 cutoff_date = pd.to_datetime(self.until, unit='s')
                 ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
@@ -160,7 +160,7 @@ class Graph:
                     go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF')),
 
                     # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#FFA500'))]
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#87CEEB'))]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',

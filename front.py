@@ -7,8 +7,6 @@ import datetime                                # Import datetime for date and ti
 
 import requests  # Import the requests library for HTTP request handling
 
-st.set_page_config(layout="wide")
-
 import plotly.express as px
 
 # Retrieves all available currency pairs from the Kraken cryptocurrency exchange API
@@ -64,7 +62,8 @@ class Front:
 
     def __init__(self):
 
-        
+        st.set_page_config(layout="wide")
+
         st.markdown("""
                         <style>
                             .appview-container .main .block-container {{
