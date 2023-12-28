@@ -18,19 +18,19 @@ class Graph:
         self.since = since        # Start of the time window
         self.until = until        # Time limit for the time window
 
-    # This function aggregates data into custom time intervals that are not natively provided by the API
+    # This function aggregates data into custom time intervals that are not natively provided by the Kraken API to make queries
     def aggregate_intervals(self, df):
         # Resamples the DataFrame to the specified interval and aggregates key metrics
         resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first', 
                                                               'High': 'max', 
                                                               'Low': 'min', 
                                                               'Close': 'last', 
-                                                              'SMA': 'first', 
-                                                              'EMA': 'first', 
+                                                              'SMA': 'mean', 
+                                                              'EMA': 'mean', 
                                                               'Volume': 'sum'})
         return resampled_df
 
-    # Retrieves trading data from the Kraken API and organizes it into a Pandas DataFrame
+    # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
     def obtain_data(self):
         
         # Initializing a Kraken API client and querying data within a try-except block
@@ -46,7 +46,7 @@ class Graph:
         # Catch and print any exceptions during the data retrieval process
         except Exception as e:
             print(f"An error occurred: {e}")       # Print the specific error message
-            print("Error while generating graph")  # Indicate a graph generation error
+            print("Error while retrieving data")   # Indicate a data retrieval error
 
         # Process the retrieved data if no exceptions occur
         else:
@@ -58,7 +58,7 @@ class Graph:
             # Convert timestamps to datetime format and set as DataFrame index
             ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')    # Unix timestamp to pandas datetime
             ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
-            if self.until is not None:
+            if self.until is not None:                                     # Filter data when until is not None
                 cutoff_date = pd.to_datetime(self.until, unit='s')
                 ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
 
@@ -77,27 +77,36 @@ class Graph:
             # Aggregate data into custom intervals if needed
             if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
                 ohlc_df = self.aggregate_intervals(ohlc_df)
+                
             return ohlc_df  # Return the prepared DataFrame
 
 
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
     def candlestick(ohlc_df):
         try:
-            size = len(ohlc_df)
-            if size < 14:
-                df = ohlc_df[:]
+            size = ohlc_df.shape[0]
+            if size <= 14:
+                df = ohlc_df[:]    # Take the whole dataframe when it has small size
             else:
-                df = ohlc_df[14:]
+                df = ohlc_df[14:]  # Remove the first intervals so that SMA is defined
 
             colors = ['#008080' if close >= open else 'red' for open, close in zip(df['Open'], df['Close'])]
             fig = make_subplots(specs=[[{"secondary_y": True}]])
-            # include candlestick with rangeselector
+
+            # Include candlestick with range selector
             fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name=''), secondary_y=True)
+            
+            # Bar diagram displaying the Volume data
             fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors, opacity=0.25, showlegend=False), secondary_y=False)
+            
+            # Line chart displaying the computed SMA values
             fig.add_trace(go.Scatter(x=df.index, y=df['SMA'], marker=dict(color='#0000FF'), opacity=0.35, name='SMA'), secondary_y=True)
+            
+            # Line chart displaying the computed EMA values
             fig.add_trace(go.Scatter(x=df.index, y=df['EMA'], marker=dict(color='#FF0000'), opacity=0.35, name='EMA'), secondary_y=True)
-            fig.layout.yaxis2.showgrid=False
-            fig.layout.title = 'Candlestick Graph with Moving Average'
+            
+            fig.layout.yaxis2.showgrid = False
+            fig.layout.title = 'Candlestick Graph with Volume and Moving Averages'
             fig.layout.height = 400
             fig.layout.width = 650
 

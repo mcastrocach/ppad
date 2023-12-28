@@ -196,6 +196,7 @@ class Front:
                     # Convert date to datetime
                     self.since = datetime.datetime.combine(self.since, datetime.datetime.min.time())
                     self.since = datetime.datetime.strptime(str(self.since), "%Y-%m-%d %H:%M:%S").timestamp()
+                    
         with columns1:
             with st.expander("End Date", expanded=True):
                 self.until = st.date_input('end', value=None, label_visibility = "collapsed")
