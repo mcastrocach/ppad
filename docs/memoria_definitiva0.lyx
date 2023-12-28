@@ -885,7 +885,7 @@ end{python}
 \end_layout
 
 \begin_layout Standard
-\begin_inset VSpace 15bp
+\begin_inset VSpace 10bp
 \end_inset
 
 
@@ -897,13 +897,10 @@ Así se vería el menú dropdown en la aplicación creada con
 streamlit
 \family default
 :
-\begin_inset VSpace 2bp
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename dropdown_menu.JPG
 	scale 75
@@ -911,7 +908,7 @@ streamlit
 \end_inset
 
 
-\begin_inset VSpace 5bp
+\begin_inset VSpace 10bp
 \end_inset
 
 
@@ -1173,7 +1170,7 @@ number_input
 \family typewriter
 streamlit
 \family default
- que únicamente acepta números enteros entre 1 y 43200 (ambos valores incluidos).
+ que únicamente acepta números enteros entre 1 y 43200 (ambos incluidos).
 \begin_inset VSpace 5bp
 \end_inset
 
@@ -1203,7 +1200,7 @@ class Front:
 
 \begin_layout Plain Layout
 
-        < código de la función >
+        [...]
 \end_layout
 
 \begin_layout Plain Layout
@@ -1252,7 +1249,7 @@ al")
 
 \begin_layout Plain Layout
 
-        < código de la función > 
+        [...] 
 \end_layout
 
 \begin_layout Plain Layout
@@ -1266,7 +1263,7 @@ al")
 
 \begin_layout Plain Layout
 
-        < código de la función >
+        [...]
 \end_layout
 
 \begin_layout Plain Layout
@@ -1276,8 +1273,13 @@ al")
 \begin_layout Plain Layout
 
         st.markdown("2.
- Choose a time interval for the candles from the most commonly used options..."
- +              
+ Choose a time interval for the candles from 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                     the most commonly used options..." + 
+             
 \end_layout
 
 \begin_layout Plain Layout
@@ -1307,12 +1309,7 @@ al")
 
 \begin_layout Plain Layout
 
-            </style>             
-\end_layout
-
-\begin_layout Plain Layout
-
-            """, unsafe_allow_html=True )                  
+            </style>""", unsafe_allow_html=True )                  
 \end_layout
 
 \begin_layout Plain Layout
@@ -1456,7 +1453,7 @@ erval
 
 \begin_layout Plain Layout
 
-        < código de la función >
+        [...]
 \end_layout
 
 \begin_layout Plain Layout
@@ -1472,7 +1469,7 @@ end{python}
 \begin_inset VSpace 15bp
 \end_inset
 
-Así se vería el conjunto de botones y el 
+Así se verían el conjunto de botones y el 
 \family typewriter
 number_input
 \family default
@@ -1481,17 +1478,22 @@ number_input
 streamlit
 \family default
 :
-\begin_inset VSpace 2bp
+\begin_inset VSpace 5bp
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename time_buttons.JPG
 	scale 85
 
+\end_inset
+
+
+\begin_inset VSpace 15bp
 \end_inset
 
 
@@ -1503,45 +1505,77 @@ streamlit
 since
 \family default
 .
- Denota el tiempo para el cual se toman los primeros datos en la consulta,
- este valor es un número entero que se corresponde con un timestamp de Unix.
+ Denota el tiempo para el cual se toman los primeros datos en la consulta,es
+ un número entero que se corresponde con un timestamp de Unix.
  Este valor es el el número de segundos transcurridos desde la medianoche
  UTC del 1 de enero de 1970.
  Por ejemplo, el timestamp Unix "1548111600" se correspondería con la fecha
  y hora "2019-01-21 23:00:00 UTC".
+ Cabe destacar que si el tiempo introducido es anterior al primero de los
+ 720 intervalos devueltos por la API, esta funcionalidad no empezará en
+ el tiempo indicado sino en el primero de esos 720 intervalos.
+ 
 \end_layout
 
 \begin_layout Standard
-En esta consulta se recuperan los datos en formato JSON, con dos campos
- 
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 5bp
+\end_inset
+
+Además, hemos buscado acotar la última fecha para la que se muestran datos
+ y, dado que 
 \family typewriter
-response
+krakenex
+\family default
+ no cuenta con dicha funcionalidad, hemos añadido un atributo 
+\family typewriter
+until
+\family default
+ a la 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{class Graph}
+\end_layout
+
+\end_inset
+
+ con el que aplicamos un filtro tras la obtención de los datos.
+ Para la selección de los valores de 
+\family typewriter
+since
 \family default
  y 
 \family typewriter
-error
+until
 \family default
-.
- En caso de haber algún problema con la llamada a la API, se recoge la excepción
- en el campo 
+, hemos usado las funcionalidades de 
 \family typewriter
-error
+streamlit
 \family default
- y, de no ser así, el campo response a su vez guarda para los valores selecciona
-dos la información de los campos Time (tiempo de apertura del intervalo),
- Open (precio de apertura del intervalo), High (precio más alto del intervalo),
- Low (precio más bajo del intervalo), Close (precio de cierre del intervalo),
- VWAP (valor del indicador para el intervalo), Volume (volumen acumulado
- del intervalo) y Count (número de transacciones en el intervalo).
- Transformamos los datos a un dataframe de pandas y prescindimos de los
- campos VWAP y Count, pues no nos son de utilidad.
- Cambiamos los timestamps de Unix al tipo datetime de pandas y el resto
- de campos de float a string.
- Además, hemos buscado acotar la última fecha para la que se pueden seleccionar
- datos y, dado que krakenex no cuenta con dicha funcionalidad, hemos añadido
- un atributo until a la class Graph con el que aplicamos un filtro tras
- la obtención de los datos.
- 
+ para crear dos objetos 
+\family typewriter
+expander
+\family default
+ con un 
+\family typewriter
+date_input
+\family default
+ cada uno.
+\begin_inset VSpace 20bp
+\end_inset
+
+
 \begin_inset ERT
 status open
 
@@ -1554,7 +1588,192 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código
+class Front:
+\end_layout
+
+\begin_layout Plain Layout
+
+    def __init__(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+                                         
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Initialize since and until attributes
+\end_layout
+
+\begin_layout Plain Layout
+
+        self.since, self.until = None, None
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Method to create user input interfaces, including dropdowns and buttons
+\end_layout
+
+\begin_layout Plain Layout
+
+    def select_boxes(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        st.markdown("3.
+ Optionally, choose a time interval within 
+\end_layout
+
+\begin_layout Plain Layout
+
+                              the range of the original selection:")   
+               
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Date picker for selecting the start date         
+\end_layout
+
+\begin_layout Plain Layout
+
+        columns0, columns1 = st.columns([1, 1])         
+\end_layout
+
+\begin_layout Plain Layout
+
+        with columns0:             
+\end_layout
+
+\begin_layout Plain Layout
+
+            with st.expander("Start Date", expanded=True):              
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+                self.since = st.date_input('start', value=None, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                           label_visibility = "collapsed")
+                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                if self.since is not None:                     
+\end_layout
+
+\begin_layout Plain Layout
+
+                    # Convert date to datetime                     
+\end_layout
+
+\begin_layout Plain Layout
+
+                    self.since = datetime.datetime.combine(self.since, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                datetime.datetime.min.time())
+                     
+\end_layout
+
+\begin_layout Plain Layout
+
+                    self.since = datetime.datetime.strptime(str(self.since),
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                             "%Y-%m-%d %H:%M:%S").timestamp()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        with columns1:             
+\end_layout
+
+\begin_layout Plain Layout
+
+            with st.expander("End Date", expanded=True):                
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                self.until = st.date_input('end', value=None, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                           label_visibility = "collapsed")
+                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                if self.until is not None:                     
+\end_layout
+
+\begin_layout Plain Layout
+
+                    # Convert date to datetime                     
+\end_layout
+
+\begin_layout Plain Layout
+
+                    self.until = datetime.datetime.combine(self.until, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                datetime.datetime.min.time())
+\end_layout
+
+\begin_layout Plain Layout
+
+                    self.until = datetime.datetime.strptime(str(self.until),
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                             "%Y-%m-%d %H:%M:%S").timestamp()
 \end_layout
 
 \begin_layout Plain Layout
@@ -1570,12 +1789,202 @@ end{python}
 \end_layout
 
 \begin_layout Standard
-Por último, aplicamos la función de agregación cuando el intervalo seleccionado
- por el usuario no se encuentre entre las opciones disponibles para realizar
- una consulta directa a la API de Kraken.
+\begin_inset Newpage pagebreak
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
+Así se verían los objetos 
+\family typewriter
+expander
+\family default
+ con el 
+\family typewriter
+date_input
+\family default
+ en la aplicación creada con 
+\family typewriter
+streamlit
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename since_until.JPG
+	scale 85
+
+\end_inset
+
+
+\begin_inset VSpace 10bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Con los inputs mencionados, en la función 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{def obtain_data(self)}
+\end_layout
+
+\end_inset
+
+ se lleva a cabo la consulta con la que se recuperan los datos en formato
+ JSON, con dos campos 
+\family typewriter
+response
+\family default
+ y 
+\family typewriter
+error
+\family default
+.
+ En caso de haber algún problema con la llamada a la API, se recoge la excepción
+ en el campo 
+\family typewriter
+error
+\family default
+ y, de no ser así, el campo 
+\family typewriter
+response
+\family default
+ a su vez guarda la información de los campos 
+\family typewriter
+Time
+\family default
+ (tiempo de apertura del intervalo), 
+\family typewriter
+Open
+\family default
+ (precio de apertura del intervalo), 
+\family typewriter
+High
+\family default
+ (precio más alto del intervalo), 
+\family typewriter
+Low
+\family default
+ (precio más bajo del intervalo), 
+\family typewriter
+Close
+\family default
+ (precio de cierre del intervalo), 
+\family typewriter
+VWAP
+\family default
+ (valor del indicador para el intervalo), 
+\family typewriter
+Volume
+\family default
+ (volumen acumulado del intervalo) y 
+\family typewriter
+Count
+\family default
+ (número de transacciones en el intervalo).
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Transformamos los datos a un dataframe de 
+\family typewriter
+pandas
+\family default
+ y prescindimos de los campos 
+\family typewriter
+VWAP
+\family default
+ y 
+\family typewriter
+Count
+\family default
+, pues no nos son de utilidad.
+ Cambiamos los timestamps de Unix al tipo 
+\family typewriter
+datetime
+\family default
+ de 
+\family typewriter
+pandas
+\family default
+, usamos el campo 
+\family typewriter
+Time
+\family default
+ como índice del dataframe, filtramos los datos cuando se haya introducido
+ un valor para 
+\family typewriter
+until
+\family default
+ y transformamos el tipo del resto de campos de 
+\family typewriter
+float
+\family default
+ a 
+\family typewriter
+string
+\family default
+.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A continuación, se han calculado dos indicadores bursátiles para su inclusión
+ en el gráfico de velas: el SMA o 
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+Simple Moving Average
+\shape default
+ (media móvil del precio de cierre) y el EMA o 
+\shape italic
+Exponential Moving Average
+\shape default
+ (similar al SMA pero dando más peso a los datos mas recientes, lo que hace
+ que sea más sensible a cambios a corto plazo).
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En el cálculo de medias móviles, como es este caso, existe la convención
+ de escoger una ventana de 14 intervalos y, aunque esta elección puede variar
+ según el análisis que se busque hacer sobre los datos, hemos decidido adoptar
+ este estándar para nuestra aplicación.
+ No obstante, hemos tenido en cuenta casos en los que la consulta no devuelve
+ datos para muchos intervalos y, en tal escenario, se toma una ventana de
+ únicamente 3 intervalos para poder calcular los indicadores en un mayor
+ porcentaje de los intervalos obtenidos.
+ Por último, aplicamos la función de agregación cuando el intervalo seleccionado
+ por el usuario no se encuentre entre las opciones disponibles para realizar
+ una consulta directa a la API de Kraken.
+\begin_inset VSpace 10bp
+\end_inset
+
+
 \begin_inset ERT
 status open
 
@@ -1588,7 +1997,384 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código
+class Graph: 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # This function aggregates data into custom time intervals 
+\end_layout
+
+\begin_layout Plain Layout
+
+    #  that are not natively provided by the Kraken API to make queries
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+    def aggregate_intervals(self, df):      
+\end_layout
+
+\begin_layout Plain Layout
+
+  
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Resamples the DataFrame to the specified interval and aggregates
+ key metrics         
+\end_layout
+
+\begin_layout Plain Layout
+
+        resampled_df = df.resample(f'{self.interval}T').agg({ 'Open': 'first',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'High': 'max',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'Low': 'min',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'Close': 'last',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'SMA': 'mean',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'EMA': 'mean',
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                              'Volume':
+ 'sum'})         
+\end_layout
+
+\begin_layout Plain Layout
+
+        return resampled_df
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Retrieves trading data from the Kraken API and stores it in a Pandas
+ DataFrame     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def obtain_data(self):                  
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Initializing a Kraken API client and querying data within a try-except
+ block         
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:             
+\end_layout
+
+\begin_layout Plain Layout
+
+            k = krakenex.API()  # Initialize the Kraken client          
+                
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Query for OHLC data for the specified currency pair and interval
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            response = k.query_public('OHLC', {'pair':self.pair, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                      'interval':self.divisor, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                      'since':self.since})
+\end_layout
+
+\begin_layout Plain Layout
+
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Check and raise an exception if errors exist in the response
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+            if response['error']:                   
+\end_layout
+
+\begin_layout Plain Layout
+
+                print(f"There was an error with the API call")         
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+                raise Exception(response['error'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Catch and print any exceptions during the data retrieval process
+         
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:             
+\end_layout
+
+\begin_layout Plain Layout
+
+            print(f"An error occurred: {e}")       # Print the specific
+ error message             
+\end_layout
+
+\begin_layout Plain Layout
+
+            print("Error while retrieving data")   # Indicate a data retrieval
+ error
+\end_layout
+
+\begin_layout Plain Layout
+
+      
+\end_layout
+
+\begin_layout Plain Layout
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Process the retrieved data if no exceptions occur          
+\end_layout
+
+\begin_layout Plain Layout
+
+        else:
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Extract OHLC data from API response            
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_data = response['result'][self.pair]  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert OHLC data to a DataFrame and remove unnecessary columns
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df = pd.DataFrame(ohlc_data, columns=["Time", "Open", "High",
+ "Low", 
+\end_layout
+
+\begin_layout Plain Layout
+
+                      "Close", "VWAP", "Volume", "Count"]).drop(['VWAP',
+ 'Count'], axis=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert timestamps to datetime format and set as DataFrame
+ index             
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s') 
+           
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            if self.until is not None:    # Filter data when until is not
+ None                
+\end_layout
+
+\begin_layout Plain Layout
+
+                cutoff_date = pd.to_datetime(self.until, unit='s')       
+          
+\end_layout
+
+\begin_layout Plain Layout
+
+                ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Convert all price and volume data to float type for calculations
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["Open"] = ohlc_df["Open"].astype(float)       
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["High"] = ohlc_df["High"].astype(float)             
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["Low"] = ohlc_df["Low"].astype(float)               
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["Close"] = ohlc_df["Close"].astype(float)           
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df["Volume"] = ohlc_df["Volume"].astype(float)   
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Add Simple Moving Average (SMA) and Exponential Moving Average
+ (EMA)            
+\end_layout
+
+\begin_layout Plain Layout
+
+            window = 14 if ohlc_df.shape[0] >= 60 else 3               
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df['SMA'] = ohlc_df['Close'].rolling(window=window).mean()
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            ohlc_df['EMA'] = ohlc_df['Close'].ewm(span=window, adjust=False).mean(
+)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Aggregate data into custom intervals if needed           
+  
+\end_layout
+
+\begin_layout Plain Layout
+
+            if self.interval not in (1, 5, 15, 30, 60, 240, 1440, 10080,
+ 21600):                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                ohlc_df = self.aggregate_intervals(ohlc_df)      
+\end_layout
+
+\begin_layout Plain Layout
+
+      
+\end_layout
+
+\begin_layout Plain Layout
+
+            return ohlc_df  # Return the prepared DataFrame
 \end_layout
 
 \begin_layout Plain Layout
@@ -1609,25 +2395,49 @@ Grabado de las cotizaciones
 
 \begin_layout Standard
 Las cotizaciones de un par de divisas suelen ser representadas haciendo
- uso de un gráfico de velas para la información OHLC (Open - High - Low
- - Close).
- Para llevar a cabo esta representación creamos una figura candlestick con
- plotly, a partir de los datos obtenidos en la consulta a la API de Kraken.
+ uso de un gráfico de velas para la información OHLC (
+\family typewriter
+Open
+\family default
+ - 
+\family typewriter
+High
+\family default
+ - 
+\family typewriter
+Low
+\family default
+ - 
+\family typewriter
+Close
+\family default
+).
+ Para llevar a cabo esta representación creamos una figura 
+\family typewriter
+candlestick
+\family default
+ con 
+\family typewriter
+plotly
+\family default
+, a partir de los datos obtenidos en la consulta a la API de Kraken.
  Adicionalmente, hemos incluido la información del volumen a lo largo del
- tiempo con un diagrama de barras que refleja el número de transacciones
- para el intervalo de cada vela y el cambio en el precio con el mismo color
- que la vela pero con una opacidad menor para que ambas gráficas puedan
- coexistir y complementarse.
+ tiempo con un diagrama de barras que refleja el cambio en el precio con
+ el mismo color que la vela correspondiente pero con una opacidad menor
+ para que ambas gráficas puedan coexistir y complementarse.
  Por otro lado, hemos tenido en cuenta la información de cierre para añadir
- sendos diagramas de líneas que representen los indicadores SMA o Simple
- Moving Average (media móvil del precio de cierre), y EMA o Exponential
- Moving Average (similar al SMA pero dando más peso a los datos mas recientes,
- lo que hace que sea más sensibles a cambios a corto plazo).
+ diagramas de líneas que representen los indicadores SMA y EMA.
  
 \series bold
 \color violet
-(explicar la ventana escogida para el rolling y la manera de calcular el
- EMA)
+(cálculo del EMA)
+\series default
+\color inherit
+
+\begin_inset VSpace 10bp
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1643,17 +2453,239 @@ begin{python}
 
 \begin_layout Plain Layout
 
-# insertar el código del cálculo de SMA y EMA
+class Graph:
 \end_layout
 
 \begin_layout Plain Layout
 
-# insertar el código de la figura candlestick
 \end_layout
 
 \begin_layout Plain Layout
 
-# añadir una captura de como se vería la cotización
+    # Static method to create a candlestick chart from OHLC data using Plotly
+\end_layout
+
+\begin_layout Plain Layout
+
+    @staticmethod       
+\end_layout
+
+\begin_layout Plain Layout
+
+    def candlestick(ohlc_df):
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:             
+\end_layout
+
+\begin_layout Plain Layout
+
+            size = size = ohlc_df.shape[0]             
+\end_layout
+
+\begin_layout Plain Layout
+
+            if size <= 14:                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                df = ohlc_df[:]    # Take the whole dataframe when it has
+ small size             
+\end_layout
+
+\begin_layout Plain Layout
+
+            else:                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                df = ohlc_df[14:]  # Remove the first intervals so that
+ SMA is defined
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            colors = ['#008080' if close >= open else 'red' for open, close
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                in zip(df['Open'], df['Close'])]       
+      
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = make_subplots(specs=[[{"secondary_y": True}]])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Include candlestick with range selector             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High
+'], 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          low=df['Low'], close=df['Close'], name=''), secondary_
+y=True)
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Bar diagram displaying the Volume data
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors,
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                    opacity=0.25, showlegend=False), secondary_y=
+False)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Line chart displaying the computed SMA values
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA'], 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          marker=dict(color='#0000FF'), opacity=0.35, name='SMA')
+, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          secondary_y=True) 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Line chart displaying the computed EMA values 
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.add_trace(go.Scatter(x=df.index, y=df['EMA'], 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          marker=dict(color='#FF0000'), opacity=0.35, name='EMA')
+, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          secondary_y=True)      
+\end_layout
+
+\begin_layout Plain Layout
+
+                   
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.layout.yaxis2.showgrid = False             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.layout.title = 'Candlestick Graph with Moving Average'   
+          
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.layout.height = 400             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig.layout.width = 650
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            return fig  # Return the Figure object for plotting        
+          
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    except Exception as e:             
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Handle exceptions in chart creation and return an empty figure
+ in case of error             
+\end_layout
+
+\begin_layout Plain Layout
+
+        print(f"An error occurred while creating the candlestick chart:
+ {e}")             
+\end_layout
+
+\begin_layout Plain Layout
+
+        return go.Figure()  # Return an empty Plotly Figure object if an
+ error occurs
 \end_layout
 
 \begin_layout Plain Layout
@@ -1662,6 +2694,33 @@ begin{python}
 \backslash
 end{python}
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 15bp
+\end_inset
+
+El gráfico de velas resultante, con el diagrama de barras para el Volumen
+ y los diagramas de líneas para los indicadores SMA y EMA, se vería como
+ sigue en la aplicación creada con 
+\family typewriter
+streamlit
+\family default
+:
+\begin_inset VSpace 5bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename candlestick.JPG
+	scale 45
 
 \end_inset
 
