@@ -131,10 +131,16 @@ class Graph:
             df = df[14:]
 
             data = [# The first plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#87CEEB'), legendgroup='group', legendrank=5),
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#b2b2b2'), legendgroup='group', legendrank=5),
                     
                     # The second plot is a line chart for the '%K' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF'), legendgroup='group', legendrank=4)]
+                    go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#4c4c4c'), legendgroup='group', legendrank=4),
+
+                    # Horizontal line at 20
+                    go.Scatter(x=df.index, y=[20]*len(df.index), mode='lines', name='20% threshold', line=dict(color='purple', width=1, dash='dash'), showlegend=False),
+
+                    # Horizontal line at 80
+                    go.Scatter(x=df.index, y=[80]*len(df.index), mode='lines', name='80% threshold', line=dict(color='purple', width=1, dash='dash'), showlegend=False)]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
