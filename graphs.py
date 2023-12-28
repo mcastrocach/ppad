@@ -11,11 +11,12 @@ from plotly.subplots import make_subplots
 class Graph:
 
     # Constructor for initializing a Graph instance with a currency pair, interval, and divisor
-    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int((time.mktime(datetime.datetime.now().timetuple())))):
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since= int((time.mktime(datetime.datetime.now().timetuple()))), until=None):
         self.pair = pair          # The currency pair to be analyzed
         self.interval = interval  # Time interval for each data point in minutes
         self.divisor = divisor    # Divisor for interval adjustment
         self.since = since
+        self.until = until
 
     # This function aggregates data into custom time intervals that are not natively provided by the API
     def aggregate_intervals(self, df):
@@ -60,6 +61,9 @@ class Graph:
             # Convert timestamps to datetime format and set as DataFrame index
             ohlc_df["timestamp"] = pd.to_datetime(ohlc_df["timestamp"], unit='s')    # Unix timestamp to Python datetime
             ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["timestamp"]), inplace=True)
+            if self.until is not None:
+                cutoff_date = pd.to_datetime(self.until, unit='s')
+                ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
 
             # Convert all price and volume data to float type for calculations
             ohlc_df["Open"] = ohlc_df["Open"].astype(float)       # Opening price of a financial instrument for the given period
@@ -93,13 +97,14 @@ class Graph:
             colors = ['#008080' if close >= open else 'red' for open, close in zip(df['Open'], df['Close'])]
             fig = make_subplots(specs=[[{"secondary_y": True}]])
             # include candlestick with rangeselector
-            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name='Candlestick Data'), secondary_y=True)
+            fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'], name=''), secondary_y=True)
             fig.add_trace(go.Bar(x=df.index, y=df['Volume'], marker_color=colors, opacity=0.25, showlegend=False), secondary_y=False)
-            fig.add_trace(go.Scatter(x=df.index, y=df['SMA'], marker=dict(color='#0000FF'), opacity=0.35, name='Simple Moving Average'), secondary_y=True)
-            fig.add_trace(go.Scatter(x=df.index, y=df['EMA'], marker=dict(color='#FF0000'), opacity=0.35, name='Exponential Moving Average'), secondary_y=True)
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA'], marker=dict(color='#0000FF'), opacity=0.35, name='SMA'), secondary_y=True)
+            fig.add_trace(go.Scatter(x=df.index, y=df['EMA'], marker=dict(color='#FF0000'), opacity=0.35, name='EMA'), secondary_y=True)
             fig.layout.yaxis2.showgrid=False
             fig.layout.title = 'Candlestick Graph with Moving Average'
-            fig.layout.height = 450
+            fig.layout.height = 400
+            fig.layout.width = 650
 
             """
             fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
@@ -155,15 +160,14 @@ class Graph:
                     go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#1E90FF')),
 
                     # The second plot is a line chart for the '%D' line of the stochastic oscillator
-                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic Oscillator', marker=dict(color='#FFA500'))]
+                    go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#FFA500'))]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
                                yaxis=dict(title='Value (%)', range=[0,100]))  # Label for the y-axis
 
             fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
-            current_height = fig.layout.height if fig.layout.height is not None else 450
-            fig.layout.height = height=current_height/2
+            fig.layout.height = 250
             return fig  # return the Figure object for plotting
 
         except Exception as e:

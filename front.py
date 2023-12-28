@@ -7,6 +7,8 @@ import datetime                                # Import datetime for date and ti
 
 import requests  # Import the requests library for HTTP request handling
 
+st.set_page_config(layout="wide")
+
 import plotly.express as px
 
 # Retrieves all available currency pairs from the Kraken cryptocurrency exchange API
@@ -80,7 +82,7 @@ class Front:
 
         st.markdown("""
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #5848d5;">
-        <a class="navbar-brand" href="https://youtube.com/dataprofessor" target="_blank">Data Professor</a>
+        <a class="navbar-brand" href="https://www.kraken.com/" target="_blank"><b>KRAKEN</b></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -90,10 +92,7 @@ class Front:
                 <a class="nav-link disabled" href="#">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="https://youtube.com/dataprofessor" target="_blank">YouTube</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="https://twitter.com/thedataprof" target="_blank">Twitter</a>
+                <a class="nav-link" href="https://github.com/mcastrocach/ppad/" target="_blank">GitHub</a>
             </li>
             </ul>
         </div>
@@ -117,9 +116,6 @@ class Front:
                 padding_top = 0, padding_right = 10, padding_left = 5, padding_bottom = 10
         )
 
-        st.markdown('''# **Kraken Currency Analysis Tool**
-                    Creators: Rodrigo de la Nuez Moraleda, Marcos Castro Cacho
-                    ''')
         hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -128,6 +124,8 @@ class Front:
             </style>
             """
         st.markdown(hide_st_style, unsafe_allow_html=True)
+
+        st.markdown('# **KRAKEN CURRENCY ANALYSIS TOOL**')
         st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
 
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
@@ -135,11 +133,14 @@ class Front:
         st.session_state.is_custom_interval = st.session_state.get("is_custom_interval")
         st.session_state.custom_interval = st.session_state.get("custom_interval")
         self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
-        self.since = None                                                           # Initialize since attribute
+        self.since, self.until = None, None                                         # Initialize since and until attributes
 
 
     # Method to create user input interfaces, including dropdowns and buttons
     def select_boxes(self):
+
+        # Prompt user to select a currency pair from the pairs retrieved
+        st.write("1. Please select a currency pair from the available options.")
 
         # Dropdown menu for selecting a currency pair
         self.currency_pair = st.selectbox(
@@ -187,89 +188,101 @@ class Front:
             self.time_interval = st.session_state.custom_interval
             st.session_state.selected_option = st.session_state.custom_interval# Update the time interval with the custom input
 
-        # Date picker for selecting the start date
-        self.since = st.date_input('Start date', value=None)
-        if self.since is not None:
-            # Convert date to datetime
-            self.since = datetime.datetime.combine(self.since, datetime.datetime.min.time())
-            self.since = datetime.datetime.strptime(str(self.since), "%Y-%m-%d %H:%M:%S").timestamp()
-
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
+
+        st.markdown("3. Optionally, choose a time interval within the range of the original selection:")
+        
+        # Date picker for selecting the start date
+        columns0, columns1 = st.columns([1, 1])
+        with columns0:
+            with st.expander("Start Date", expanded=True):
+                self.since = st.date_input('start', value=None, label_visibility = "collapsed")
+                if self.since is not None:
+                    # Convert date to datetime
+                    self.since = datetime.datetime.combine(self.since, datetime.datetime.min.time())
+                    self.since = datetime.datetime.strptime(str(self.since), "%Y-%m-%d %H:%M:%S").timestamp()
+        with columns1:
+            with st.expander("End Date", expanded=True):
+                self.until = st.date_input('end', value=None, label_visibility = "collapsed")
+                if self.until is not None:
+                    # Convert date to datetime
+                    self.until = datetime.datetime.combine(self.until, datetime.datetime.min.time())
+                    self.until = datetime.datetime.strptime(str(self.until), "%Y-%m-%d %H:%M:%S").timestamp()
+
+
+    # Method to generate and display graphs based on user-selected parameters
+    def display_graph(self):
 
         # Horizontal menu for selecting the type of graph to display
         self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Smoothed Version", "Both options combined"],
                                                 icons=['bar-chart-line', 'activity', "layers"],
                                                 menu_icon="cast", default_index=0, orientation="horizontal")
 
-
-    # Method to generate and display graphs based on user-selected parameters.
-    # Method to handle graph generation and display
-    def display_graph(self):
-
-        if st.button("Plot it!") or 'fig_dict' in st.session_state:
-
+        if self.graph_selected != None:
             # Conditional to verify if self.currency_pair is of NoneType
             if self.currency_pair is None:
-                st.markdown('&nbsp;'*33 + f'NoneTypeError  -  Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                st.markdown('&nbsp;'*30 + 'Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
                 return  # End the execution of this method
             
             # Conditional to verify if self.time_interval is of NoneType
             if self.time_interval is None:
-                st.markdown('&nbsp;'*30 + f'NoneTypeError  -  Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
+                st.markdown('&nbsp;'*30 + 'Please, choose a &nbsp;*time interval*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
                 return  # End the execution of this method
 
-            graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.since)
-            ohlc_df = graph.obtain_data()
-            candlestick, stochastic = graph.candlestick(ohlc_df), graph.stochastic(ohlc_df)
+        graph = Graph(pair=self.currency_pair, interval=self.time_interval, divisor=find_largest_divisor(self.time_interval), since=self.since, until=self.until)
+        ohlc_df = graph.obtain_data()
+        candlestick, stochastic = graph.candlestick(ohlc_df), graph.stochastic(ohlc_df)
 
-            if self.graph_selected == "Candlestick graph of OHLC data":
-                fig = candlestick
+        if self.graph_selected == "Candlestick graph of OHLC data":
+            fig = candlestick
 
-            elif self.graph_selected == "Stochastic Oscillator & Smoothed Version":
-                fig = stochastic
+        elif self.graph_selected == "Stochastic Oscillator & Smoothed Version":
+            fig = stochastic
 
-            elif self.graph_selected == "Both options combined":
-                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, row_heights=[0.8, 0.2], specs=[[{"secondary_y": True}], [{}]])
-                fig.add_trace(candlestick['data'][0], row=1, col=1, secondary_y=True)
-                fig.add_trace(candlestick['data'][1], row=1, col=1, secondary_y=False)
-                fig.add_trace(candlestick['data'][2], row=1, col=1, secondary_y=True)
-                fig.add_trace(candlestick['data'][3], row=1, col=1, secondary_y=True)
-                fig.add_trace(stochastic['data'][0], row=2, col=1)
-                fig.add_trace(stochastic['data'][1], row=2, col=1)
+        elif self.graph_selected == "Both options combined":
+            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, row_heights=[0.8, 0.2], specs=[[{"secondary_y": True}], [{}]])
+            fig.add_trace(candlestick['data'][0], row=1, col=1, secondary_y=True)
+            fig.add_trace(candlestick['data'][1], row=1, col=1, secondary_y=False)
+            fig.add_trace(candlestick['data'][2], row=1, col=1, secondary_y=True)
+            fig.add_trace(candlestick['data'][3], row=1, col=1, secondary_y=True)
+            fig.add_trace(stochastic['data'][0], row=2, col=1)
+            fig.add_trace(stochastic['data'][1], row=2, col=1)
 
-                fig.update_layout(
-                    title='Candlestick Graph with Moving Average and Stochastic Oscillator',
-                    yaxis3_title='%K - %D',
-                    xaxis_rangeslider_visible=False,
-                    height=450)
+            fig.update_layout(
+                title='Candlestick Graph with Moving Average and Stochastic Oscillator',
+                yaxis3_title='%K - %D',
+                xaxis_rangeslider_visible=False,
+                height=450, width = 650)
 
 
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+        fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+        st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+        st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
-            # Moved the button definition here
-            profit_df = graph.calculate_profit(ohlc_df)
-            fig_profit = graph.profit_graph(profit_df)
-            if st.button("Calculate potential earnings"):
-                if fig_profit is not None:
-                    st.write("This graph simulates potential profit based on the data.")
-                    st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
-                    fig_profit_dict = fig_profit.to_dict()
-                    st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
-                else:
-                    st.write("There are no buy signals")
+        # Moved the button definition here
+        profit_df = graph.calculate_profit(ohlc_df)
+        fig_profit = graph.profit_graph(profit_df)
+        if st.button("Calculate potential earnings"):
+            if fig_profit is not None:
+                st.write("This graph simulates potential profit based on the data.")
+                st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
+                fig_profit_dict = fig_profit.to_dict()
+                st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
+            else:
+                st.write("There are no buy signals")
 
     
     # Method to execute the core operations of the Streamlit application
     def run(self):
         try:
-            # Prompt user to select a currency pair from the pairs retrieved
-            st.write("1. Please select a currency pair from the available options.")
 
             # Invoke methods to display user input options and the graph based on selections
-            self.select_boxes()   # Displays currency pair and time interval selection options
-            self.display_graph()  # Renders the graph based on user selections
+            col1, spacer, col2 = st.columns([100,5,95])
+            with col1:
+                self.select_boxes()   # Displays currency pair and time interval selection options
+
+            with col2:
+                self.display_graph()  # Renders the graph based on user selections
 
         except Exception as e:
             # Handle and display any exceptions that occur during execution
