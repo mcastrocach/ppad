@@ -180,15 +180,6 @@ que permite inicializar un cliente que interactúe a través de consultas
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Formula $\bullet$
-\end_inset
-
- 
-\series bold
-Descripción detallada de cada uno de los puntos que se evalúan
-\end_layout
-
 \begin_layout Enumerate
 - Lectura y representación del movimiento del par de monedas
 \end_layout
@@ -275,14 +266,7 @@ status open
 
 \begin_layout Plain Layout
 
-# Retrieves all available currency pairs from the Kraken cryptocurrency
- exchange API def get_kraken_pairs():     url = 'https://api.kraken.com/0/public/A
-ssetPairs'  # Endpoint URL for fetching Kraken currency pairs     response
- = requests.get(url)                        # Send a GET request to the Kraken
- API     response_json = response.json()                     # Convert the
- response to JSON format     pairs = response_json['result'].keys()     
-         # Extract currency pair identifiers from the JSON data     return
- tuple(pairs)                                 
+ 
 \end_layout
 
 \end_inset
@@ -712,28 +696,97 @@ Estructura
 
 \begin_deeper
 \begin_layout Enumerate
-Funciones
+Funciones y utilizacion de clases:
 \end_layout
 
-\begin_layout Enumerate
-Utilizacion de clases
+\begin_deeper
+\begin_layout Standard
+El proyecto se estructura en varios módulos y clases para facilitar la organizac
+ión y la reutilización del código.
 \end_layout
 
+\begin_layout Standard
+El módulo principal del proyecto es main.py, que importa y utiliza las funciones
+ y clases definidas en otros módulos.
+\end_layout
+
+\begin_layout Standard
+Los módulos adicionales incluyen graphs.py y front.py.
+\end_layout
+
+\begin_layout Standard
+- graphs.py contiene la clase Graph que se encarga de crear gráficos de velas
+ y osciladores estocásticos para el análisis de trading.
+\end_layout
+
+\begin_layout Standard
+- front.py contiene la clase Front que se encarga de manejar la interfaz
+ de usuario de la aplicación.
+\end_layout
+
+\begin_layout Standard
+Además, el proyecto incluye un archivo README.md que proporciona una descripción
+ general del proyecto y las instrucciones para su uso.
+ También se incluye una carpeta docs que contiene varios archivos de texto
+ que proporcionan más detalles sobre el proyecto y sus requisitos.
+\end_layout
+
+\end_deeper
 \begin_layout Enumerate
 Manejo de errores y excepciones
 \end_layout
 
 \begin_deeper
 \begin_layout Standard
-Durante todo el proceso hemos buscado evitar casos que puedan dar pie a
- errores por incongruencia con el tipado de las variables o la no selección
- de alguno de los atributos necesarios par el cálculo de los distintos tipos
- de gráficas.
+El manejo de excepciones en este proyecto se realiza principalmente a través
+ de la estructura de control de flujo try/except.
+ Esta estructura permite capturar y manejar errores que pueden ocurrir durante
+ la ejecución del programa.
+\end_layout
+
+\begin_layout Standard
+Por ejemplo en el metodo que genera la grafica de beneficios, en caso de
+ encontrar un error imprime un mensaje por consola y retorna una figura
+ vacia.
 \end_layout
 
 \end_deeper
-\begin_layout Enumerate
-Diagrama de clases
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+    def profit_graph(self, df):         try: 			[...]             fig = go.Figure(da
+ta=data, layout=layout)  # create a Figure object with the profit data 
+            return fig  # return the Figure object for plotting        
+ except Exception as e:             print(f"An error occurred while creating
+ the profit chart: {e}")             return go.Figure()
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En esta ocasion por ejemplo imprimimos un mensaje de error directamente
+ en la aplicación.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+    # Method to execute the core operations of the Streamlit application
+     def run(self):         try: 			[...]         except Exception as e:  
+           # Handle and display any exceptions that occur during execution
+             st.error(f"An error occurred: {e}")  # Show the error message
+ to the user in the app
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_deeper
@@ -746,16 +799,189 @@ Puntuación extra
 Testeo y cobertura (unit-testing, integration-testing)
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+Hemos gestionado los unit-test e intrgration tests con la libreria unittest.
+ Este módulo permite definir clases de prueba con métodos que representan
+ pruebas individuales.
+ Aquí vemos un ejemplo de los tests que hemos añadido al proyecto.
+ TODO poner algo mas aqui?
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ # Test method to test the get_kraken_pairs function     def test_get_kraken_pai
+rs(self):         result = get_kraken_pairs()  # Calling the get_kraken_pairs
+ function and storing its result                  # Checking if the result
+ is a tuple and has a length greater than 0         self.assertIsInstance(result,
+ tuple)         self.assertTrue(len(result) > 0)
+\end_layout
+
+\end_inset
+
+TODO Pideme un a captura de los tests pasando
+\end_layout
+
+\end_deeper
 \begin_layout Enumerate
 Facilitar los mecanismos para la reproducción del entorno virtual (ya sea
  con Poetry, Pipenv o pip)
 \end_layout
 
+\begin_deeper
+\begin_layout Enumerate
+Para añadir Poetry al proyecto, se ha utilizado el archivo pyproject.toml
+ que se encuentra en la raíz del proyecto.
+ Este archivo es utilizado por Poetry para manejar las dependencias del
+ proyecto.
+ En este archivo se especifican las dependencias del proyecto, la versión
+ de Python requerida y otros metadatos del proyecto.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+[tool.poetry] name = "krakenpythonmarcosrodrigo" version = "0.1.0" description
+ = "A streamlit tool for rendering kraken data" authors = ["Your Name <you@examp
+le.com>"] readme = "README.md"
+\end_layout
+
+\begin_layout Plain Layout
+
+[tool.poetry.dependencies] python = "^3.11" plotly = "4.14.3" streamlit = "0.79.0"
+ coverage = "5.5" pandas = "2.1.4" numpy = "1.26.2" krakenex = "2.1.0" streamlit-option
+-menu = "0.3.6"
+\end_layout
+
+\begin_layout Plain Layout
+
+[build-system] requires = ["poetry-core"] build-backend = "poetry.core.masonry.api"
+\end_layout
+
+\end_inset
+
+Para reproducir el entorno virtual utilizando Poetry, se deben seguir los
+ siguientes pasos:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+1.
+ Instalar Poetry.
+ Puedes hacerlo siguiendo las instrucciones en la documentación oficial
+ de Poetry.
+\end_layout
+
+\begin_layout Standard
+2.
+ Clonar el repositorio del proyecto.
+\end_layout
+
+\begin_layout Standard
+3.
+ Navegar hasta el directorio del proyecto.
+\end_layout
+
+\begin_layout Standard
+4.
+ Ejecutar el comando 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+Poetry install
+\end_layout
+
+\end_inset
+
+ Este comando instalará todas las dependencias especificadas en el archivo
+ pyproject.toml.
+\end_layout
+
+\begin_layout Standard
+5.
+ Para activar el entorno virtual creado por Poetry, ejecuta el comando poetry
+ shell.
+ 
+\end_layout
+
+\end_deeper
+\end_deeper
 \begin_layout Enumerate
 Distribucion del proyecto a traves de Pypi o una plataforma PaaS( (AWS,
  Heroku, etc)
 \end_layout
 
+\begin_deeper
+\begin_layout Enumerate
+Estos son los pasos seguidos para publicar el proyecto como paquete de PyPI:
+ 
+\end_layout
+
+\begin_layout Standard
+Primero se han instalado las dependencias de desarrollo Hatch y Twine
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$pip install hatch 
+\end_layout
+
+\begin_layout Plain Layout
+
+$pip install pip twine
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+2.
+ Crear una cuenta en PyPI, adicionalmente se necesitara activar la autenticancio
+n de doble factor y se debe utilizar la token de la api en twine
+\end_layout
+
+\begin_layout Standard
+3.
+ Para crear el distribuible: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$hatch build
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+4.
+ Para publicar el paquete:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$twine upload dist/* 
+\end_layout
+
+\end_inset
+
+(con tu cuenta de pypi)
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Standard
 \begin_inset Formula $\bullet$
