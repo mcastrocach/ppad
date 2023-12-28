@@ -1,8 +1,14 @@
 import unittest  # import the unittest module for creating test cases
 from front import *  # import everything from the 'front' module
+from graphs import aggregate_intervals
 import pandas as pd
 import plotly.graph_objs as go
 from unittest.mock import patch
+from math import gcd
+
+def lcm(a, b):
+    return abs(a * b) // gcd(a, b)
+
 
 # Definition of a test case class for the 'front' module
 class TestFront(unittest.TestCase):
@@ -36,6 +42,17 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(find_largest_divisor(61), 1)
         self.assertEqual(find_largest_divisor(120), 60)
 
+    def test_largest_divisor_lcm(self):
+        # Sample pairs of numbers to test
+        test_pairs = [(6, 8), (15, 25), (9, 14)]
+
+        for a, b in test_pairs:
+            product = a * b
+            largest_divisor_product = find_largest_divisor(product)
+            lcm_largest_divisors = lcm(find_largest_divisor(a), find_largest_divisor(b))
+
+            self.assertEqual(largest_divisor_product, lcm_largest_divisors)
+
     def test_obtain_data(self):
         graph = Graph(pair='XETHZUSD', interval=1440, divisor=1)
         df = graph.obtain_data()
@@ -60,6 +77,39 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(graph.pair, 'XETHZUSD')  # Asserting that the pair attribute is correctly set
         self.assertEqual(graph.interval, 1440)  # Asserting that the interval attribute is correctly set
         self.assertEqual(graph.divisor, 1)  # Asserting that the divisor attribute is correctly set
+
+class TestAggregateIntervals(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Set up data that can be used across all tests
+        data = {
+            'Open': [100, 101, 102, 103, 104],
+            'High': [105, 106, 107, 108, 109],
+            'Low': [95, 96, 97, 98, 99],
+            'Close': [102, 103, 104, 105, 106],
+            'SMA': [100, 100.5, 101, 101.5, 102],
+            'EMA': [100, 100.25, 100.5, 100.75, 101],
+            'Volume': [1000, 1500, 2000, 2500, 3000]
+        }
+        index = pd.date_range('2020-01-01', periods=5, freq='T')
+        cls.df = pd.DataFrame(data, index=index)
+
+    def test_aggregate_intervals_1min(self):
+        interval = 1
+        resampled_df = aggregate_intervals(interval, self.df)
+        self.assertEqual(len(resampled_df), len(self.df.resample(f'{interval}T')))
+        self.assertSetEqual(set(resampled_df.columns), set(self.df.columns))
+
+    def test_aggregate_intervals_5min(self):
+        interval = 5
+        resampled_df = aggregate_intervals(interval, self.df)
+        self.assertEqual(len(resampled_df), len(self.df.resample(f'{interval}T')))
+        self.assertSetEqual(set(resampled_df.columns), set(self.df.columns))
+
+    def test_aggregate_intervals_invalid(self):
+        with self.assertRaises(ValueError):
+            aggregate_intervals(-1, self.df)
 
 # This block runs if the script is executed directly
 if __name__ == '__main__':  
