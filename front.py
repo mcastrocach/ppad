@@ -9,7 +9,7 @@ import requests  # Import the requests library for HTTP request handling
 
 import plotly.express as px
 
-# Retrieves all available currency pairs from the Kraken cryptocurrency exchange API
+# Retrieves all available currency pairs from the Kraken API
 def get_kraken_pairs():
     url = 'https://api.kraken.com/0/public/AssetPairs'  # Endpoint URL for fetching Kraken currency pairs
     response = requests.get(url)                        # Send a GET request to the Kraken API
@@ -145,7 +145,7 @@ class Front:
         self.currency_pair = st.selectbox(
            label = 'placeholder',            # Streamlit's selectbox requires a label, even when collapsed
            options = kraken_pairs,           # List of currency pairs from Kraken
-           index = None,
+           index = None,                     # Index of the preselected option on first render
            placeholder = "xxxxxxx",          # Placeholder text in the dropdown
            label_visibility = "collapsed"
         )
