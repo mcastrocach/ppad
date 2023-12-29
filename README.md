@@ -4,7 +4,9 @@ This project serves as an analytical tool designed for examining currency pairs 
 
 Furthermore, it computes key technical analysis indicators, including the stochastic oscillator and its moving average. These features are designed to support and enhance trading decision-making.
 
-This project is developed in Python and leverages a variety of libraries to enhance its functionality. It utilizes pandas for data manipulation, plotly for dynamic data visualization, krakenex for seamless interaction with the Kraken API, and streamlit to provide the web application capabilities.
+This project is developed in Python and leverages a variety of libraries to enhance its functionality. 
+
+It utilizes pandas for data manipulation, plotly for dynamic data visualization, krakenex for seamless interaction with the Kraken API, and streamlit to provide the web application capabilities.
 
 ## Project Structure
 
