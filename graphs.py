@@ -68,10 +68,6 @@ def obtain_function(pair, interval, divisor, since, until):
         if interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
             ohlc_df = resampled_df   
 
-        size = ohlc_df.shape[0]
-        if size > 14:
-            ohlc_df = ohlc_df[14:]  # Remove the first intervals so that SMA is defined
-
         window = 14 if ohlc_df.shape[0]>=60 else 3
         ohlc_df['L14'] = ohlc_df['Low'].rolling(window=window).min()
         ohlc_df['H14'] = ohlc_df['High'].rolling(window=window).max()
