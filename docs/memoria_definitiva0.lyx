@@ -402,6 +402,9 @@ pythoninline{streamlit run main.py}
 
 \begin_layout Standard
 Se puede acceder a la aplicacion directamente en 
+\bar under
+\color cyan
+
 \begin_inset ERT
 status open
 
@@ -414,6 +417,9 @@ pythoninline{https://l3vhpftnhq75225rcpsappc.streamlit.app}
 
 \end_inset
 
+
+\bar default
+\color inherit
 .
 \end_layout
 
@@ -3178,7 +3184,7 @@ def obtain_function(pair, interval, divisor, since, until):
 
 \begin_layout Plain Layout
 
-                      (ohlc_df['H14'] - ohlc_df['L14']) * 100         
+                    (ohlc_df['H14'] - ohlc_df['L14']) * 100         
 \end_layout
 
 \begin_layout Plain Layout
@@ -4077,17 +4083,29 @@ Como hemos expuesto en el apartado anterior, la media móvil
 \begin_inset Formula $\%D$
 \end_inset
 
- se utiliza para suavizar las fluctuaciones de 
+ se utiliza para suavizar las fluctuaciones del oscilador estocástico 
 \begin_inset Formula $\%K$
 \end_inset
 
  y para la generación de señales de compra y venta en la estrategia descrita.
- Otro enfoque para calcular un oscilador estocástico suavizado sería sustituir,
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Otro enfoque para calcular un oscilador estocástico suavizado sería sustituir,
  en la propia fórmula de su definición, el precio de cierre de un intervalo
- con la media móvil del cierre (esto sería el SMA).
+ con la media móvil del cierre (esto sería el indicador SMA).
  Esta posibilidad sería de fácil implementación en nuestro código, pues
- ya contamos con un campo para este indicador y la sustitución sería directa.
+ ya contamos con un campo para dicha media móvil y la sustitución en la
+ fórmula sería directa.
  Así se vería el fragmento de código modificado:
+\begin_inset VSpace 5bp
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4103,7 +4121,47 @@ begin{python}
 
 \begin_layout Plain Layout
 
-#código
+# Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+@st.cache_data(ttl=300)  # Decorator to cache the data in Streamlit for 5
+ minutes 
+\end_layout
+
+\begin_layout Plain Layout
+
+def obtain_function(pair, interval, divisor, since, until):
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]      
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    ohlc_df['%K'] = (ohlc_df['SMA'] - ohlc_df['L14']) / 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    (ohlc_df['H14'] - ohlc_df['L14']) * 100
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
 \end_layout
 
 \begin_layout Plain Layout
@@ -4113,6 +4171,10 @@ begin{python}
 end{python}
 \end_layout
 
+\end_inset
+
+
+\begin_inset VSpace 5bp
 \end_inset
 
 
@@ -4123,8 +4185,8 @@ Gráfico del indicador junto con la cotización del par calculado
 \end_layout
 
 \begin_layout Standard
-Finalmente, damos al usuario la opción de graficar tanto la cotización (junto
- con el volumen, SMA y EMA) como el oscilador estocástico 
+Finalmente, damos al usuario la opción de graficar tanto la cotización como
+ el oscilador estocástico 
 \begin_inset Formula $\%K$
 \end_inset
 
@@ -4135,31 +4197,7 @@ Finalmente, damos al usuario la opción de graficar tanto la cotización (junto
 , en una única figura.
  Para ello, combinamos adecuadamente los gráficos generados por separado
  y creamos un menú para seleccionar la gráfica que se desea visualizar.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{python}
-\end_layout
-
-\begin_layout Plain Layout
-
-#código
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{python}
-\end_layout
-
+\begin_inset VSpace 5bp
 \end_inset
 
 
@@ -4178,7 +4216,407 @@ begin{python}
 
 \begin_layout Plain Layout
 
-#captura
+class Front:
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Method to generate and display graphs based on user-selected parameters
+     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def display_graph(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Horizontal menu for selecting the type of graph to display   
+      
+\end_layout
+
+\begin_layout Plain Layout
+
+        self.graph_selected = option_menu(None, ["Candlestick", "Stochastic",
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                 "Combined", "Strategy"],
+                                                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                      icons=['bar-chart-line', 'activity', "layers"],  
+                                               
+\end_layout
+
+\begin_layout Plain Layout
+
+                      menu_icon="cast", default_index=0, orientation="horizontal
+")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        if self.graph_selected != None:
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Conditional to verify if self.currency_pair is of NoneType
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            if self.currency_pair is None:                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                st.markdown('&nbsp;'*30 + 'Please, select a &nbsp;*currency
+ pair*&nbsp; 
+\end_layout
+
+\begin_layout Plain Layout
+
+                             to graph the corresponding data', unsafe_allow_html
+=True)                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                return  # End the execution of this method             
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Conditional to verify if self.time_interval is of NoneType
+             
+\end_layout
+
+\begin_layout Plain Layout
+
+            if self.time_interval is None:                         
+\end_layout
+
+\begin_layout Plain Layout
+
+                st.markdown('&nbsp;'*30 + 'Please, choose a &nbsp;*time interval*
+&nbsp; 
+\end_layout
+
+\begin_layout Plain Layout
+
+                             to graph the corresponding data', unsafe_allow_html
+=True)                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                return  # End the execution of this method
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        graph = Graph(pair=self.currency_pair, interval=self.time_interval,
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                      divisor=find_largest_divisor(self.time_interval), 
+\end_layout
+
+\begin_layout Plain Layout
+
+                      since=self.since, until=self.until) 
+\end_layout
+
+\begin_layout Plain Layout
+
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+        ohlc_df = graph.obtain_data()         
+\end_layout
+
+\begin_layout Plain Layout
+
+        candlestick, stochastic = graph.candlestick(ohlc_df), graph.stochastic(ohl
+c_df)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        if self.graph_selected == "Candlestick":             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = candlestick
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif self.graph_selected == "Stochastic":             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = stochastic
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif self.graph_selected == "Combined":             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spac
+ing=0.1, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          row_heights=[0.8, 0.2], specs=[[{"secondary_y":
+ True}], [{}]])
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(candlestick['data'][0], row=1, col=1, secondary_y=T
+rue)             
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(candlestick['data'][1], row=1, col=1, secondary_y=F
+alse)             
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(candlestick['data'][2], row=1, col=1, secondary_y=T
+rue)             
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(candlestick['data'][3], row=1, col=1, secondary_y=T
+rue)    
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(stochastic['data'][0], row=2, col=1)      
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(stochastic['data'][1], row=2, col=1)      
+               
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(stochastic['data'][2], row=2, col=1)      
+               
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.add_trace(stochastic['data'][3], row=2, col=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+            
+\end_layout
+
+\begin_layout Plain Layout
+
+                fig.update_layout(                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    title='Candlestick Graph with Moving Average and 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                                  Stochastic Oscillator',
+                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    yaxis3_title='%K - %D',                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    xaxis_rangeslider_visible=False,                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    height=450, width = 650)                      
+\end_layout
+
+\begin_layout Plain Layout
+
+        elif self.graph_selected == "Strategy":           
+\end_layout
+
+\begin_layout Plain Layout
+
+            profit_df = graph.calculate_profit(ohlc_df)             
+\end_layout
+
+\begin_layout Plain Layout
+
+            fig = graph.profit_graph(profit_df)             
+\end_layout
+
+\begin_layout Plain Layout
+
+            if fig is not None:                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                st.write("This graph shows simulated profit using data-driven
+ signals.
+ " +                           
+\end_layout
+
+\begin_layout Plain Layout
+
+                         "It adheres to a strategy of buying 100 units of
+ the currency at 
+\end_layout
+
+\begin_layout Plain Layout
+
+                          each *Buy Signal* and selling 100 units at each
+ *Sell Signal*.")             
+\end_layout
+
+\begin_layout Plain Layout
+
+            else:                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                st.write("There are no buy signals")                 
+\end_layout
+
+\begin_layout Plain Layout
+
+                return                      
+\end_layout
+
+\begin_layout Plain Layout
+
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Convert the figure to a dictionary for Streamlit to display
+\end_layout
+
+\begin_layout Plain Layout
+
+        fig_dict = fig.to_dict()            
+\end_layout
+
+\begin_layout Plain Layout
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Use Streamlit to display the plotly graph       
+\end_layout
+
+\begin_layout Plain Layout
+
+        st.plotly_chart(fig_dict)  
 \end_layout
 
 \begin_layout Plain Layout
@@ -4187,6 +4625,31 @@ begin{python}
 \backslash
 end{python}
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 10bp
+\end_inset
+
+El menú con las opciones para que el usuario pueda seleccionar que gráfica
+ se mostrara en la interfaz y la combinación del gráfico de velas para la
+ cotización junto con los diagramas de líneas para el oscilador estocástico,
+ se vería como sigue en la aplicación de 
+\family typewriter
+streamlit
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename option_combined.JPG
+	scale 60
 
 \end_inset
 
