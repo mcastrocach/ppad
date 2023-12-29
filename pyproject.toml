@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "KrakenPythonMarcosRodrigo"
-version = "0.1.0"
+version = "0.1.2"
 description = "A streamlit tool for rendering kraken data"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
