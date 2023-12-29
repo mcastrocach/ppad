@@ -170,7 +170,6 @@ class Front:
                 height=450, width = 650)
             
         elif self.graph_selected == "Strategy":
-            # Moved the button definition here
             profit_df = graph.calculate_profit(ohlc_df)
             fig = graph.profit_graph(profit_df)
             if fig is not None:
@@ -181,7 +180,6 @@ class Front:
                 return
             
         fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-        st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
         st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
     

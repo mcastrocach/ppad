@@ -142,7 +142,7 @@ class Graph:
                     # Horizontal line at 80%
                     go.Scatter(x=df.index, y=[80]*len(df.index), mode='lines', name='80% threshold', line=dict(color='purple', width=1, dash='dash'), showlegend=False)]
 
-            # Define the layout for the plotly figure, setting titles and axis labels.
+            # Define the layout for the plotly figure, setting titles and axis labels
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
                                yaxis=dict(title='Value (%)', range=[0,100]))  # Label for the y-axis
 
