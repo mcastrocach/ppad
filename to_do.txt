@@ -1,8 +1,0 @@
-[!] Importante: "NADA QUE NO SE PUEDA ENCONTRAR DESCRITO O MOSTRADO EN LA MEMORIA SERÁ EVALUADO, AUNQUE ESTÉ REALIZADO EN EL CÓDIGO." 
-[ ] Documentar: el despliegue en Docker, el funcionamiento del test de cobertura, el cómo se crearía un entorno para reproducir el proyecto,
-[ ] Facilitar los mecanismos para la reproducción del entorno virtual (ya sea con Poetry, Pipenv o pip) > tenemos requirements.txt, investigar lo demás
-[ ] Estudiar y probar a subir a PyPI Y alguna plataforma PaaS (AWS, Heroku, etc.)
-
-[ ] (Rodrigo) a ver si se me ocurre un test que aproveche el funcionamiento de find_largest_divisor
-
-[ ] Escribir el README, cuando enviemos dejar bien el repo y hacer mención a él en la memoria
