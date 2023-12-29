@@ -6,7 +6,7 @@ It fetches real-time price data for various currency pairs using the Kraken API 
 
 The project is written in Python and uses several libraries, including pandas for data manipulation, plotly for data visualization, and krakenex for interacting with the Kraken API. 
 
-It also uses Streamlit for the web application functionality.
+It also uses the Streamlit library for the web application functionality.
 
 ## Project Structure
 
