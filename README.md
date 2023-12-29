@@ -10,7 +10,7 @@ It utilizes pandas for data manipulation, plotly for dynamic data visualization,
 
 ## Project Structure
 
-The main code for the project is located in `main.py`, which imports and uses functions and classes defined in other modules. These modules include `graphs.py`, which contains the Graph class for creating candlestick charts and stochastic oscillators, and `front.py`, which contains the Front class for handling the user interface of the application.
+The main file of our project is `main.py`. It uses functions and classes from other files. For example, `graphs.py` has the class Graph, which we use to make candlestick charts and stochastic oscillators. Another important file is `front.py`, which has the class Front for the user interface part of our app.
 
 The project also includes a `pyproject.toml` file that lists the Python packages required to run the project. The project can be run in a Docker container using the provided Dockerfile.
 
