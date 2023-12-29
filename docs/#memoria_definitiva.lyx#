@@ -2133,5 +2133,178 @@ pythoninline{$twine upload dist/*}
 (con tu cuenta de pypi)
 \end_layout
 
+\begin_layout Subsection
+Distribución del proyecto a través de Dockerhub
+\end_layout
+
+\begin_layout Standard
+Para crear la imagen que se ha subido a dockerhub se han segido los siguientes
+ pasos:
+\end_layout
+
+\begin_layout Enumerate
+Creado un dockerfile que describa el contenedor:
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# Use an official Python runtime as a parent image 
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM python:3.11-slim-buster
+\end_layout
+
+\begin_layout Plain Layout
+
+# Set the working directory in the container to /app 
+\end_layout
+
+\begin_layout Plain Layout
+
+WORKDIR /app
+\end_layout
+
+\begin_layout Plain Layout
+
+# Add the current directory contents into the container at /app 
+\end_layout
+
+\begin_layout Plain Layout
+
+ADD .
+ /app
+\end_layout
+
+\begin_layout Plain Layout
+
+# Install Poetry 
+\end_layout
+
+\begin_layout Plain Layout
+
+RUN pip install poetry
+\end_layout
+
+\begin_layout Plain Layout
+
+# Use Poetry to install dependencies 
+\end_layout
+
+\begin_layout Plain Layout
+
+RUN poetry install
+\end_layout
+
+\begin_layout Plain Layout
+
+# Make port 80 available to the world outside this container 
+\end_layout
+
+\begin_layout Plain Layout
+
+EXPOSE 8501
+\end_layout
+
+\begin_layout Plain Layout
+
+# Run main.py when the container launches 
+\end_layout
+
+\begin_layout Plain Layout
+
+CMD ["poetry", "run", "streamlit", "run", "main.py"]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Construimos la imagen de docker con:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$docker build -t dixrow/krakenpythonmarcosrodrigo .}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Creamos una cuenta de docker y la enlazamos con:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$docker login}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Subimos la imagen que hemos creado con:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$docker push dixrow/krakenpythonmarcosrodrigo:latest}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \end_body
 \end_document
