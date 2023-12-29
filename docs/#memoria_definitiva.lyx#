@@ -2306,5 +2306,77 @@ pythoninline{$docker push dixrow/krakenpythonmarcosrodrigo:latest}
 \end_layout
 
 \end_deeper
+\begin_layout Enumerate
+Para bajarse la imagen de dockerhub:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$docker pull dixrow/krakenpythonmarcosrodrigo}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Para ejecutar la imagen:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$docker run -p 8501:8501 dixrow/krakenpythonmarcosrodrigo}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Por último puedes acceder a traves del navegador con el enlaze: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+localhost:8501
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Acceso a traves de Streamlit
+\end_layout
+
+\begin_layout Standard
+Alternativamente se puede acceder a la aplicacion a traves del siguiente
+ enlaze:
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
 \end_body
 \end_document
