@@ -1,13 +1,19 @@
-import streamlit as st
+import streamlit as st  # Import Streamlit for creating web applications
 
+# Function to set the page container style
 def set_page_container_style(
         max_width: int = 1500, max_width_100_percent: bool = False,
         padding_top: int = 1, padding_right: int = 10, padding_left: int = 1, padding_bottom: int = 10
     ):
+        
+        # If max_width_100_percent is True, the maximum width is set to 100%
+        # Otherwise, it's set to the value of max_width
         if max_width_100_percent:
             max_width_str = f'max-width: 100%;'
         else:
             max_width_str = f'max-width: {max_width}px;'
+
+        # CSS to modify the layout of the Streamlit page
         st.markdown(
             f'''
             <style>
@@ -26,9 +32,13 @@ def set_page_container_style(
             unsafe_allow_html=True,
         )
 
+# Function to apply additional styles to the Streamlit page
 def style():
+
+    # Setting the page layout to wide mode
     st.set_page_config(layout="wide")
 
+    # CSS for padding in the block container
     st.markdown("""
                     <style>
                         .appview-container .main .block-container {{
@@ -42,6 +52,7 @@ def style():
                 unsafe_allow_html=True,
             )
 
+    # Including Bootstrap CSS for additional styling options for the header of the application
     st.markdown('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">', unsafe_allow_html=True)
 
     st.markdown("""
@@ -62,33 +73,23 @@ def style():
             <a class="nav-link" href="https://pypi.org/project/KrakenPythonMarcosRodrigo/0.1.0/" target="_blank">PyPi</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://www.youtube.com/watch?v=16uJ-jxcKHo" target="_blank">Docker</a>
+            <a class="nav-link" href="" target="_blank">Docker</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://www.youtube.com/watch?v=16uJ-jxcKHo" target="_blank">About Us</a>
+            <a class="nav-link" href="" target="_blank">About Us</a>
         </li>                
         </ul>
     </div>
     </nav>
     """, unsafe_allow_html=True)
 
-    st.markdown(
-        f'''
-        <style>
-            .reportview-container .sidebar-content {{
-                padding-top: {1}rem;
-            }}
-            .reportview-container .main .block-container {{
-                padding-top: {1}rem;
-            }}
-        </style>
-        ''',unsafe_allow_html=True)
-
+    # Calling the set_page_container_style function with specific parameters
     set_page_container_style(
             max_width = 1100, max_width_100_percent = True,
             padding_top = 0, padding_right = 10, padding_left = 5, padding_bottom = 10
     )
 
+    # CSS to hide the main menu, footer, and header of the Streamlit page
     hide_st_style = """
         <style>
         #MainMenu {visibility: hidden;}
