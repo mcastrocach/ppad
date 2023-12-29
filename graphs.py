@@ -1,36 +1,34 @@
-import krakenex                   # Import krakenex to interact with the Kraken cryptocurrency exchange API
-import plotly.graph_objs as go    # Import Plotly's graph objects for advanced data visualization
-import pandas as pd               # Import Pandas for data analysis and manipulation
-import numpy as np                # Import NumPy for numerical operations and array processing
-import time                       # Import time for time.mktime
-import datetime
-import streamlit as st
+import krakenex                             # Import krakenex to interact with the Kraken cryptocurrency exchange API
+import plotly.graph_objs as go              # Import Plotly's graph objects for advanced data visualization
+from plotly.subplots import make_subplots   # Import make_subplots from Plotly for creating subplots in visualizations
+import pandas as pd                         # Import Pandas for data analysis and manipulation
+import numpy as np                          # Import NumPy for numerical operations and array processing
+import streamlit as st                      # Import Streamlit for creating web applications
 
-from plotly.subplots import make_subplots
 
 # This function aggregates data into custom time intervals that are not natively provided by the Kraken API to make queries
 def aggregate_intervals(interval, df):
-        # Resamples the DataFrame to the specified interval and aggregates key metrics
-        resampled_df = df.resample(f'{interval}T').agg({ 'Open': 'first', 
-                                                         'High': 'max', 
-                                                         'Low': 'min', 
-                                                         'Close': 'last', 
-                                                         'SMA': 'mean', 
-                                                         'EMA': 'mean', 
-                                                         'Volume': 'sum'})
-        return resampled_df
+    # Resamples the DataFrame to the specified interval and aggregates key metrics
+    resampled_df = df.resample(f'{interval}T').agg({ 'Open': 'first', 
+                                                     'High': 'max', 
+                                                     'Low': 'min', 
+                                                     'Close': 'last', 
+                                                     'SMA': 'mean', 
+                                                     'EMA': 'mean', 
+                                                     'Volume': 'sum'})
+    return resampled_df
 
 # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=300)  # Decorator to cache the data in Streamlit, with a time-to-live (TTL) of 300 seconds
 def obtain_function(pair, interval, divisor, since, until):
         
     # Initializing a Kraken API client and querying data within a try-except block
     try:
         k = krakenex.API()  # Initialize the Kraken client
         
-        # Query for OHLC data for the specified currency pair and interval
+        # Query for OHLC data for the specified currency pair, interval and start date
         response = k.query_public('OHLC', {'pair':pair, 'interval':divisor, 'since':since})
-        if response['error']:  # Check and raise an exception if errors exist in the response
+        if response['error']:  # Check and raise an exception if an error exists in the response
             print(f"There was an error with the API call")
             raise Exception(response['error'])
 
@@ -41,15 +39,15 @@ def obtain_function(pair, interval, divisor, since, until):
 
     # Process the retrieved data if no exceptions occur
     else:
-        ohlc_data = response['result'][pair]  # Extract OHLC data from API response
+        ohlc_data = response['result'][pair]  # Extract OHLC data from the API response
 
         # Convert OHLC data to a DataFrame and remove unnecessary columns
         ohlc_df = pd.DataFrame(ohlc_data, columns=["Time", "Open", "High", "Low", "Close", "VWAP", "Volume", "Count"]).drop(['VWAP', 'Count'], axis=1)
 
-        # Convert timestamps to datetime format and set as DataFrame index
-        ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')    # Unix timestamp to pandas datetime
+        # Convert Unix timestamps to pandas datetime format and set as DataFrame index
+        ohlc_df["Time"] = pd.to_datetime(ohlc_df["Time"], unit='s')
         ohlc_df.set_index(pd.DatetimeIndex(ohlc_df["Time"]), inplace=True)
-        if until is not None:                                     # Filter data when until is not None
+        if until is not None:  # Filter data when until is not None
             cutoff_date = pd.to_datetime(until, unit='s')
             ohlc_df = ohlc_df[ohlc_df.index < cutoff_date]
 
@@ -67,12 +65,12 @@ def obtain_function(pair, interval, divisor, since, until):
 
         # Aggregate data into custom intervals if needed
         resampled_df = aggregate_intervals(interval, ohlc_df)
-
         if interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
             ohlc_df = resampled_df            
         return ohlc_df  # Return the prepared DataFrame
 
-# The class Graph is designed for constructing candlestick and stochastic oscillator graphs with mobile mean for trading analysis
+
+# The class Graph is designed for constructing candlestick and stochastic oscillator graphs with moving averages for trading analysis
 class Graph:
 
     # Constructor for initializing a Graph instance
@@ -86,6 +84,7 @@ class Graph:
     # Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
     def obtain_data(self):
         return obtain_function(self.pair, self.interval, self.divisor, self.since, self.until)
+
 
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
     def candlestick(ohlc_df):
@@ -118,8 +117,8 @@ class Graph:
 
             return fig  # Return the Figure object for plotting
         
+        # Handle exceptions in chart creation and return an empty figure in case of an error
         except Exception as e:
-            # Handle exceptions in chart creation and return an empty figure in case of an error
             print(f"An error occurred while creating the candlestick chart: {e}")
             return go.Figure()  # Return an empty Plotly Figure object if an error occurs
 
@@ -134,7 +133,7 @@ class Graph:
             df['%D'] = df['%K'].rolling(window=3).mean()
             df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 20)
             df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)
-            df = df[14:]
+            df = df[window:]
 
             data = [# The first plot is a line chart for the '%D' line of the stochastic oscillator
                     go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#b2b2b2'), legendgroup='group', legendrank=5),
@@ -142,64 +141,102 @@ class Graph:
                     # The second plot is a line chart for the '%K' line of the stochastic oscillator
                     go.Scatter(x=df.index, y=df['%K'], name='Stochastic Oscillator', marker=dict(color='#4c4c4c'), legendgroup='group', legendrank=4),
 
-                    # Horizontal line at 20
+                    # Horizontal line at 20%
                     go.Scatter(x=df.index, y=[20]*len(df.index), mode='lines', name='20% threshold', line=dict(color='purple', width=1, dash='dash'), showlegend=False),
 
-                    # Horizontal line at 80
+                    # Horizontal line at 80%
                     go.Scatter(x=df.index, y=[80]*len(df.index), mode='lines', name='80% threshold', line=dict(color='purple', width=1, dash='dash'), showlegend=False)]
 
             # Define the layout for the plotly figure, setting titles and axis labels.
             layout = go.Layout(title='Stochastic Oscillator with its Smoothed Version',
                                yaxis=dict(title='Value (%)', range=[0,100]))  # Label for the y-axis
 
-            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the candlestick data
+            fig = go.Figure(data=data, layout=layout)  # Create a Figure object with the candlestick data
             fig.layout.height = 250
-            return fig  # return the Figure object for plotting
+            return fig  # Return the Figure object for plotting
 
+        # Handle exceptions in chart creation and return an empty figure in case of an error
         except Exception as e:
             print(f"An error occurred while creating the candlestick chart: {e}")
-            return go.Figure()
+            return go.Figure()  # Return an empty Plotly Figure object if an error occurs
 
 
+    # Function to calculate the profit from trading based on buy and sell signals in a DataFrame
     def calculate_profit(self, df):
         try:
+            # Initialize variables to track coins held and total amount spent
             coins = 0
             total_spent = 0
+
+            # 'Buy_Price' is set to the 'Close' price where 'Buy_Signal' is True, otherwise NaN
             df['Buy_Price'] = np.where(df['Buy_Signal'], df['Close'], np.nan)
+
+            # 'Sell_Price' is set to the 'Close' price where 'Sell_Signal' is True, otherwise NaN
             df['Sell_Price'] = np.where(df['Sell_Signal'], df['Close'], np.nan)
+            df['Profit'] = 0
+
+            # Loop through each row in the DataFrame
             for i in range(len(df)):
+                # If there's a buy signal, increase coins and add to total spent
                 if df['Buy_Signal'].iloc[i]:
                     coins += 100
-                    total_spent += df['Buy_Price'].iloc[i]*100
+                    total_spent += df['Buy_Price'].iloc[i] * 100
+
+                # If there's a sell signal and enough coins are held, reduce coins and subtract from total spent
                 if df['Sell_Signal'].iloc[i] and coins >= 100:
                     coins -= 100
-                    total_spent -= df['Sell_Price'].iloc[i]*100
-            df['Profit'] = df['Close'] * coins - total_spent
-            return df
+                    total_spent -= df['Sell_Price'].iloc[i] * 100
+
+                # Calculate profit: current value of held coins minus total amount spent
+                df['Profit'][i] = (df['Close'][i]*coins) - total_spent
+
+            return df  # Return the modified DataFrame with the 'Profit' column
+
+        # Catching and printing any exceptions that occur during the function execution
         except Exception as e:
             print(f"An error occurred while creating the profit data: {e}")
+
+            # Returning an empty DataFrame in case of an exception
             return pd.DataFrame()
 
 
+    # Function to create a profit graph from a DataFrame containing buy and sell signals
     def profit_graph(self, df):
         try:
-            if not df['Buy_Signal'].any():  # Check if there are any buy signals
-                return None  # Return None if no buy signals
-            first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal
-            df = df.loc[first_buy_signal:]  # Slice the DataFrame from the first buy signal onwards
-            data = [go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit', marker=dict(color='#0d0c52')),
-                    go.Scatter(x=df[df['Buy_Signal']].index, y=df[df['Buy_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='#05e3a0', size=10), name='Buy Signal'),
-                    go.Scatter(x=df[df['Sell_Signal']].index, y=df[df['Sell_Signal']]['Profit'].cumsum(), mode='markers', marker=dict(color='#f77088', size=10), name='Sell Signal')]
+            # Check if there are any buy signals in the DataFrame
+            if not df['Buy_Signal'].any():
+                return None  # Return None if there are no buy signals
+           
+            first_buy_signal = df[df['Buy_Signal']].index[0]  # Get the index of the first buy signal in the DataFrame
+            df = df.loc[first_buy_signal:]                    # Slice the DataFrame from the first buy signal onwards
+
+            # Create a list of Scatter plots for the profit graph
+            data = [
+                # Line plot for cumulative profit over time
+                go.Scatter(x=df.index, y=df['Profit'].cumsum(), name='Profit', marker=dict(color='#0d0c52')),
+
+                # Marker plot for points where buy signals occur
+                go.Scatter(x=df[df['Buy_Signal']].index, y=df['Profit'].cumsum()[df['Buy_Signal']], mode='markers', marker=dict(color='#05e3a0', size=10), name='Buy Signal'),
+
+                # Marker plot for points where sell signals occur
+                go.Scatter(x=df[df['Sell_Signal']].index, y=df['Profit'].cumsum()[df['Sell_Signal']], mode='markers', marker=dict(color='#f77088', size=10), name='Sell Signal')
+            ]
             
-            # Adjust layout, including margin settings
+            # Define the layout for the graph, including axis labels and margins
             layout = go.Layout(
-                yaxis=dict(title='Value'),  # Label for the y-axis
-                margin=dict(l=40, r=40, t=20, b=40)  # Adjust left, right, top, bottom margins
+                yaxis=dict(title='Value'),           # Set the title for the y-axis
+                margin=dict(l=40, r=40, t=20, b=40)  # Set the margins for the left, right, top, and bottom
             )
-            fig = go.Figure(data=data, layout=layout)  # create a Figure object with the profit data
+
+            # Create a Figure object with the defined data and layout
+            fig = go.Figure(data=data, layout=layout)
+
+            # Set the height and width of the figure
             fig.layout.height = 350
             fig.layout.width = 650
-            return fig  # return the Figure object for plotting
+            return fig  # Return the Figure object for plotting
+
+        # Print an error message if an exception occurs and return an empty Figure object
         except Exception as e:
             print(f"An error occurred while creating the profit chart: {e}")
             return go.Figure()

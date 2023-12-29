@@ -2,13 +2,11 @@ import streamlit as st                         # Import Streamlit for creating w
 from streamlit_option_menu import option_menu  # Import option_menu for creating option menus in Streamlit apps
 from plotly.subplots import make_subplots      # Import make_subplots from Plotly for creating combined plots
 from graphs import Graph                       # Import Graph class from the 'graphs' module for graph operations
-import time                                    # Import time for converting date to Unix timestamp
 import datetime                                # Import datetime for date and time operations
-from style import style
+from style import style                        # Import the style function from the 'style' module to customize the app
+
 
 import requests  # Import the requests library for HTTP request handling
-
-import plotly.express as px
 
 # Retrieves all available currency pairs from the Kraken API
 def get_kraken_pairs():
@@ -31,18 +29,20 @@ def find_largest_divisor(n):
     return max(valid_divisors)                           # Returns the largest divisor found
 
 
+# The class Front is designed to construct the frontend of the Streamlit application, displaying the selected data
 class Front:
 
+    # Constructor for initializing a Front instance
     def __init__(self):
         style()
         st.markdown('# **KRAKEN CURRENCY ANALYSIS TOOL**')
-        st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
+        st.markdown("<hr>", unsafe_allow_html=True)                                 # Inserts a horizontal line for visual separation
 
         self.currency_pair = None                                                   # Placeholder for the first currency in the pair
-        st.session_state.selected_option = st.session_state.get("selected_option")  # Retrieve or initialize the selected time interval for each candle
-        st.session_state.is_custom_interval = st.session_state.get("is_custom_interval")
-        st.session_state.custom_interval = st.session_state.get("custom_interval")
-        self.time_interval = st.session_state.selected_option                       # Store the time interval for each candle from the session state
+        st.session_state['selected_option'] = st.session_state.get("selected_option", None)  # Retrieve or initialize the selected time interval for each candle
+        st.session_state['is_custom_interval'] = st.session_state.get("is_custom_interval", None)
+        st.session_state['custom_interval'] = st.session_state.get("custom_interval", None)
+        self.time_interval = st.session_state['selected_option']                       # Store the time interval for each candle from the session state
         self.since, self.until = None, None                                         # Initialize since and until attributes
 
 
@@ -82,25 +82,26 @@ class Front:
                 button_key = f"button-{key}"
                 if st.button(key, key=button_key):
                     self.time_interval = int(intervals[key])               # Sets the selected time interval
-                    st.session_state.selected_option = self.time_interval  # Updates the session state
+                    st.session_state['selected_option'] = self.time_interval  # Updates the session state
 
         # Button for allowing custom time interval input
         if st.button("...or enter a custom time interval (in minutes)", key="Other"):
-            # Input field for custom time interval in minutes
-            st.session_state.is_custom_interval = not st.session_state.is_custom_interval
+            st.session_state['is_custom_interval'] = not st.session_state['is_custom_interval']
 
-        if st.session_state.is_custom_interval:
-            st.session_state.custom_interval = st.number_input('Custom interval', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
+        # Input field for custom time interval in minutes
+        if st.session_state['is_custom_interval']:
+            st.session_state['custom_interval'] = st.number_input('Custom interval', min_value=1, max_value=43200, step=1, value=None, label_visibility='collapsed')
 
-        if st.session_state.custom_interval is not None: 
-            self.time_interval = st.session_state.custom_interval
-            st.session_state.selected_option = st.session_state.custom_interval # Update the time interval with the custom input
+        # Update the time interval with the custom input
+        if st.session_state['custom_interval'] is not None: 
+            self.time_interval = st.session_state['custom_interval']
+            st.session_state['selected_option'] = st.session_state['custom_interval'] 
 
         st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
-        st.markdown("3. Optionally, choose a time interval within the range of the original selection:")
+        st.markdown("3. Optionally, choose a time window within the range of the original selection:")
         
-        # Date picker for selecting the start date
+        # Date picker for selecting the start and end date
         columns0, columns1 = st.columns([1, 1])
         with columns0:
             with st.expander("Start Date", expanded=True):
@@ -128,6 +129,7 @@ class Front:
                                                 menu_icon="cast", default_index=0, orientation="horizontal")
 
         if self.graph_selected != None:
+
             # Conditional to verify if self.currency_pair is of NoneType
             if self.currency_pair is None:
                 st.markdown('&nbsp;'*30 + 'Please, select a &nbsp;*currency pair*&nbsp; to graph the corresponding data', unsafe_allow_html=True)
@@ -145,16 +147,8 @@ class Front:
         if self.graph_selected == "Candlestick":
             fig = candlestick
 
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
-
         elif self.graph_selected == "Stochastic":
             fig = stochastic
-
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
         elif self.graph_selected == "Combined":
             fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, row_heights=[0.8, 0.2], specs=[[{"secondary_y": True}], [{}]])
@@ -173,21 +167,20 @@ class Front:
                 xaxis_rangeslider_visible=False,
                 height=450, width = 650)
             
-            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
-            
         elif self.graph_selected == "Strategy":
             # Moved the button definition here
             profit_df = graph.calculate_profit(ohlc_df)
             fig = graph.profit_graph(profit_df)
             if fig is not None:
                 st.write("This graph shows simulated profit using data-driven signals. " + 
-                         "It follows the strategy to buy 100 units of the chosen currency at each *Buy Signal* and sells 100 units at each *Sell Signal*.")
-                fig_dict = fig.to_dict()
-                st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+                         "It adheres to a strategy of buying 100 units of the currency at each *Buy Signal* and selling 100 units at each *Sell Signal*.")
             else:
                 st.write("There are no buy signals")
+                return
+            
+        fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+        st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+        st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
 
     
     # Method to execute the core operations of the Streamlit application
@@ -195,7 +188,7 @@ class Front:
         try:
 
             # Invoke methods to display user input options and the graph based on selections
-            col1, spacer, col2 = st.columns([100,5,95])
+            col1, _, col2 = st.columns([100,5,95])
             with col1:
                 self.select_boxes()   # Displays currency pair and time interval selection options
 

@@ -73,11 +73,8 @@ def style():
             <a class="nav-link" href="https://pypi.org/project/KrakenPythonMarcosRodrigo/0.1.0/" target="_blank">PyPi</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="" target="_blank">Docker</a>
+            <a class="nav-link disabled" href="#">Docker<span class="sr-only">(current)</span></a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="" target="_blank">About Us</a>
-        </li>                
         </ul>
     </div>
     </nav>
