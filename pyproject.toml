@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "krakenpythonmarcosrodrigo"
+name = "KrakenPythonMarcosRodrigo"
 version = "0.1.0"
 description = "A streamlit tool for rendering kraken data"
 authors = ["Your Name <you@example.com>"]
