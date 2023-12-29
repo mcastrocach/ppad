@@ -14,7 +14,8 @@ The main file of our project is `main.py`. It uses functions and classes from ot
 
 The project also has a `pyproject.toml` file that names all the Python packages required to run the project. The project can be executed in a Docker container. using the provided Dockerfile.
 
-The project includes a `tests.py` file for unit testing and integration testing. The tests cover (amongst other functionalities) the initialization of the Front and Graph classes, the retrieval of currency pairs from the Kraken API, and the creation of Plotly graphs.
+The project also includes a `tests.py` file for testing different parts of the project, using unit-testing and integration-testing. The tests cover (amongst other functionalities) the initialization of the Front and Graph classes, the retrieval of currency pairs from the Kraken API, and the creation of Plotly graphs.
+
 
 ## How to Run the Project
 
