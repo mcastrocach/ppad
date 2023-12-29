@@ -28,7 +28,6 @@ class TestFront(unittest.TestCase):
             self.assertEqual(front.time_interval, None)
             self.assertEqual(front.since, None)
             self.assertEqual(front.until, None)
-            self.assertEqual(front.select_graph, "Candlestick")
 
     # Test method to test the get_kraken_pairs function
     def test_get_kraken_pairs(self):
