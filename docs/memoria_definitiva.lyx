@@ -2133,6 +2133,30 @@ pythoninline{$twine upload dist/*}
 (con tu cuenta de pypi)
 \end_layout
 
+\begin_layout Standard
+5.
+ Una vez que tu paquete esté publicado en PyPI, otros pueden instalarlo
+ utilizando pip.
+ Por ejemplo, si tu paquete se llama "mipaquete", podrían instalarlo con
+ el siguiente comando:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$pip install} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Distribución del proyecto a través de Dockerhub
 \end_layout
@@ -2358,6 +2382,31 @@ status open
 \begin_layout Plain Layout
 
 localhost:8501
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Acceso a traves de Streamlit
+\end_layout
+
+\begin_layout Standard
+Alternativamente se puede acceder a la aplicacion a traves del siguiente
+ enlaze:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{https://l3vhpftnhq75225rcpsappc.streamlit.app}
 \end_layout
 
 \end_inset
