@@ -1,6 +1,6 @@
 # KrakenPythonMarcosRodrigo
 
-This project is a tool for analyzing currency pairs on the Kraken cryptocurrency exchange. 
+This project serves as an analytical tool designed for examining currency pairs on the Kraken cryptocurrency exchange platform.
 
 It fetches real-time price data for various currency pairs using the Kraken API and visualizes this data using the Plotly library. Additionally, it calculates technical analysis indicators such as the stochastic oscillator and its moving average, which can assist in trading decisions.
 
