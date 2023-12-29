@@ -66,7 +66,20 @@ def obtain_function(pair, interval, divisor, since, until):
         # Aggregate data into custom intervals if needed
         resampled_df = aggregate_intervals(interval, ohlc_df)
         if interval not in (1, 5, 15, 30, 60, 240, 1440, 10080, 21600):
-            ohlc_df = resampled_df            
+            ohlc_df = resampled_df   
+
+        size = ohlc_df.shape[0]
+        if size > 14:
+            ohlc_df = ohlc_df[14:]  # Remove the first intervals so that SMA is defined
+
+        window = 14 if ohlc_df.shape[0]>=60 else 3
+        ohlc_df['L14'] = ohlc_df['Low'].rolling(window=window).min()
+        ohlc_df['H14'] = ohlc_df['High'].rolling(window=window).max()
+        ohlc_df['%K'] = (ohlc_df['Close'] - ohlc_df['L14']) / (ohlc_df['H14'] - ohlc_df['L14']) * 100
+        ohlc_df['%D'] = ohlc_df['%K'].rolling(window=3).mean()
+        ohlc_df['Buy_Signal'] = ((ohlc_df['%K'] > ohlc_df['%D']) & (ohlc_df['%K'].shift(1) < ohlc_df['%D'].shift(1))) & (ohlc_df['%D'] < 20)
+        ohlc_df['Sell_Signal'] = ((ohlc_df['%K'] < ohlc_df['%D']) & (ohlc_df['%K'].shift(1) > ohlc_df['%D'].shift(1))) & (ohlc_df['%D'] > 80)
+
         return ohlc_df  # Return the prepared DataFrame
 
 
@@ -87,13 +100,8 @@ class Graph:
 
 
     @staticmethod  # Static method to create a candlestick chart from OHLC data using Plotly
-    def candlestick(ohlc_df):
+    def candlestick(df):
         try:
-            size = ohlc_df.shape[0]
-            if size <= 14:
-                df = ohlc_df[:]    # Take the whole dataframe when it has small size
-            else:
-                df = ohlc_df[14:]  # Remove the first intervals so that SMA is defined
 
             colors = ['#008080' if close >= open else 'red' for open, close in zip(df['Open'], df['Close'])]
             fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -126,15 +134,6 @@ class Graph:
     @staticmethod  # Calculate and graph the stochastic oscillator and its mobile mean 
     def stochastic(df):
         try:
-            window = 14 if df.shape[0]>=60 else 3
-            df['L14'] = df['Low'].rolling(window=window).min()
-            df['H14'] = df['High'].rolling(window=window).max()
-            df['%K'] = (df['Close'] - df['L14']) / (df['H14'] - df['L14']) * 100
-            df['%D'] = df['%K'].rolling(window=3).mean()
-            df['Buy_Signal'] = ((df['%K'] > df['%D']) & (df['%K'].shift(1) < df['%D'].shift(1))) & (df['%D'] < 20)
-            df['Sell_Signal'] = ((df['%K'] < df['%D']) & (df['%K'].shift(1) > df['%D'].shift(1))) & (df['%D'] > 80)
-            df = df[window:]
-
             data = [# The first plot is a line chart for the '%D' line of the stochastic oscillator
                     go.Scatter(x=df.index, y=df['%D'], name='Smoothed Stochastic', marker=dict(color='#b2b2b2'), legendgroup='group', legendrank=5),
                     
@@ -188,7 +187,7 @@ class Graph:
                     total_spent -= df['Sell_Price'].iloc[i] * 100
 
                 # Calculate profit: current value of held coins minus total amount spent
-                df['Profit'][i] = (df['Close'][i]*coins) - total_spent
+                df.loc[df.index[i], 'Profit'] = (df.loc[df.index[i], 'Close'] * coins) - total_spent
 
             return df  # Return the modified DataFrame with the 'Profit' column
 

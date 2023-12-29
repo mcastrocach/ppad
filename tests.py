@@ -87,6 +87,14 @@ class TestGraph(unittest.TestCase):
         fig = graph.stochastic(df)
         self.assertIsInstance(fig, go.Figure)
 
+    # Testing the profit_graph method of the Graph class
+    def test_profit_graph(self):
+        graph = Graph(pair='XETHZUSD', interval=1440, divisor=1)
+        df = graph.obtain_data()
+        profit_df = graph.calculate_profit(df)
+        fig = graph.profit_graph(profit_df)
+        self.assertIsInstance(fig, go.Figure)
+
 
 # Definition of a test case class for testing the aggregate_intervals function
 class TestAggregateIntervals(unittest.TestCase):
