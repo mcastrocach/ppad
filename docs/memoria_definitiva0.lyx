@@ -2655,7 +2655,7 @@ plotly
  para que ambas gráficas puedan coexistir y complementarse.
  Por otro lado, hemos tenido en cuenta la información de cierre para añadir
  diagramas de líneas que representen los indicadores para el SMA y el EMA.
-\begin_inset VSpace 10bp
+\begin_inset VSpace 12bp
 \end_inset
 
 
@@ -3419,7 +3419,7 @@ end{python}
 \end_layout
 
 \begin_layout Standard
-\begin_inset VSpace 25bp
+\begin_inset VSpace 16bp
 \end_inset
 
 El gráfico para el oscilador estocástico y su media móvil, se verían como
@@ -3428,7 +3428,7 @@ El gráfico para el oscilador estocástico y su media móvil, se verían como
 streamlit
 \family default
 :
-\begin_inset VSpace 10bp
+\begin_inset VSpace 16bp
 \end_inset
 
 
@@ -4197,13 +4197,6 @@ end{python}
 Estructuración
 \end_layout
 
-\begin_layout Standard
-
-\series bold
-\color violet
-(añadir descripción)
-\end_layout
-
 \begin_layout Subsection
 Funciones
 \end_layout
@@ -4219,17 +4212,61 @@ El módulo principal del proyecto es main.py, que importa y utiliza las funcione
 \end_layout
 
 \begin_layout Standard
-Los módulos adicionales incluyen graphs.py y front.py.
+Los módulos adicionales incluyen 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+graphs.py
+\end_layout
+
+\end_inset
+
+ y 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+front.py
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-- graphs.py contiene la clase Graph que se encarga de crear gráficos de velas
- y osciladores estocásticos para el análisis de trading.
+- 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+graphs.py
+\end_layout
+
+\end_inset
+
+ contiene la clase Graph que se encarga de crear gráficos de velas y osciladores
+ estocásticos para el análisis de trading.
 \end_layout
 
 \begin_layout Standard
-- front.py contiene la clase Front que se encarga de manejar la interfaz
- de usuario de la aplicación.
+- 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+front.py
+\end_layout
+
+\end_inset
+
+ contiene la clase Front que se encarga de manejar la interfaz de usuario
+ de la aplicación.
 \end_layout
 
 \begin_layout Standard
@@ -4249,7 +4286,18 @@ Manejo de errores y excepciones
 
 \begin_layout Standard
 El manejo de excepciones en este proyecto se realiza principalmente a través
- de la estructura de control de flujo try/except.
+ de la estructura de control de flujo 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+try/except
+\end_layout
+
+\end_inset
+
+.
  Esta estructura permite capturar y manejar errores que pueden ocurrir durante
  la ejecución del programa.
 \end_layout
@@ -4321,7 +4369,7 @@ end{python}
 
 \end_inset
 
-En esta ocasion por ejemplo imprimimos un mensaje de error directamente
+En esta ocasión por ejemplo imprimimos un mensaje de error directamente
  en la aplicación.
 \begin_inset ERT
 status open
@@ -4386,23 +4434,26 @@ end{python}
 Puntuación Extra
 \end_layout
 
-\begin_layout Standard
-
-\series bold
-\color violet
-(añadir descripción)
-\end_layout
-
 \begin_layout Subsection
 Testeo y cobertura (unit-testing, integration-testing)
 \end_layout
 
 \begin_layout Standard
-Hemos gestionado los unit-test e intrgration tests con la libreria unittest.
+Hemos gestionado los unit-test e integration tests con la libreria 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+unittest
+\end_layout
+
+\end_inset
+
+.
  Este módulo permite definir clases de prueba con métodos que representan
  pruebas individuales.
  Aquí vemos un ejemplo de los tests que hemos añadido al proyecto.
- TODO poner algo mas aqui?
 \begin_inset ERT
 status open
 
@@ -4458,7 +4509,12 @@ end{python}
 \end_layout
 
 \begin_layout Standard
-TODO Pideme un a captura de los tests pasando
+\begin_inset Graphics
+	filename test_result.png
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -4494,7 +4550,7 @@ name = "krakenpythonmarcosrodrigo"
 
 \begin_layout Plain Layout
 
-version = "0.1.1"
+version = "0.1.2"
 \end_layout
 
 \begin_layout Plain Layout
@@ -4611,13 +4667,24 @@ status open
 
 \begin_layout Plain Layout
 
-Poetry install
+poetry install
 \end_layout
 
 \end_inset
 
  Este comando instalará todas las dependencias especificadas en el archivo
- pyproject.toml.
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+pyproject.toml
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4670,8 +4737,8 @@ pythoninline{$pip install pip twine}
 
 \begin_layout Standard
 2.
- Crear una cuenta en PyPI, adicionalmente se necesitara activar la autenticancio
-n de doble factor y se debe utilizar la token de la api en twine
+ Crear una cuenta en PyPI, adicionalmente se necesitara activar la autenticación
+ de doble factor y se debe utilizar la token de la API en Twine
 \end_layout
 
 \begin_layout Standard
@@ -4713,12 +4780,7 @@ pythoninline{$twine upload dist/*}
 \begin_layout Standard
 5.
  Una vez que tu paquete esté publicado en PyPI, otros pueden instalarlo
- utilizando pip.
- Por ejemplo, si tu paquete se llama "mipaquete", podrían instalarlo con
- el siguiente comando:
-\end_layout
-
-\begin_layout Standard
+ utilizando 
 \begin_inset ERT
 status open
 
@@ -4735,16 +4797,16 @@ pythoninline{$pip install}
 \end_layout
 
 \begin_layout Subsection
-Distribución del proyecto a través de Dockerhub
+Distribución del proyecto a través de DockerHub
 \end_layout
 
 \begin_layout Standard
-Para crear la imagen que se ha subido a dockerhub se han segido los siguientes
+Para crear la imagen que se ha subido a DockerHub se han seguido los siguientes
  pasos:
 \end_layout
 
 \begin_layout Enumerate
-Creado un dockerfile que describa el contenedor:
+Creado un Dockerfile que describa el contenedor:
 \end_layout
 
 \begin_layout Enumerate
@@ -4811,7 +4873,7 @@ RUN poetry install
 
 \begin_layout Plain Layout
 
-# Make port 80 available to the world outside this container 
+# Make port 8501 available to the world outside this container 
 \end_layout
 
 \begin_layout Plain Layout
@@ -4842,7 +4904,7 @@ end{python}
 \end_layout
 
 \begin_layout Enumerate
-Construimos la imagen de docker con:
+Construimos la imagen de Docker con:
 \end_layout
 
 \begin_deeper
@@ -4864,7 +4926,7 @@ pythoninline{$docker build -t dixrow/krakenpythonmarcosrodrigo .}
 
 \end_deeper
 \begin_layout Enumerate
-Creamos una cuenta de docker y la enlazamos con:
+Creamos una cuenta de Docker y la enlazamos con:
 \end_layout
 
 \begin_deeper
@@ -4908,7 +4970,7 @@ pythoninline{$docker push dixrow/krakenpythonmarcosrodrigo:latest}
 
 \end_deeper
 \begin_layout Enumerate
-Para bajarse la imagen de dockerhub:
+Para bajarse la imagen de DockerHub:
 \end_layout
 
 \begin_deeper
@@ -4952,13 +5014,13 @@ pythoninline{$docker run -p 8501:8501 dixrow/krakenpythonmarcosrodrigo}
 
 \end_deeper
 \begin_layout Enumerate
-Por último puedes acceder a traves del navegador con el enlaze: 
+Por último puedes acceder a través del navegador con el enlace: 
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-localhost:8501
+127.0.0.1:8501
 \end_layout
 
 \end_inset
