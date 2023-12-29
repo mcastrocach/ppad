@@ -33,7 +33,7 @@ This will start the Streamlit app and open it in your web browser.
 
 ## Documentation
 
-The project includes a docs folder that contains several text files providing more details about the project and its requirements.
+The docs folder contains several files providing more details about the project and its requirements.
 
 ## Authors
 
