@@ -4,6 +4,7 @@ from plotly.subplots import make_subplots      # Import make_subplots from Plotl
 from graphs import Graph                       # Import Graph class from the 'graphs' module for graph operations
 import time                                    # Import time for converting date to Unix timestamp
 import datetime                                # Import datetime for date and time operations
+from style import style
 
 import requests  # Import the requests library for HTTP request handling
 
@@ -30,98 +31,10 @@ def find_largest_divisor(n):
     return max(valid_divisors)                           # Returns the largest divisor found
 
 
-def set_page_container_style(
-        max_width: int = 1100, max_width_100_percent: bool = False,
-        padding_top: int = 1, padding_right: int = 10, padding_left: int = 1, padding_bottom: int = 10
-    ):
-        if max_width_100_percent:
-            max_width_str = f'max-width: 100%;'
-        else:
-            max_width_str = f'max-width: {max_width}px;'
-        st.markdown(
-            f'''
-            <style>
-                .reportview-container .css-1lcbmhc .css-1outpf7 {{
-                    padding-top: 35px;
-                }}
-                .reportview-container .main .block-container {{
-                    {max_width_str}
-                    padding-top: {padding_top}rem;
-                    padding-right: {padding_right}rem;
-                    padding-left: {padding_left}rem;
-                    padding-bottom: {padding_bottom}rem;
-                }}
-            </style>
-            ''',
-            unsafe_allow_html=True,
-        )
-
 class Front:
 
     def __init__(self):
-
-        st.set_page_config(layout="wide")
-
-        st.markdown("""
-                        <style>
-                            .appview-container .main .block-container {{
-                                padding-top: {padding_top}rem;
-                                padding-bottom: {padding_bottom}rem;
-                                }}
-
-                        </style>""".format(
-                        padding_top=1, padding_bottom=1
-                    ),
-                    unsafe_allow_html=True,
-                )
-
-        st.markdown('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">', unsafe_allow_html=True)
-
-        st.markdown("""
-        <nav class="navbar fixed-top navbar-expand-lg navbar-dark" style="background-color: #5848d5;">
-        <a class="navbar-brand" href="https://www.kraken.com/" target="_blank"><b>KRAKEN</b></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link disabled" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="https://github.com/mcastrocach/ppad/" target="_blank">GitHub</a>
-            </li>
-            </ul>
-        </div>
-        </nav>
-        """, unsafe_allow_html=True)
-
-        st.markdown(
-            f'''
-            <style>
-                .reportview-container .sidebar-content {{
-                    padding-top: {1}rem;
-                }}
-                .reportview-container .main .block-container {{
-                    padding-top: {1}rem;
-                }}
-            </style>
-            ''',unsafe_allow_html=True)
-
-        set_page_container_style(
-                max_width = 1100, max_width_100_percent = True,
-                padding_top = 0, padding_right = 10, padding_left = 5, padding_bottom = 10
-        )
-
-        hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-        st.markdown(hide_st_style, unsafe_allow_html=True)
-
+        style()
         st.markdown('# **KRAKEN CURRENCY ANALYSIS TOOL**')
         st.markdown("<hr>", unsafe_allow_html=True)                               # Inserts a horizontal line for visual separation
 
@@ -210,7 +123,7 @@ class Front:
     def display_graph(self):
 
         # Horizontal menu for selecting the type of graph to display
-        self.graph_selected = option_menu(None, ["Candlestick graph of OHLC data", "Stochastic Oscillator & Smoothed Version", "Both options combined"],
+        self.graph_selected = option_menu(None, ["Candlestick", "Stochastic", "Combined", "Strategy"],
                                                 icons=['bar-chart-line', 'activity', "layers"],
                                                 menu_icon="cast", default_index=0, orientation="horizontal")
 
@@ -229,13 +142,21 @@ class Front:
         ohlc_df = graph.obtain_data()
         candlestick, stochastic = graph.candlestick(ohlc_df), graph.stochastic(ohlc_df)
 
-        if self.graph_selected == "Candlestick graph of OHLC data":
+        if self.graph_selected == "Candlestick":
             fig = candlestick
 
-        elif self.graph_selected == "Stochastic Oscillator & Smoothed Version":
+            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+
+        elif self.graph_selected == "Stochastic":
             fig = stochastic
 
-        elif self.graph_selected == "Both options combined":
+            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+
+        elif self.graph_selected == "Combined":
             fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.1, row_heights=[0.8, 0.2], specs=[[{"secondary_y": True}], [{}]])
             fig.add_trace(candlestick['data'][0], row=1, col=1, secondary_y=True)
             fig.add_trace(candlestick['data'][1], row=1, col=1, secondary_y=False)
@@ -251,21 +172,20 @@ class Front:
                 yaxis3_title='%K - %D',
                 xaxis_rangeslider_visible=False,
                 height=450, width = 650)
-
-
-        fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
-        st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
-        st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
-
-        # Moved the button definition here
-        profit_df = graph.calculate_profit(ohlc_df)
-        fig_profit = graph.profit_graph(profit_df)
-        if st.button("Calculate potential earnings"):
-            if fig_profit is not None:
-                st.write("This graph simulates potential profit based on the data.")
-                st.write("Every time a \"Buy Signal\" occurs we buy a 100 units of the currency, every time a \"Sell signal\" we sell a 100 units of the currency.")
-                fig_profit_dict = fig_profit.to_dict()
-                st.plotly_chart(fig_profit_dict)  # Use Streamlit to display the plotly graph
+            
+            fig_dict = fig.to_dict()   # Convert the figure to a dictionary for Streamlit to display
+            st.session_state['fig_dict'] = fig_dict  # Save the figure to the session state
+            st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
+            
+        elif self.graph_selected == "Strategy":
+            # Moved the button definition here
+            profit_df = graph.calculate_profit(ohlc_df)
+            fig = graph.profit_graph(profit_df)
+            if fig is not None:
+                st.write("This graph shows simulated profit using data-driven signals. " + 
+                         "It follows the strategy to buy 100 units of the chosen currency at each *Buy Signal* and sells 100 units at each *Sell Signal*.")
+                fig_dict = fig.to_dict()
+                st.plotly_chart(fig_dict)  # Use Streamlit to display the plotly graph
             else:
                 st.write("There are no buy signals")
 
