@@ -19,13 +19,15 @@ The project also includes a `tests.py` file for testing different parts of the p
 
 ## How to Run the Project
 
-To run the project, you need to have Python installed on your machine. You can then install the required packages using poetry:
+To run the project, you need to have Python installed on your machine. 
 
-poetry install
+You can then install the required packages using poetry:
+
+`poetry install`
 
 After installing the required packages, you can run the project using the following command:
 
-streamlit run main.py
+`streamlit run main.py`
 
 This will start the Streamlit app and open it in your web browser.
 
