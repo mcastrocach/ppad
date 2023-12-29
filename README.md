@@ -10,11 +10,11 @@ It utilizes pandas for data manipulation, plotly for dynamic data visualization,
 
 ## Project Structure
 
-The main file of our project is `main.py`. It uses functions and classes from other files. For example, `graphs.py` has the class Graph, which we use to make candlestick charts and stochastic oscillators. Another important file is `front.py`, which has the class Front for the user interface part of our app.
+The main file of our project is `main.py`. It uses functions and classes from other files. For example, `graphs.py` has the `class Graph`, which we use to make candlestick charts and stochastic oscillators. Another important file is `front.py`, which has the `class Front` for the user interface part of our app.
 
-The project also includes a `pyproject.toml` file that lists the Python packages required to run the project. The project can be run in a Docker container using the provided Dockerfile.
+The project also has a `pyproject.toml` file that names all the Python packages required to run the project. The project can be executed in a Docker container. using the provided Dockerfile.
 
-The project includes a `tests.py` file for unit testing and integration testing. The tests cover the initialization of the Front and Graph classes, the retrieval of currency pairs from the Kraken API, and the creation of Plotly graphs.
+The project includes a `tests.py` file for unit testing and integration testing. The tests cover (amongst other functionalities) the initialization of the Front and Graph classes, the retrieval of currency pairs from the Kraken API, and the creation of Plotly graphs.
 
 ## How to Run the Project
 
