@@ -4,7 +4,7 @@ This project is a tool for analyzing currency pairs on the Kraken cryptocurrency
 
 It fetches real-time price data for various currency pairs using the Kraken API and visualizes this data using the Plotly library. Additionally, it calculates technical analysis indicators such as the stochastic oscillator and its moving average, which can assist in trading decisions.
 
-The project is written in Python and uses several libraries, including pandas for data manipulation, plotly for data visualization, krakenex for interacting with the Kraken API and streamlit for the web application functionality.
+This project is developed in Python and leverages a variety of libraries to enhance its functionality. It utilizes pandas for data manipulation, plotly for dynamic data visualization, krakenex for seamless interaction with the Kraken API, and streamlit to provide the web application capabilities.
 
 ## Project Structure
 
