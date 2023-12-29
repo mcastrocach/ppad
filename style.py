@@ -70,7 +70,7 @@ def style():
             <a class="nav-link" href="https://github.com/mcastrocach/ppad/" target="_blank">GitHub</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://pypi.org/project/KrakenPythonMarcosRodrigo/" target="_blank">PyPi</a>
+            <a class="nav-link" href="https://pypi.org/project/KrakenPythonMarcosRodrigo/" target="_blank">PyPI</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://hub.docker.com/r/mcastrocach/krakenpythonmarcosrodrigo" target="_blank">Docker</a>
