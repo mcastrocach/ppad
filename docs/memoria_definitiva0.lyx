@@ -4649,8 +4649,12 @@ streamlit
 \align center
 \begin_inset Graphics
 	filename option_combined.JPG
-	scale 60
+	scale 57
 
+\end_inset
+
+
+\begin_inset VSpace 5bp
 \end_inset
 
 
@@ -4660,87 +4664,842 @@ streamlit
 Estructuración
 \end_layout
 
-\begin_layout Subsection
-Funciones
-\end_layout
-
 \begin_layout Standard
-El proyecto se estructura en varios módulos y clases para facilitar la organizac
-ión y la reutilización del código.
-\end_layout
-
-\begin_layout Standard
-El módulo principal del proyecto es main.py, que importa y utiliza las funciones
- y clases definidas en otros módulos.
-\end_layout
-
-\begin_layout Standard
-Los módulos adicionales incluyen 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
+Nuestro proyecto necesita principalmente de tres ficheros 
+\family typewriter
+.py
+\family default
+ para funcionar: 
+\family typewriter
 graphs.py
-\end_layout
-
-\end_inset
-
+\family default
+, 
+\family typewriter
+front.py
+\family default
  y 
+\family typewriter
+main.py
+\family default
+ (que se encarga de ejecutar la aplicación de 
+\family typewriter
+streamlit
+\family default
+ con las funcionalidades creadas).
+ Además, hemos añadido el fichero 
+\family typewriter
+style.py
+\family default
+ en el que hay una función 
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-front.py
+
+\backslash
+pythoninline{def style()}
 \end_layout
 
+\end_inset
+
+ que sirve para crear el formato inicial de la aplicación.
+ Esta función se encarga de crear un encabezado con links a la página oficial
+ de Kraken, el repositorio de GitHub en que se encuentran todos los ficheros
+ creados y las páginas correspondientes de nuestro proyecto tanto en PyPi
+ como en Docker.
+ Además, este fichero se encarga de ajustar los márgenes de la página y
+ ocultar los elementos predeterminados de las aplicaciones de 
+\family typewriter
+streamlit
+\family default
+.
+ 
+\begin_inset Newline newline
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
-- 
+Por otro lado, hemos configurado la paleta principal de la aplicación desde
+ el archivo 
+\family typewriter
+.streamlit/config.toml
+\family default
+.
+ Para este objetivo hemos tomado como referencia la paleta que utiliza la
+ propia página de Kraken.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename paleta.JPG
+	scale 50
+
+\end_inset
+
+
+\begin_inset VSpace 10bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+El contenido del archivo .streamlit/config.toml tendría la siguiente forma:
+\begin_inset VSpace 5bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-graphs.py
+
+\backslash
+begin{python}
 \end_layout
-
-\end_inset
-
- contiene la clase Graph que se encarga de crear gráficos de velas y osciladores
- estocásticos para el análisis de trading.
-\end_layout
-
-\begin_layout Standard
-- 
-\begin_inset ERT
-status open
 
 \begin_layout Plain Layout
 
-front.py
+[theme] 
+\end_layout
+
+\begin_layout Plain Layout
+
+primaryColor = "#5848d5"              # Replace with your chosen primary
+ color 
+\end_layout
+
+\begin_layout Plain Layout
+
+backgroundColor = "#E8E8E8"           # Replace with your chosen background
+ color 
+\end_layout
+
+\begin_layout Plain Layout
+
+secondaryBackgroundColor = "#ABA3EA"  # Replace with a secondary color 
+\end_layout
+
+\begin_layout Plain Layout
+
+textColor = "#000000"                 # Replace with your chosen text color
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
 \end_layout
 
 \end_inset
 
- contiene la clase Front que se encarga de manejar la interfaz de usuario
- de la aplicación.
+
+\begin_inset VSpace 20bp
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Además, el proyecto incluye un archivo README.md que proporciona una descripción
- general del proyecto y las instrucciones para su uso.
- También se incluye una carpeta docs que contiene varios archivos de texto
- que proporcionan más detalles sobre el proyecto y sus requisitos.
+De esta manera, conseguimos generar una aplicación de 
+\family typewriter
+streamlit
+\family default
+ con las funcionalidades descritas en los apartados anteriores pero teniendo
+ en cuenta también el apartado estético de la interfaz con la que va a interactu
+ar el usuario final.
+ Así se vería el apartado gráfico de la aplicación de 
+\family typewriter
+streamlit
+\family default
+ que hemos creado:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset VSpace 10bp
+\end_inset
+
+
+\begin_inset Graphics
+	filename proyecto.JPG
+	scale 40
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
-Utilización de clases
+Funciones y utilización de clases
+\end_layout
+
+\begin_layout Standard
+Como ya se ha comentado con anterioridad, el proyecto se estructura en varios
+ módulos y clases para facilitar la organización y la reutilización del
+ código.
+ Contamos con dos clases: 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{class Graph}
+\end_layout
+
+\end_inset
+
+ en 
+\family typewriter
+graphs.py
+\family default
+, para la obtención de datos a través de la consulta a la API de Kraken
+ usando la librería 
+\family typewriter
+krakenex
+\family default
+ y la generación de las gráficas a través de la librería 
+\family typewriter
+plotly
+\family default
+ y, por otro lado, la 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{class Front}
+\end_layout
+
+\end_inset
+
+en 
+\family typewriter
+front.py
+\family default
+ que se encarga de generar los widgets necesarios para la interacción con
+ el usuario, la recogida de los valores seleccionados y la creación de instancia
+s de la 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{class Graph}
+\end_layout
+
+\end_inset
+
+ para mostrar las figuras generadas por pantalla adecuadamente.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A continuación, mostramos de manera superficial las funciones y clases de
+ los ficheros del proyecto.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+\size large
+graphs.py
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# This function aggregates data into custom time intervals 
+\end_layout
+
+\begin_layout Plain Layout
+
+#  that are not natively provided by the Kraken API to make queries 
+\end_layout
+
+\begin_layout Plain Layout
+
+def aggregate_intervals(interval, df):
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Retrieves trading data from the Kraken API and stores it in a Pandas DataFrame
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+@st.cache_data(ttl=300)  # Decorator to cache the data in Streamlit for 5
+ minutes
+\end_layout
+
+\begin_layout Plain Layout
+
+def obtain_function(pair, interval, divisor, since, until):
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# The class Graph is designed for constructing all the different graphs
+ for this project
+\end_layout
+
+\begin_layout Plain Layout
+
+class Graph:
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Constructor for initializing a Graph instance     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def __init__(self, pair='XETHZUSD', interval=1440, divisor=1, since=None,
+ until=None):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Retrieves trading data from the Kraken API and stores it in a Pandas
+ DataFrame     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def obtain_data(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Static method to create a candlestick chart from OHLC data using Plotly
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+    @staticmethod    
+\end_layout
+
+\begin_layout Plain Layout
+
+    def candlestick(df):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Calculate and graph the stochastic oscillator and its mobile mean
+      
+\end_layout
+
+\begin_layout Plain Layout
+
+    @staticmethod  
+\end_layout
+
+\begin_layout Plain Layout
+
+     def stochastic(df):
+\end_layout
+
+\begin_layout Plain Layout
+
+         [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+     # Function to calculate the profit from trading based on buy and sell
+ signals     
+\end_layout
+
+\begin_layout Plain Layout
+
+     def calculate_profit(self, df):
+\end_layout
+
+\begin_layout Plain Layout
+
+         [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+     # Function to create a profit graph from a DataFrame containing buy
+ and sell signals     
+\end_layout
+
+\begin_layout Plain Layout
+
+     def profit_graph(self, df):
+\end_layout
+
+\begin_layout Plain Layout
+
+         [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+\size large
+style.py
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+# Function to set the page container style 
+\end_layout
+
+\begin_layout Plain Layout
+
+def set_page_container_style( max_width: int = 1500, max_width_100_percent:
+ bool = False,         
+\end_layout
+
+\begin_layout Plain Layout
+
+                              padding_top: int = 1, padding_right: int =
+ 10, 
+\end_layout
+
+\begin_layout Plain Layout
+
+                              padding_left: int = 1, padding_bottom: int
+ = 10 ):
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def style():
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 15bp
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+\size large
+front.py
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+[...]
+\end_layout
+
+\begin_layout Plain Layout
+
+# Import the style function from the 'style' module to customize the app
+\end_layout
+
+\begin_layout Plain Layout
+
+from style import style  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Retrieves all available currency pairs from the Kraken API 
+\end_layout
+
+\begin_layout Plain Layout
+
+def get_kraken_pairs():
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Finds the largest duration in 'options' that is a divisor of n 
+\end_layout
+
+\begin_layout Plain Layout
+
+def find_largest_divisor(n):
+\end_layout
+
+\begin_layout Plain Layout
+
+    [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# The class Front is designed to construct the frontend of the Streamlit
+ application
+\end_layout
+
+\begin_layout Plain Layout
+
+class Front:
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    def __init__(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        style()
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Method to create user input interfaces, including dropdowns and buttons
+        
+\end_layout
+
+\begin_layout Plain Layout
+
+    def select_boxes(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Method to generate and display graphs based on user-selected parameters
+     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def display_graph(self):
+\end_layout
+
+\begin_layout Plain Layout
+
+        [...]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    # Method to execute the core operations of the Streamlit application
+     
+\end_layout
+
+\begin_layout Plain Layout
+
+    def run(self): 
+\end_layout
+
+\begin_layout Plain Layout
+
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+        try:
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Invoke methods to display user input options and the selected
+ graph            
+\end_layout
+
+\begin_layout Plain Layout
+
+            col1, _, col2 = st.columns([100,5,95]) 
+\end_layout
+
+\begin_layout Plain Layout
+
+           
+\end_layout
+
+\begin_layout Plain Layout
+
+            with col1:  
+\end_layout
+
+\begin_layout Plain Layout
+
+                # Displays currency pair and time interval selection options
+              
+\end_layout
+
+\begin_layout Plain Layout
+
+                self.select_boxes()   
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+            with col2:  
+\end_layout
+
+\begin_layout Plain Layout
+
+                # Renders the graph based on user selections           
+   
+\end_layout
+
+\begin_layout Plain Layout
+
+                self.display_graph()  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        # Handle and display any exceptions that occur during execution
+\end_layout
+
+\begin_layout Plain Layout
+
+        except Exception as e:      
+\end_layout
+
+\begin_layout Plain Layout
+
+            # Show the error message to the user in the app            
+       
+\end_layout
+
+\begin_layout Plain Layout
+
+            st.error(f"An error occurred: {e}")  
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+Además, el proyecto incluye un archivo 
+\family typewriter
+README.md
+\family default
+ que proporciona una descripción general del proyecto y las instrucciones
+ para su uso.
+ También se incluye una carpeta 
+\family typewriter
+docs
+\family default
+ que contiene varios archivos de texto que proporcionan más detalles sobre
+ el proyecto y sus requisitos.
 \end_layout
 
 \begin_layout Subsection
