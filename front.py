@@ -36,14 +36,14 @@ class Front:
     def __init__(self):
         style()
         st.markdown('# **KRAKEN CURRENCY ANALYSIS TOOL**')
-        st.markdown("<hr>", unsafe_allow_html=True)                                 # Inserts a horizontal line for visual separation
+        st.markdown("<hr>", unsafe_allow_html=True)  # Inserts a horizontal line for visual separation
 
-        self.currency_pair = None                                                   # Placeholder for the first currency in the pair
+        self.currency_pair = None  # Placeholder for the first currency in the pair
         st.session_state['selected_option'] = st.session_state.get("selected_option", None)  # Retrieve or initialize the selected time interval for each candle
         st.session_state['is_custom_interval'] = st.session_state.get("is_custom_interval", None)
         st.session_state['custom_interval'] = st.session_state.get("custom_interval", None)
-        self.time_interval = st.session_state['selected_option']                       # Store the time interval for each candle from the session state
-        self.since, self.until = None, None                                         # Initialize since and until attributes
+        self.time_interval = st.session_state['selected_option']  # Store the time interval for each candle from the session state
+        self.since, self.until = None, None  # Initialize since and until attributes
 
 
     # Method to create user input interfaces, including dropdowns and buttons
@@ -81,7 +81,7 @@ class Front:
             with columns[i]:
                 button_key = f"button-{key}"
                 if st.button(key, key=button_key):
-                    self.time_interval = int(intervals[key])               # Sets the selected time interval
+                    self.time_interval = int(intervals[key])                  # Sets the selected time interval
                     st.session_state['selected_option'] = self.time_interval  # Updates the session state
 
         # Button for allowing custom time interval input

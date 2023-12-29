@@ -29,7 +29,7 @@ def set_page_container_style(
                 }}
             </style>
             ''',
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
 
 # Function to apply additional styles to the Streamlit page
@@ -49,7 +49,7 @@ def style():
                     </style>""".format(
                     padding_top=1, padding_bottom=1
                 ),
-                unsafe_allow_html=True,
+                unsafe_allow_html=True
             )
 
     # Including Bootstrap CSS for additional styling options for the header of the application
@@ -73,7 +73,7 @@ def style():
             <a class="nav-link" href="https://pypi.org/project/KrakenPythonMarcosRodrigo/0.1.0/" target="_blank">PyPi</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link disabled" href="#">Docker<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="https://hub.docker.com/repository/docker/dixrow/krakenpythonmarcosrodrigo/general" target="_blank">Docker</a>
         </li>
         </ul>
     </div>
