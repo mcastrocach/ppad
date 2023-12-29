@@ -83,6 +83,8 @@ class Front:
                 if st.button(key, key=button_key):
                     self.time_interval = int(intervals[key])                  # Sets the selected time interval
                     st.session_state['selected_option'] = self.time_interval  # Updates the session state
+                    st.session_state['is_custom_interval'] = None
+                    st.session_state['custom_interval'] = None
 
         # Button for allowing custom time interval input
         if st.button("...or enter a custom time interval (in minutes)", key="Other"):
