@@ -349,23 +349,11 @@ requirements.txt
 \family typewriter
 setup.py
 \family default
- 
-\series bold
-\color violet
-(añadir descripción)
-\series default
-\color inherit
- y un fichero 
+ que nos ayuda a publicar en pip un fichero 
 \family typewriter
 dockerfile
 \family default
- 
-\series bold
-\color violet
-(añadir descripción)
-\series default
-\color inherit
-.
+ que es para generar la imagen de docker.
 \begin_inset Newline newline
 \end_inset
 
