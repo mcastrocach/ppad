@@ -2,7 +2,7 @@
 
 This project serves as an analytical tool designed for examining currency pairs on the Kraken cryptocurrency exchange platform. The application retrieves up-to-date pricing information for a range of currency pairs through the Kraken API, presenting this data in a clear and interactive format. 
 
-Furthermore, it computes key technical analysis indicators, including the stochastic oscillator and its moving average. These features are designed to support and enhance trading decision-making processes.
+Furthermore, it computes key technical analysis indicators, including the stochastic oscillator and its moving average. These features are designed to support and enhance trading decision-making.
 
 This project is developed in Python and leverages a variety of libraries to enhance its functionality. It utilizes pandas for data manipulation, plotly for dynamic data visualization, krakenex for seamless interaction with the Kraken API, and streamlit to provide the web application capabilities.
 
