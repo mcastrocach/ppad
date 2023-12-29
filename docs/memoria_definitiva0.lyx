@@ -4901,6 +4901,10 @@ Puntuación Extra
 Testeo y cobertura (unit-testing, integration-testing)
 \end_layout
 
+\begin_layout Itemize
+Testing
+\end_layout
+
 \begin_layout Standard
 Hemos gestionado los unit-test e integration tests con la libreria 
 \begin_inset ERT
@@ -4972,12 +4976,154 @@ end{python}
 \end_layout
 
 \begin_layout Standard
+Además de esto, tenemos otras pruebas para diferentes funcionalidades en
+ el proyecto.
+ Por ejemplo, tenemos pruebas para la clase Graph en el módulo graphs.py.
+ Estos testss verifican la inicialización de la clase Graph y sus métodos
+ como obtain_data, stochastic y profit_graph.
+\end_layout
+
+\begin_layout Standard
+Los tests se ejecutan con 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+python -m unittest
+\end_layout
+
+\end_inset
+
+ Si todo va bien se deberia ver lo siguiente:
+\end_layout
+
+\begin_layout Standard
 \begin_inset Graphics
 	filename test_result.png
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+Covertura
+\end_layout
+
+\begin_layout Standard
+Tambien hemos pasado los tests de covertura con python.
+\end_layout
+
+\begin_layout Standard
+Con el siguiente comando:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{$coverage run tests.py}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Este pasa los tests y genera un report que podemos ver con 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+pythoninline{coverage report}
+\end_layout
+
+\end_inset
+
+ en el que puede ver el porcentaje de lineas usadas de cada clase.:w
+\end_layout
+
+\begin_layout Standard
+Aqui podemos ver un reporte del proyecto:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{python}
+\end_layout
+
+\begin_layout Plain Layout
+
+Name        Stmts   Miss  Cover
+\end_layout
+
+\begin_layout Plain Layout
+
+------------------------------- 
+\end_layout
+
+\begin_layout Plain Layout
+
+front.py      112     79    29% 
+\end_layout
+
+\begin_layout Plain Layout
+
+graphs.py     117     21    82% 
+\end_layout
+
+\begin_layout Plain Layout
+
+style.py       14      1    93% 
+\end_layout
+
+\begin_layout Plain Layout
+
+tests.py       81      0   100% 
+\end_layout
+
+\begin_layout Plain Layout
+
+------------------------------- 
+\end_layout
+
+\begin_layout Plain Layout
+
+TOTAL         324    101    69%
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{python}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+No tiene mucho sentido hacer tests de cobertura en la clase del frontend
+ porque su principal función es la interacción con el usuario, y no la logica
+ de negocio o las funcionalidades principales, la hemos dejado de todas
+ formas por visibilidad.
 \end_layout
 
 \begin_layout Subsection
@@ -5158,6 +5304,83 @@ pyproject.toml
 \end_layout
 
 \end_deeper
+\begin_layout Subsection
+Reproduccion del entorno con pip
+\end_layout
+
+\begin_layout Standard
+Puedes instalar manualmente el entorno con los siguientes pasos:
+\end_layout
+
+\begin_layout Itemize
+Creamos un entorno virtual
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+python -m venv krakenpythonmarcosrodrigo
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Activamos el entorno
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+source krakenpythonmarcosrodrigo/bin/activate
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Instalamos los requisitos
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+pip install -r requirements.txt
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Despues de instalar los requisitos ya puedes ejecutar el proyecto con 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+streamlit run main.py
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Distribución del proyecto a través de PyPi
 \end_layout
